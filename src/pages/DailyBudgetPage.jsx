@@ -1,18 +1,13 @@
 
 
-export default function HomePage({
 
+export default function DailyBudgetPage({
+    
 }) {
-
-
 
     return (
         <>
-            <div>Bilancio mensile</div>
             <div>Bilancio giornaliero</div>
         </>
     )
 }
-
-
-
