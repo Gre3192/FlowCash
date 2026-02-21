@@ -12,7 +12,8 @@ import {
     X
 } from 'lucide-react';
 
-const Layout = () => {
+export default function Layout () {
+
     const [isManuallyOpen, setIsManuallyOpen] = useState(true);
     const [isHoverEnabled, setIsHoverEnabled] = useState(false);
     const [isMouseOver, setIsMouseOver] = useState(false);
@@ -35,7 +36,7 @@ const Layout = () => {
             {/* Appare solo quando il menu mobile è aperto per oscurare il contenuto */}
             {isMobileOpen && (
                 <div 
-                    className="fixed inset-0 bg-slate-900/50 z-[60] md:hidden backdrop-blur-sm transition-opacity"
+                    className="fixed inset-0 bg-slate-900/50 z-60 md:hidden backdrop-blur-sm transition-opacity"
                     onClick={() => setIsMobileOpen(false)}
                 />
             )}
@@ -67,7 +68,7 @@ const Layout = () => {
                     {/* FRECCIA (Solo Desktop) */}
                     <button
                         onClick={() => setIsManuallyOpen(!isManuallyOpen)}
-                        className={`absolute -right-3 top-5 p-1 rounded-full cursor-pointer bg-white border border-slate-200 shadow-md hover:bg-blue-50 text-slate-600 transition-all duration-300 z-50 hidden md:block ${
+                        className={`absolute -right-3 top-4 p-1 rounded-full cursor-pointer bg-white border border-slate-200 shadow-md hover:bg-blue-50 text-slate-600 transition-all duration-300 z-50 hidden md:block ${
                             !isExpanded ? 'rotate-180 translate-x-1' : ''
                         }`}
                     >
@@ -164,7 +165,7 @@ const Layout = () => {
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Saldo</p>
                             <p className="text-xs md:text-sm font-bold text-slate-900">€ 4.250,00</p>
                         </div>
-                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 border-2 border-white shadow-sm shrink-0"></div>
+                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 border-2 border-white shadow-sm shrink-0"></div>
                     </div>
                 </header>
 
@@ -200,11 +201,9 @@ const NavItem = ({ icon, label, to, active, isExpanded, isMobileOpen }) => (
 
         {/* Tooltip solo Desktop quando chiusa */}
         {!isExpanded && !isMobileOpen && (
-            <div className="absolute left-16 bg-slate-800 text-white text-[11px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[60] hidden md:block">
+            <div className="absolute left-16 bg-slate-800 text-white text-[11px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-60 hidden md:block">
                 {label}
             </div>
         )}
     </Link>
 );
-
-export default Layout;
