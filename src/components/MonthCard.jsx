@@ -12,8 +12,8 @@ export default function MonthCard({
 
     const formatEuro = (val) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(val);
 
-    const isPositive = startValue >= exitValue;
     const endValue = startValue + entryValue - exitValue;
+    const isPositive = endValue > 0;
 
     return (
         <div className="bg-white rounded-3xl p-6 shadow-sm border w-[350px] border-slate-100 hover:shadow-md transition-shadow group cursor-pointer">

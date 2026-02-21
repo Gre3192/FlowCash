@@ -13,7 +13,7 @@ const BudgetTable = () => {
     { nome: "Maggio", entrate: 1400, uscite: 1522.21, iniziale: 2480.98 },
     { nome: "Giugno", entrate: 1400, uscite: 1522.21, iniziale: 2480.98 },
     { nome: "Luglio", entrate: 1400, uscite: 1522.21, iniziale: 2480.98 },
-    { nome: "Agosto", entrate: 1400, uscite: 1522.21, iniziale: 2480.98 },
+    { nome: "Agosto", entrate: 0, uscite: 0, iniziale: 0 },
     { nome: "Settembre", entrate: 1400, uscite: 1522.21, iniziale: 2480.98 },
     { nome: "Ottobre", entrate: 1400, uscite: 1522.21, iniziale: 2480.98 },
     { nome: "Novembre", entrate: 1400, uscite: 1522.21, iniziale: 2480.98 },
