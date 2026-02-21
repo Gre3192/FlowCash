@@ -16,7 +16,7 @@ export default function MonthCard({
     const endValue = startValue + entryValue - exitValue;
 
     return (
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow group cursor-pointer">
+        <div className="bg-white rounded-3xl p-6 shadow-sm border w-[350px] border-slate-100 hover:shadow-md transition-shadow group cursor-pointer">
             <div className="flex justify-between items-center mb-6">
                 <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold uppercase">
                     {monthName}
