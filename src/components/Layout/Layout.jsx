@@ -116,7 +116,7 @@ export default function Layout () {
                 <div className="p-3 border-t border-slate-100 space-y-1 bg-white">
                     <button
                         onClick={() => setIsHoverEnabled(!isHoverEnabled)}
-                        className={`w-full flex items-center h-12 rounded-xl transition-all duration-200 group ${
+                        className={`w-full cursor-pointer flex items-center h-12 rounded-xl transition-all duration-200 group ${
                             isHoverEnabled ? 'bg-amber-50 text-amber-600' : 'text-slate-400 hover:bg-slate-50'
                         } ${!isExpanded && !isMobileOpen ? 'md:justify-center' : ''}`}
                     >
@@ -171,7 +171,7 @@ export default function Layout () {
 
                 {/* CONTENUTO DELLA PAGINA */}
                 <main className="flex-1 overflow-y-auto p-4 md:p-10">
-                    <div className="max-w-5xl mx-auto">
+                    <div className="">
                         <Outlet />
                     </div>
                 </main>
