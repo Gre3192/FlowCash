@@ -3,41 +3,23 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import MonthCard from './MonthCard';
+import formatEuro from '../utils/formatEuro';
 
-const BudgetCarousel = ({ onMonthClick }) => {
-  // Configurazione Embla: drag libero con frizione e allineamento centrale
+const BudgetCarousel = ({ onMonthClick, mesi }) => {
+
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
-    containScroll: 'end', // Permette l'effetto elastico ai bordi
-    dragFree: true,       // Abilita lo scorrimento inerziale (stile mobile)
+    containScroll: 'end',
+    dragFree: true,
     loop: false
   });
 
   const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
 
-  const mesi = [
-    { nome: "Gennaio", entrate: 0, uscite: 0, iniziale: 4551.34 },
-    { nome: "Febbraio", entrate: 1672, uscite: 3680.54, iniziale: 4551.34 },
-    { nome: "Marzo", entrate: 1400, uscite: 1461.82, iniziale: 2542.80 },
-    { nome: "Aprile", entrate: 1400, uscite: 1522.21, iniziale: 2480.98 },
-    { nome: "Maggio", entrate: 1400, uscite: 1522.21, iniziale: 2480.98 },
-    { nome: "Giugno", entrate: 1400, uscite: 1522.21, iniziale: 2480.98 },
-    { nome: "Luglio", entrate: 1400, uscite: 1522.21, iniziale: 2480.98 },
-    { nome: "Agosto", entrate: 1400, uscite: 1522.21, iniziale: 2480.98 },
-    { nome: "Settembre", entrate: 1400, uscite: 1522.21, iniziale: 2480.98 },
-    { nome: "Ottobre", entrate: 1400, uscite: 1522.21, iniziale: 2480.98 },
-    { nome: "Novembre", entrate: 1400, uscite: 1522.21, iniziale: 2480.98 },
-    { nome: "Dicembre", entrate: 1400, uscite: 1522.21, iniziale: 2480.98 },
-  ];
-
   return (
     <div className="relative group py-10">
       <div className="max-w-6xl mx-auto px-4 mb-8 flex justify-between items-end">
-        <div>
-          <h2 className="text-blue-600 font-black uppercase tracking-widest text-xs">Timeline 2026</h2>
-          <h1 className="text-3xl font-bold text-slate-900">I tuoi risparmi</h1>
-        </div>
 
         <div className="flex gap-2">
           <button onClick={scrollPrev} className="p-3 rounded-full bg-white shadow-md hover:bg-slate-50 active:scale-90 transition-all border border-slate-100">
@@ -51,7 +33,7 @@ const BudgetCarousel = ({ onMonthClick }) => {
 
       {/* Viewport del Carosello */}
       <div className="overflow-hidden cursor-grab active:cursor-grabbing" ref={emblaRef}>
-        <div className="flex touch-pan-y ml-[-20px]"> {/* Container delle slide */}
+        <div className="flex touch-pan-y -ml-5"> {/* Container delle slide */}
           {mesi.map((m) => (
             <div
               key={m.id}
@@ -79,7 +61,7 @@ const BudgetCarousel = ({ onMonthClick }) => {
       <div className="max-w-xs mx-auto mt-10 h-1 bg-slate-200 rounded-full overflow-hidden">
         <motion.div
           className="h-full bg-blue-500"
-          initial={{ width: "10%" }}
+          initial={{ width: "100%" }}
         // Qui potresti legare la larghezza alla percentuale di scroll di Embla
         />
       </div>
