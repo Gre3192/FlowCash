@@ -64,7 +64,7 @@ export default function MonthlyBudgetPage() {
 
 
             {/* Area Contenuto con AnimatePresence per il cambio vista */}
-            <div className="max-w-7xl mx-auto relative">
+            <div className="max-w-7xl relative">
                 <AnimatePresence mode="wait">
                     {viewMode === 'table' ? (
                         <motion.div
