@@ -23,7 +23,7 @@ export default function MonthlyBudgetPage() {
         { nome: "Dicembre", entrate: 1400, uscite: 1522.21, iniziale: 2480.98 },
     ]);
 
-    const [viewMode, setViewMode] = useState('table');
+    const [viewMode, setViewMode] = useState('carousel');
 
     return (
         <div className="min-h-screen bg-[#f8fafc]">

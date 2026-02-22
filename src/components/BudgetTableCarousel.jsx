@@ -39,32 +39,18 @@ const BudgetCarousel = ({ onMonthClick, mesi }) => {
               key={m.id}
               className="flex-[0_0_85%] sm:flex-[0_0_45%] lg:flex-[0_0_30%] pl-5 min-w-0"
             >
-              <motion.div
-                layoutId={`card-hero-${m.id}`} // Collegamento per la Hero Animation
-                onClick={() => onMonthClick(m)}
-                whileTap={{ scale: 0.97 }} // Feedback al click
-                className="h-full"
-              >
-                <MonthCard
-                  monthName={m.nome}
-                  startValue={m.iniziale}
-                  entryValue={m.entrate}
-                  exitValue={m.uscite}
-                />
-              </motion.div>
+              <MonthCard
+                monthName={m.nome}
+                startValue={m.iniziale}
+                entryValue={m.entrate}
+                exitValue={m.uscite}
+              />
             </div>
           ))}
         </div>
       </div>
 
-      {/* Barra di progresso estetica */}
-      <div className="max-w-xs mx-auto mt-10 h-1 bg-slate-200 rounded-full overflow-hidden">
-        <motion.div
-          className="h-full bg-blue-500"
-          initial={{ width: "100%" }}
-        // Qui potresti legare la larghezza alla percentuale di scroll di Embla
-        />
-      </div>
+
     </div>
   );
 };
