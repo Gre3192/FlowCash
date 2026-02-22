@@ -37,7 +37,7 @@ const BudgetCarousel = ({ onMonthClick, mesi }) => {
           {mesi.map((m) => (
             <div
               key={m.id}
-              className="flex-[0_0_85%] sm:flex-[0_0_45%] lg:flex-[0_0_30%] pl-[20px] min-w-0"
+              className="flex-[0_0_85%] sm:flex-[0_0_45%] lg:flex-[0_0_30%] pl-5 min-w-0"
             >
               <motion.div
                 layoutId={`card-hero-${m.id}`} // Collegamento per la Hero Animation
