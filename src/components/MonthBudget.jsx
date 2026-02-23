@@ -109,7 +109,7 @@ const BudgetTable = () => {
         setSections(prev => prev.map(s => {
             if (s.id !== sectionId) return s;
             const newRows = [...s.rows];
-            newRows.splice(index, 0, { id: `row_${Date.now()}`, name: 'Nuova voce', values: Array(12).fill(0) });
+            newRows.splice(index, 0, { id: `row_${Date.now()}`, name: '', values: Array(12).fill(0) });
             return { ...s, rows: newRows };
         }));
         setOpenSections(prev => ({ ...prev, [sectionId]: true }));
@@ -120,9 +120,7 @@ const BudgetTable = () => {
     };
 
     const deleteCategory = (sectionId) => {
-        if (window.confirm("Eliminare l'intera categoria e le sue voci?")) {
-            setSections(prev => prev.filter(s => s.id !== sectionId));
-        }
+        setSections(prev => prev.filter(s => s.id !== sectionId));
     };
 
     const handleContextMenu = (e, sectionId, rowId = null) => {
@@ -154,7 +152,7 @@ const BudgetTable = () => {
     );
 
     return (
-        <div className="bg-slate-100 min-h-screen font-sans select-none text-slate-900 p-4">
+        <div className="bg-slate-100 min-h-screen font-sans select-none text-slate-900">
             <div className="max-w-[1400px] mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 relative">
 
                 {/* Header */}
@@ -176,10 +174,19 @@ const BudgetTable = () => {
                 <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>
-                            <tr className="bg-gray-50 border-b border-gray-200 text-gray-400">
-                                <th className="p-4 text-left text-[10px] font-black uppercase sticky left-0 bg-gray-50 z-20 min-w-[240px]">Dettaglio Spesa</th>
-                                {monthsLabels.map(m => <th key={m} className="p-4 text-right text-[10px] font-bold uppercase min-w-[100px]">{m.slice(0, 3)}</th>)}
-                                <th className="p-4 text-right text-[10px] font-black uppercase text-red-500 bg-red-50/50">Totale</th>
+                            <tr className="bg-gray-50 text-gray-400">
+                                {/* Angolo in alto a sinistra: sticky su entrambi gli assi */}
+                                <th className="p-4 text-left text-[10px] font-black uppercase sticky left-0 top-0 bg-gray-50 z-50 border-b border-gray-200 min-w-[240px]">
+                                    Dettaglio Spesa
+                                </th>
+                                {monthsLabels.map(m => (
+                                    <th key={m} className="p-4 text-right text-[10px] font-bold uppercase min-w-[100px] sticky top-0 bg-gray-50 z-40 border-b border-gray-200">
+                                        {m.slice(0, 3)}
+                                    </th>
+                                ))}
+                                <th className="p-4 text-right text-[10px] font-black uppercase text-red-500 sticky top-0 bg-red-50/80 backdrop-blur-sm z-40 border-b border-red-100">
+                                    Totale
+                                </th>
                             </tr>
                         </thead>
 
@@ -241,6 +248,17 @@ const BudgetTable = () => {
                                                 >
                                                     <td className="p-4 pl-12 text-sm text-gray-500 sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] group/cell transition-colors duration-300">
                                                         <div className="flex items-center gap-2">
+
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    deleteRow(section.id, row.id);
+                                                                }}
+                                                                className="shrink-0 p-1 cursor-pointer text-gray-400 hover:text-red-500 opacity-0 group-hover/cell:opacity-100 transition-opacity duration-500 ease-in-out"
+                                                                title="Elimina riga"
+                                                            >
+                                                                <Trash2 size={16} strokeWidth={2} />
+                                                            </button>
                                                             <input
                                                                 className="bg-transparent outline-none italic w-full border-b border-transparent hover:border-gray-300 focus:border-red-500 transition-all duration-300"
                                                                 value={row.name}
@@ -248,18 +266,6 @@ const BudgetTable = () => {
                                                                 onChange={(e) => updateLabel(section.id, row.id, e.target.value)}
                                                                 onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
                                                             />
-
-                                                            {/* Trash Icon: solo comparsa graduale (fade-in) */}
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    deleteRow(section.id, row.id);
-                                                                }}
-                                                                className="shrink-0 p-1 cursor-pointertext-gray-400 hover:text-red-500 opacity-0 group-hover/cell:opacity-100 transition-opacity duration-500 ease-in-out"
-                                                                title="Elimina riga"
-                                                            >
-                                                                <Trash2 size={16} strokeWidth={2} />
-                                                            </button>
                                                         </div>
                                                     </td>
 
