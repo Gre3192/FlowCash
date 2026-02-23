@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Plus, ChevronDown} from 'lucide-react';
+import { Plus, ChevronDown, Trash2 } from 'lucide-react';
 
 // --- SOTTO-COMPONENTE: INPUT NUMERICO ---
 const CustomInput = ({ value, onChange }) => {
@@ -99,8 +99,8 @@ const BudgetTable = () => {
         const newId = `cat_${Date.now()}`;
         setSections([...sections, {
             id: newId,
-            title: "Nuova Categoria",
-            rows: [{ id: `row_${Date.now()}`, name: 'Nuova Voce', values: Array(12).fill(0) }]
+            title: "",
+            rows: [{ id: `row_${Date.now()}`, name: '', values: Array(12).fill(0) }]
         }]);
         setOpenSections(prev => ({ ...prev, [newId]: true }));
     };
@@ -142,7 +142,7 @@ const BudgetTable = () => {
                 <div className="absolute inset-x-0 -top-3 bottom-0 z-30 flex items-center justify-center pointer-events-none">
                     <button
                         onClick={(e) => { e.stopPropagation(); onClick(); }}
-                        className="pointer-events-auto opacity-0 group-hover/divider:opacity-100 group-hover/cat:opacity-100 text-blue-500 hover:text-blue-700 transition-all active:scale-90 p-1"
+                        className="cursor-pointer pointer-events-auto opacity-0 group-hover/divider:opacity-100 group-hover/cat:opacity-100 text-blue-500 hover:text-blue-700 transition-all active:scale-90 p-1"
                         title="Aggiungi riga"
                     >
                         <Plus size={18} strokeWidth={2.5} />
@@ -184,6 +184,8 @@ const BudgetTable = () => {
                         </thead>
 
                         <tbody>
+
+                            {/* Categorie */}
                             {sections.map((section, sIdx) => {
                                 const isOpen = openSections[section.id];
                                 return (
@@ -202,6 +204,7 @@ const BudgetTable = () => {
                                                     <input
                                                         className="font-bold text-gray-800 bg-transparent outline-none border-b border-transparent focus:border-red-400 w-full"
                                                         value={section.title}
+                                                        placeholder='Inserisci categoria'
                                                         onClick={(e) => e.stopPropagation()}
                                                         onChange={(e) => updateLabel(section.id, null, e.target.value, true)}
                                                         onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
@@ -227,6 +230,8 @@ const BudgetTable = () => {
                                             <td className="p-4 text-right font-bold text-red-600 bg-red-50/20">{totals.sectionTotals[sIdx].toFixed(2)}€</td>
                                         </tr>
 
+
+                                        {/* Righe */}
                                         {isOpen && section.rows.map((row, rIdx) => (
                                             <React.Fragment key={row.id}>
                                                 <AddRowDivider onClick={() => addRowAt(section.id, rIdx)} />
@@ -234,20 +239,36 @@ const BudgetTable = () => {
                                                     onContextMenu={(e) => handleContextMenu(e, section.id, row.id)}
                                                     className="border-b border-gray-50 hover:bg-blue-50/40 transition-all group/row"
                                                 >
-                                                    <td className="p-4 pl-12 text-sm text-gray-500 sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
-                                                        <input
-                                                            className="bg-transparent outline-none italic w-full border-b border-transparent hover:border-gray-300 focus:border-red-500 transition-all"
-                                                            value={row.name}
-                                                            placeholder="Nuova voce"
-                                                            onChange={(e) => updateLabel(section.id, row.id, e.target.value)}
-                                                            onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
-                                                        />
+                                                    <td className="p-4 pl-12 text-sm text-gray-500 sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] group/cell transition-colors duration-300">
+                                                        <div className="flex items-center gap-2">
+                                                            <input
+                                                                className="bg-transparent outline-none italic w-full border-b border-transparent hover:border-gray-300 focus:border-red-500 transition-all duration-300"
+                                                                value={row.name}
+                                                                placeholder="Inserisci voce"
+                                                                onChange={(e) => updateLabel(section.id, row.id, e.target.value)}
+                                                                onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
+                                                            />
+
+                                                            {/* Trash Icon: solo comparsa graduale (fade-in) */}
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    deleteRow(section.id, row.id);
+                                                                }}
+                                                                className="shrink-0 p-1 cursor-pointertext-gray-400 hover:text-red-500 opacity-0 group-hover/cell:opacity-100 transition-opacity duration-500 ease-in-out"
+                                                                title="Elimina riga"
+                                                            >
+                                                                <Trash2 size={16} strokeWidth={2} />
+                                                            </button>
+                                                        </div>
                                                     </td>
+
                                                     {row.values.map((val, mIdx) => (
                                                         <td key={mIdx} className="p-2">
                                                             <CustomInput value={val} onChange={(v) => handleUpdate(section.id, row.id, mIdx, v)} />
                                                         </td>
                                                     ))}
+
                                                     <td className="p-4 text-right text-sm font-semibold text-red-400 italic">
                                                         {row.values.reduce((a, b) => a + b, 0).toFixed(2)}€
                                                     </td>
@@ -270,6 +291,17 @@ const BudgetTable = () => {
                         className="fixed z-[100] bg-white shadow-2xl border border-gray-200 rounded-lg py-1 min-w-[160px] animate-in fade-in zoom-in duration-75"
                         style={{ top: contextMenu.mouseY, left: contextMenu.mouseX }}
                     >
+
+                        {
+                            contextMenu.type === 'ROW' ?
+                                <button
+                                    onClick={() => addRowAt(contextMenu.sectionId, contextMenu.rowId)}
+                                    className="w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-red-50 flex items-center gap-2 font-medium"
+                                >
+                                    Aggiungi voce
+                                </button>
+                                : null
+                        }
                         <button
                             onClick={() => contextMenu.type === 'ROW' ? deleteRow(contextMenu.sectionId, contextMenu.rowId) : deleteCategory(contextMenu.sectionId)}
                             className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 font-medium"
