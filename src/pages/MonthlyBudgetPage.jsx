@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LayoutGrid, GalleryHorizontal, List, Wallet } from 'lucide-react'; // Icone per il toggle
 import BudgetTable from './../components/BudgetTable';
-import BudgetCarousel from './../components/BudgetTableCarousel';
+import BudgetCarousel from './../components/BudgetCarousel';
 import ToggleButton from '../components/ToggleButton';
 import formatEuro from '../utils/formatEuro';
 

@@ -14,7 +14,7 @@ import {
 
 export default function Layout () {
 
-    const [isManuallyOpen, setIsManuallyOpen] = useState(true);
+    const [isManuallyOpen, setIsManuallyOpen] = useState(false);
     const [isHoverEnabled, setIsHoverEnabled] = useState(false);
     const [isMouseOver, setIsMouseOver] = useState(false);
     const [isMobileOpen, setIsMobileOpen] = useState(false); // Stato per il menu mobile
