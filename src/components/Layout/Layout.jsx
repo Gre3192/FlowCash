@@ -12,7 +12,7 @@ import {
     X
 } from 'lucide-react';
 
-export default function Layout () {
+export default function Layout() {
 
     const [isManuallyOpen, setIsManuallyOpen] = useState(false);
     const [isHoverEnabled, setIsHoverEnabled] = useState(false);
@@ -31,11 +31,11 @@ export default function Layout () {
 
     return (
         <div className="flex h-screen bg-slate-50 overflow-hidden font-sans">
-            
+
             {/* --- OVERLAY MOBILE --- */}
             {/* Appare solo quando il menu mobile è aperto per oscurare il contenuto */}
             {isMobileOpen && (
-                <div 
+                <div
                     className="fixed inset-0 bg-slate-900/50 z-60 md:hidden backdrop-blur-sm transition-opacity"
                     onClick={() => setIsMobileOpen(false)}
                 />
@@ -58,9 +58,8 @@ export default function Layout () {
                         <div className="w-8 h-8 flex items-center justify-center shrink-0 bg-blue-600 rounded-lg shadow-lg shadow-blue-100">
                             <TrendingUp size={20} className="text-white" />
                         </div>
-                        <span className={`ml-3 font-bold text-xl text-slate-800 transition-opacity duration-300 ${
-                            isExpanded || isMobileOpen ? 'opacity-100' : 'md:opacity-0'
-                        }`}>
+                        <span className={`ml-3 font-bold text-xl text-slate-800 transition-opacity duration-300 ${isExpanded || isMobileOpen ? 'opacity-100' : 'md:opacity-0'
+                            }`}>
                             FlowCash
                         </span>
                     </div>
@@ -68,15 +67,14 @@ export default function Layout () {
                     {/* FRECCIA (Solo Desktop) */}
                     <button
                         onClick={() => setIsManuallyOpen(!isManuallyOpen)}
-                        className={`absolute -right-3 top-4 p-1 rounded-full cursor-pointer bg-white border border-slate-200 shadow-md hover:bg-blue-50 text-slate-600 transition-all duration-300 z-50 hidden md:block ${
-                            !isExpanded ? 'rotate-180 translate-x-1' : ''
-                        }`}
+                        className={`absolute -right-3 top-4 p-1 rounded-full cursor-pointer bg-white border border-slate-200 shadow-md hover:bg-blue-50 text-slate-600 transition-all duration-300 z-50 hidden md:block ${!isExpanded ? 'rotate-180 translate-x-1' : ''
+                            }`}
                     >
                         <ChevronLeft size={16} />
                     </button>
 
                     {/* TASTO CHIUDI (Solo Mobile) */}
-                    <button 
+                    <button
                         onClick={() => setIsMobileOpen(false)}
                         className="ml-auto p-2 text-slate-500 md:hidden"
                     >
@@ -116,16 +114,14 @@ export default function Layout () {
                 <div className="p-3 border-t border-slate-100 space-y-1 bg-white">
                     <button
                         onClick={() => setIsHoverEnabled(!isHoverEnabled)}
-                        className={`w-full cursor-pointer flex items-center h-12 rounded-xl transition-all duration-200 group ${
-                            isHoverEnabled ? 'bg-amber-50 text-amber-600' : 'text-slate-400 hover:bg-slate-50'
-                        } ${!isExpanded && !isMobileOpen ? 'md:justify-center' : ''}`}
+                        className={`w-full cursor-pointer flex items-center h-12 rounded-xl transition-all duration-200 group ${isHoverEnabled ? 'bg-amber-50 text-amber-600' : 'text-slate-400 hover:bg-slate-50'
+                            } ${!isExpanded && !isMobileOpen ? 'md:justify-center' : ''}`}
                     >
                         <div className="w-14 flex items-center justify-center shrink-0">
                             <MousePointer2 size={20} fill={isHoverEnabled ? "currentColor" : "none"} />
                         </div>
-                        <span className={`font-medium text-sm whitespace-nowrap transition-all duration-300 ${
-                            isExpanded || isMobileOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'
-                        }`}>
+                        <span className={`font-medium text-sm whitespace-nowrap transition-all duration-300 ${isExpanded || isMobileOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'
+                            }`}>
                             Modo Hover: {isHoverEnabled ? 'ON' : 'OFF'}
                         </span>
                     </button>
@@ -143,12 +139,12 @@ export default function Layout () {
 
             {/* --- AREA CONTENUTO --- */}
             <div className="flex-1 flex flex-col min-w-0">
-                
+
                 {/* NAVBAR SUPERIORE RESPONSIVE */}
                 <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 shrink-0">
                     <div className="flex items-center gap-4">
                         {/* TASTO HAMBURGER (Solo Mobile) */}
-                        <button 
+                        <button
                             onClick={() => setIsMobileOpen(true)}
                             className="p-2 -ml-2 text-slate-600 md:hidden hover:bg-slate-100 rounded-lg"
                         >
@@ -170,8 +166,8 @@ export default function Layout () {
                 </header>
 
                 {/* CONTENUTO DELLA PAGINA */}
-                <main className="flex-1 overflow-y-auto p-4 md:p-10">
-                    <div className="">
+                <main className="flex-1 flex flex-col min-h-0 p-4 md:p- overflow-y-auto">
+                    <div className="flex-1 flex flex-col min-h-0">
                         <Outlet />
                     </div>
                 </main>
@@ -183,19 +179,17 @@ export default function Layout () {
 const NavItem = ({ icon, label, to, active, isExpanded, isMobileOpen }) => (
     <Link
         to={to}
-        className={`flex items-center h-12 rounded-xl transition-all duration-200 relative group ${
-            active 
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' 
-                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-        }`}
+        className={`flex items-center h-12 rounded-xl transition-all duration-200 relative group ${active
+            ? 'bg-blue-600 text-white shadow-lg shadow-blue-100'
+            : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+            }`}
     >
         <div className="w-14 flex items-center justify-center shrink-0">
             {icon}
         </div>
-        
-        <span className={`font-semibold whitespace-nowrap transition-all duration-300 ${
-            isExpanded || isMobileOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 w-0 overflow-hidden'
-        }`}>
+
+        <span className={`font-semibold whitespace-nowrap transition-all duration-300 ${isExpanded || isMobileOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 w-0 overflow-hidden'
+            }`}>
             {label}
         </span>
 

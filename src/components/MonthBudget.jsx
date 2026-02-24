@@ -3,6 +3,7 @@ import { Plus, ChevronDown, Trash2 } from 'lucide-react';
 
 // --- SOTTO-COMPONENTE: INPUT NUMERICO ---
 const CustomInput = ({ value, onChange }) => {
+
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') e.target.blur();
         if (['e', 'E', '+', '-'].includes(e.key)) e.preventDefault();
@@ -152,15 +153,18 @@ const BudgetTable = () => {
     );
 
     return (
-        <div className="bg-slate-100 min-h-screen font-sans select-none text-slate-900">
-            <div className="max-w-[1400px] mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 relative">
+        <div className="h-full w-full flex flex-col min-h-0 animate-in fade-in duration-500">
+            <div className="flex-1 flex flex-col rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
 
                 {/* Header */}
                 <div className="bg-[#f8a5a5] p-6 flex justify-between items-center border-b border-red-200">
                     <div>
                         <h1 className="text-2xl font-black text-red-900 tracking-tight uppercase">Uscite 2026</h1>
-                        <button onClick={addCategory} className="mt-2 bg-white/30 hover:bg-white/50 text-red-900 text-[10px] font-bold uppercase px-4 py-1.5 rounded-full shadow-sm transition-all">
-                            + Nuova Categoria
+                        <button onClick={addCategory} className="mt-2 cursor-pointer flex gap-1 items-center bg-white/30 hover:bg-white/50 text-red-900 text-[10px] font-bold uppercase px-4 py-1.5 rounded-full shadow-sm transition-all">
+                            <Plus size={18} strokeWidth={2.5} />
+                            <p>
+                                Nuova Categoria
+                            </p>
                         </button>
                     </div>
                     <div className="text-right">
@@ -171,7 +175,7 @@ const BudgetTable = () => {
                     </div>
                 </div>
 
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto h-full">
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="bg-gray-50 text-gray-400">
@@ -300,12 +304,21 @@ const BudgetTable = () => {
 
                         {
                             contextMenu.type === 'ROW' ?
-                                <button
-                                    onClick={() => addRowAt(contextMenu.sectionId, contextMenu.rowId)}
-                                    className="w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-red-50 flex items-center gap-2 font-medium"
-                                >
-                                    Aggiungi voce
-                                </button>
+                                <div>
+
+                                    <button
+                                        onClick={() => addRowAt(contextMenu.sectionId, contextMenu.rowId)}
+                                        className="w-full cursor-pointer text-left px-4 py-2 text-sm text-blue-600 hover:bg-red-50 flex items-center gap-2 font-medium"
+                                    >
+                                        Aggiungi voce
+                                    </button>
+                                    <button
+                                        onClick={() => addRowAt(contextMenu.sectionId, contextMenu.rowId)}
+                                        className="w-full cursor-pointer text-left px-4 py-2 text-sm text-blue-600 hover:bg-red-50 flex items-center gap-2 font-medium"
+                                    >
+                                        Reset Riga
+                                    </button>
+                                </div>
                                 : null
                         }
                         <button
