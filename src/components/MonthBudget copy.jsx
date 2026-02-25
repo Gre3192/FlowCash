@@ -22,7 +22,7 @@ const CustomInput = ({ value, onChange }) => {
                 input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
                 input[type=number] { -moz-appearance: textfield; }
             `}</style>
-            
+
             <input
                 type="number"
                 step="0.01"
@@ -31,11 +31,11 @@ const CustomInput = ({ value, onChange }) => {
                 onChange={(e) => onChange(e.target.value)}
                 onKeyDown={handleKeyDown}
                 className="w-full bg-transparent text-right outline-none 
-                           px-1.5 py-1 pr-4 text-sm text-gray-700 font-medium
+                           px-1.5 py-1 pr-4 text-sm text-gray-700 font-normal
                            placeholder:text-gray-300 transition-colors"
                 placeholder="0,00"
             />
-            
+
             <span className="absolute right-1.5 top-1/2 -translate-y-1/2 
                              text-[10px] text-gray-400 font-bold pointer-events-none 
                              group-focus-within/input:text-red-500 transition-colors">
@@ -110,12 +110,12 @@ const BudgetTable = () => {
 
         const newCategory = {
             id: makeId("cat"),
-            title: "Nuova categoria",
+            title: "",
             type: mode,
             rows: [
                 {
                     id: makeId("row"),
-                    name: "Voce 1",
+                    name: "",
                     values: Array(12).fill(0),
                 },
             ],
@@ -251,13 +251,6 @@ const BudgetTable = () => {
                                         color: "#333",
                                     }}
                                 >
-                                    <ChevronDown
-                                        size={18}
-                                        style={{
-                                            transform: isEventKeyOpen ? "rotate(180deg)" : "rotate(0deg)",
-                                            transition: "transform .2s ease"
-                                        }}
-                                    />
                                     <div className="fw-bold">{category.title}</div>
                                     <Button
                                         variant='outline'
@@ -269,7 +262,7 @@ const BudgetTable = () => {
                             </h2>
                             <Accordion.Body>
                                 <div className="overflow-x-auto pb-0">
-                                    <div className="space-y-2 min-w-7xl">
+                                    <div className="space-y-2 pb-1 min-w-7xl">
 
                                         {/* HEADER */}
                                         <div
@@ -285,15 +278,15 @@ const BudgetTable = () => {
                                                 <div key={indexMonthLabels}
                                                     className="text-right font-medium text-gray-400 text-sm italic flex flex-col items-end px-2 z-10">
                                                     <div className="">{month.slice(0, 3)}</div>
-                                                    <div className="text-slate-500 font-semibold whitespace-nowrap">
+                                                    <div className="text-gray-500 font-normal whitespace-nowrap">
                                                         {getTotalCategoryMonth(data, mode, indexCat, indexMonthLabels)} €
                                                     </div>
                                                 </div>
                                             ))}
 
-                                            <div className='flex flex-col items-end font-bold text-gray-500 text-sm italic px-2 z-10'>
-                                                <div>All'anno</div>
-                                                <div className="text-indigo-600">{getCategoryTotal(data, mode, indexCat)} €</div>
+                                            <div className='flex flex-col items-end font-medium text-gray-500 text-sm italic px-2 z-10'>
+                                                <div className={`${mode === 'income' ? 'text-green-500' : 'text-red-500'}`} >All'anno</div>
+                                                <div className={`${mode === 'income' ? 'text-green-500' : 'text-red-500'}`}>{getCategoryTotal(data, mode, indexCat)} €</div>
                                             </div>
                                         </div>
 
@@ -304,19 +297,23 @@ const BudgetTable = () => {
                                                 className="grid gap-0 items-center hover:bg-slate-50 group transition-colors"
                                                 style={{ gridTemplateColumns: '110px repeat(12, 1fr) 100px' }}
                                             >
-                                                <div className="sticky left-0 z-20 bg-white border-r border-slate-200 py-2">
+                                                <div className="sticky left-0 z-20 bg-white border-r border-slate-200 py-2.5">
                                                     <div className="text-xs font-bold text-slate-700 truncate px-0">
                                                         {row.name}
                                                     </div>
                                                 </div>
 
-                                                {row.values.map((val, idx) => (
-                                                    <div key={`${row.id}_${idx}`} className="px-1 z-10">
-                                                        <CustomInput value={val} onChange={(v) => console.log(v)} />
-                                                    </div>
-                                                ))}
+                                                {row.values.map((val, idx) => {
 
-                                                <div className='flex justify-end font-bold text-slate-600 text-sm px-2 z-10 bg-slate-50/50 h-full items-center'>
+                                                    return (
+
+                                                        <div key={`${row.id}_${idx}`} className="px-1 z-10">
+                                                            <CustomInput value={val} onChange={(v) => console.log(v)} />
+                                                        </div>
+                                                    )
+                                                })}
+
+                                                <div className='flex font-medium justify-end italic text-gray-500 text-sm px-2 z-10 h-full items-center'>
                                                     {sumArray(row.values)} €
                                                 </div>
                                             </div>
