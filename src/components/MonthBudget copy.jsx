@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Plus, ChevronDown, Trash2 } from 'lucide-react';
+import { Plus, ChevronDown, Trash2, Expand, Shrink } from 'lucide-react';
 import Accordion from 'react-bootstrap/Accordion';
 import Button from "react-bootstrap/Button";
+import sumArray from '../utils/sumArray';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
@@ -40,13 +41,15 @@ const CustomInput = ({ value, onChange }) => {
     );
 };
 
+const monthsLabels = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
+
 const DATA = [
     {
         id: "cat_1",
         title: "Abbonamenti",
         type: 'expenditure',
         rows: [
-            { id: "row_1_1", name: "ChatGPT", values: [0, 1, 2, 3, 45, 78, 55, 22, 58, 22, 889, 22] },
+            { id: "row_1_1", name: "ChatGPT", values: [0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
             { id: "row_1_2", name: "Amazon Prime", values: [0, 1, 2, 3, 45, 78, 55, 22, 58, 22, 889, 22] }
         ]
     },
@@ -56,7 +59,7 @@ const DATA = [
         type: 'expenditure',
         rows: [
             { id: "row_2_1", name: "Nutrizionista", values: [0, 1, 234, 3645, 675, 78, 55, 453, 58, 22, 889, 22] },
-            { id: "row_2_2", name: "Dottore", values: [0, 1453, 23453, 3345, 45, 78, 345, 3453, 58, 345, 889, 22] }
+            { id: "row_2_2", name: "Dottore", values: [0, 1, 23453, 3345, 45, 78, 345, 3453, 58, 345, 889, 22] }
         ]
     },
     {
@@ -65,7 +68,7 @@ const DATA = [
         type: 'income',
         rows: [
             { id: "row_3_1", name: "Nutrizionista", values: [0, 1, 234, 3645, 675, 78, 55, 453, 58, 22, 889, 22] },
-            { id: "row_3_2", name: "Dottore", values: [0, 1453, 23453, 3345, 45, 78, 345, 3453, 58, 345, 889, 22] }
+            { id: "row_3_2", name: "Dottore", values: [0, 1, 23453, 3345, 45, 78, 345, 3453, 58, 345, 889, 22] }
         ]
     },
     {
@@ -73,11 +76,13 @@ const DATA = [
         title: "Lezioni private",
         type: 'income',
         rows: [
-            { id: "row_4_1", name: "Nutrizionista", values: [0, 1, 234, 3645, 675, 78, 55, 453, 58, 22, 889, 22] },
-            { id: "row_4_2", name: "Dottore", values: [0, 1453, 23453, 3345, 45, 78, 345, 3453, 58, 345, 889, 22] }
+            { id: "row_4_1", name: "Nutrizionista", values: [0, 3, 234, 3645, 675, 78, 55, 453, 58, 22, 889, 22] },
+            { id: "row_4_2", name: "Dottore", values: [0, 1, 23453, 3345, 45, 78, 345, 3453, 58, 345, 889, 22] }
         ]
     },
 ]
+
+
 
 
 
@@ -95,10 +100,6 @@ const BudgetTable = () => {
 
     const collapseAll = () => {
         setActiveKeys([]);
-    };
-
-    const handleToggle = (keys) => {
-        setActiveKeys(keys);
     };
 
     const makeId = (prefix = "id") => `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
@@ -127,9 +128,62 @@ const BudgetTable = () => {
         });
     };
 
+    const editCategory = () => {
+
+    }
+
+    const deleteCategory = () => {
+
+    }
+
+    const addRow = () => {
+
+    }
+
+    const aditRow = () => {
+
+    }
+
+    const deleteRow = () => {
+
+    }
+
+    function getTotalYear(data, type) {
+        return data
+            .filter(c => c.type === mode)
+            .flatMap(c => c.rows)
+            .flatMap(r => r.values)
+            .reduce((sum, v) => sum + v, 0);
+    }
+
+    function getTotalMonth(data, type, index) {
+        return data
+            .filter(c => c.type === type)
+            .flatMap(c => c.rows)
+            .reduce((sum, row) => sum + (row.values[index] ?? 0), 0);
+    }
+
+    const getTotalMonthByCategory = (data, type, categoryIndex, valueIndex) => {
+        const filtered = data.filter(cat => cat.type === type);
+
+        const category = filtered[categoryIndex];
+        if (!category || !category.rows?.length) return 0;
+
+        return category.rows.reduce((sum, row) => {
+            return sum + (Number(row.values?.[valueIndex]) || 0);
+        }, 0);
+    };
+
+    console.log(getTotalYear(data, mode));
+    console.log(getTotalMonth(data, mode, 1));
+
+
+    let indexCat = -1
 
     return (
         <div className="p-3">
+
+
             <div className={`mb-4 p-4 rounded-xl ${mode === "expenditure" ? "bg-[#f8a5a5]" : "bg-[#a5f8c7]"} border border-slate-200 shadow-sm`}>
 
                 <div className="flex items-center justify-between flex-wrap gap-3">
@@ -157,7 +211,7 @@ const BudgetTable = () => {
                     </div>
                 </div>
 
-                <div className="flex gap-2 mt-4 flex-wrap">
+                <div className="flex gap-2 mt-0 flex-wrap">
                     <Button variant="primary" size="sm" onClick={expandAll}>
                         Espandi tutto
                     </Button>
@@ -182,15 +236,14 @@ const BudgetTable = () => {
                 onSelect={(keys) => setActiveKeys(keys)}
                 alwaysOpen
             >
-                {data?.map((category, i) => {
-                    const isEventKeyOpen = activeKeys.includes(String(i));
+                {data?.map((category, indexCat) => {
 
-                    console.log(category);
+                    const isEventKeyOpen = activeKeys.includes(String(indexCat));
 
                     if (category.type !== mode) return null
 
                     return (
-                        <Accordion.Item key={category.id} eventKey={String(i)}>
+                        <Accordion.Item key={category.id} eventKey={String(indexCat)}>
                             <h2 className="accordion-header">
                                 <Accordion.Button
                                     className="d-flex align-items-center gap-2"
@@ -207,33 +260,62 @@ const BudgetTable = () => {
                                         }}
                                     />
                                     <div className="fw-bold">{category.title}</div>
+                                    <Button
+                                        variant='outline'
+                                        onClick={(e) => { e.stopPropagation() }}
+                                    >
+                                        <Plus size={18} strokeWidth={2.5} />
+                                    </Button>
                                 </Accordion.Button>
                             </h2>
                             <Accordion.Body>
-                                <div className="overflow-x-auto">
+                                <div className="overflow-hidden">
                                     <div className="space-y-2">
+                                        <div className="grid grid-cols-14 gap-0 items-center">
+                                            <div></div>
+                                            {monthsLabels.map((month, indexMonthLabels) => {
+                                                return (
+                                                    <div key={indexMonthLabels} className='flex flex-col items-end'>
+                                                        <div>
+                                                            {month.slice(0, 3)}
+                                                        </div>
+                                                        <div>
+                                                            {getTotalMonthByCategory(data, mode, indexCat, indexMonthLabels)}
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })}
+                                            <div className='flex flex-col items-end'>
+                                                <div>
+                                                    Totale
+                                                </div>
+                                                <div>
+                                                    546
+                                                </div>
+                                            </div>
+                                        </div>
                                         {category.rows.map((row) => {
-
-
-
                                             return (
-                                                <div
-                                                    key={row.id}
-                                                    className="grid grid-cols-[120px_repeat(12,minmax(70px,1fr))] gap-0 items-center"
-                                                >
+
+                                                <div key={row.id} className="grid grid-cols-14 gap-0 items-center" >
                                                     <div className="sticky left-0 z-10 bg-white border-r border-slate-200">
                                                         <div className="text-sm font-semibold text-slate-700 truncate pr-2">
                                                             {row.name}
                                                         </div>
                                                     </div>
+                                                    {row.values.map((val, idx) => {
 
-                                                    {row.values.map((val, idx) => (
-                                                        <CustomInput
-                                                            key={`${row.id}_${idx}`}
-                                                            value={val}
-                                                            onChange={(v) => console.log(v)}
-                                                        />
-                                                    ))}
+                                                        return (
+                                                            <CustomInput
+                                                                key={`${row.id}_${idx}`}
+                                                                value={val}
+                                                                onChange={(v) => console.log(v)}
+                                                            />
+                                                        )
+                                                    })}
+                                                    <div className='flex justify-end'>
+                                                        {sumArray(row.values)}
+                                                    </div>
                                                 </div>
                                             )
                                         })}
