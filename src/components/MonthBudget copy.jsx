@@ -60,21 +60,21 @@ const DATA = [
         ]
     },
     {
-        id: "cat_2",
+        id: "cat_3",
         title: "Stipendio",
         type: 'income',
         rows: [
-            { id: "row_2_1", name: "Nutrizionista", values: [0, 1, 234, 3645, 675, 78, 55, 453, 58, 22, 889, 22] },
-            { id: "row_2_2", name: "Dottore", values: [0, 1453, 23453, 3345, 45, 78, 345, 3453, 58, 345, 889, 22] }
+            { id: "row_3_1", name: "Nutrizionista", values: [0, 1, 234, 3645, 675, 78, 55, 453, 58, 22, 889, 22] },
+            { id: "row_3_2", name: "Dottore", values: [0, 1453, 23453, 3345, 45, 78, 345, 3453, 58, 345, 889, 22] }
         ]
     },
     {
-        id: "cat_2",
+        id: "cat_4",
         title: "Lezioni private",
         type: 'income',
         rows: [
-            { id: "row_2_1", name: "Nutrizionista", values: [0, 1, 234, 3645, 675, 78, 55, 453, 58, 22, 889, 22] },
-            { id: "row_2_2", name: "Dottore", values: [0, 1453, 23453, 3345, 45, 78, 345, 3453, 58, 345, 889, 22] }
+            { id: "row_4_1", name: "Nutrizionista", values: [0, 1, 234, 3645, 675, 78, 55, 453, 58, 22, 889, 22] },
+            { id: "row_4_2", name: "Dottore", values: [0, 1453, 23453, 3345, 45, 78, 345, 3453, 58, 345, 889, 22] }
         ]
     },
 ]
@@ -109,6 +109,7 @@ const BudgetTable = () => {
         const newCategory = {
             id: makeId("cat"),
             title: "Nuova categoria",
+            type: mode,
             rows: [
                 {
                     id: makeId("row"),
@@ -125,6 +126,9 @@ const BudgetTable = () => {
             return arr.includes(newKey) ? arr : [...arr, newKey];
         });
     };
+
+    console.log(data);
+    
 
 
     return (
@@ -184,13 +188,17 @@ const BudgetTable = () => {
                 {data?.map((category, i) => {
                     const isEventKeyOpen = activeKeys.includes(String(i));
 
+                    console.log(category);
+
+                    if (category.type !== mode) return null
+
                     return (
                         <Accordion.Item key={category.id} eventKey={String(i)}>
                             <h2 className="accordion-header">
                                 <Accordion.Button
                                     className="d-flex align-items-center gap-2"
                                     style={{
-                                        background: mode==='expenditure' ? "#ffe2e2" :"#e2ffea",
+                                        background: mode === 'expenditure' ? "#ffe2e2" : "#e2ffea",
                                         color: "#333",
                                     }}
                                 >
@@ -207,26 +215,31 @@ const BudgetTable = () => {
                             <Accordion.Body>
                                 <div className="overflow-x-auto">
                                     <div className="space-y-2">
-                                        {category.rows.map((row) => (
-                                            <div
-                                                key={row.id}
-                                                className="grid grid-cols-[120px_repeat(12,minmax(70px,1fr))] gap-0 items-center"
-                                            >
-                                                <div className="sticky left-0 z-10 bg-white border-r border-slate-200">
-                                                    <div className="text-sm font-semibold text-slate-700 truncate pr-2">
-                                                        {row.name}
-                                                    </div>
-                                                </div>
+                                        {category.rows.map((row) => {
 
-                                                {row.values.map((val, idx) => (
-                                                    <CustomInput
-                                                        key={`${row.id}_${idx}`}
-                                                        value={val}
-                                                        onChange={(v) => console.log(v)}
-                                                    />
-                                                ))}
-                                            </div>
-                                        ))}
+
+
+                                            return (
+                                                <div
+                                                    key={row.id}
+                                                    className="grid grid-cols-[120px_repeat(12,minmax(70px,1fr))] gap-0 items-center"
+                                                >
+                                                    <div className="sticky left-0 z-10 bg-white border-r border-slate-200">
+                                                        <div className="text-sm font-semibold text-slate-700 truncate pr-2">
+                                                            {row.name}
+                                                        </div>
+                                                    </div>
+
+                                                    {row.values.map((val, idx) => (
+                                                        <CustomInput
+                                                            key={`${row.id}_${idx}`}
+                                                            value={val}
+                                                            onChange={(v) => console.log(v)}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            )
+                                        })}
                                     </div>
                                 </div>
                             </Accordion.Body>
