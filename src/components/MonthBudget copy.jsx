@@ -3,7 +3,7 @@ import { Plus, ChevronDown, Trash2 } from 'lucide-react';
 import Accordion from 'react-bootstrap/Accordion';
 import Button from "react-bootstrap/Button";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { div } from 'framer-motion/client';
+
 
 
 const CustomInput = ({ value, onChange }) => {
@@ -126,9 +126,6 @@ const BudgetTable = () => {
             return arr.includes(newKey) ? arr : [...arr, newKey];
         });
     };
-
-    console.log(data);
-    
 
 
     return (
