@@ -11,29 +11,33 @@ const CustomInput = ({ value, onChange }) => {
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') e.target.blur();
+        // Blocca caratteri non numerici comuni negli input type="number"
         if (['e', 'E', '+', '-'].includes(e.key)) e.preventDefault();
     };
 
     return (
-        <div className="relative border flex items-center group/input">
+        <div className="relative  border-slate-200 flex items-center group/input bg-white focus-within:ring-1 focus-within:ring-red-500/20 transition-all">
             <style>{`
                 input::-webkit-outer-spin-button,
                 input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
                 input[type=number] { -moz-appearance: textfield; }
             `}</style>
+            
             <input
                 type="number"
                 step="0.01"
                 lang="it-IT"
-                value={value === 0 ? '' : value}
+                value={value === 0 || value === undefined ? '' : value}
                 onChange={(e) => onChange(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full bg-transparent text-right outline-none border-b border-transparent 
-                           hover:border-gray-300 focus:border-red-500 transition-all duration-200 
-                           p-1 pr-4 text-sm text-gray-700 appearance-none font-medium"
+                className="w-full bg-transparent text-right outline-none 
+                           px-1.5 py-1 pr-4 text-sm text-gray-700 font-medium
+                           placeholder:text-gray-300 transition-colors"
                 placeholder="0,00"
             />
-            <span className="absolute right-0 text-[10px] text-gray-400 font-medium pointer-events-none 
+            
+            <span className="absolute right-1.5 top-1/2 -translate-y-1/2 
+                             text-[10px] text-gray-400 font-bold pointer-events-none 
                              group-focus-within/input:text-red-500 transition-colors">
                 €
             </span>
@@ -81,9 +85,6 @@ const DATA = [
         ]
     },
 ]
-
-
-
 
 
 
@@ -163,22 +164,26 @@ const BudgetTable = () => {
             .reduce((sum, row) => sum + (row.values[index] ?? 0), 0);
     }
 
-    const getTotalMonthByCategory = (data, type, categoryIndex, valueIndex) => {
-        const filtered = data.filter(cat => cat.type === type);
+    function getCategoryTotal(data, type, categoryIndex) {
+        const category = data[categoryIndex];
 
-        const category = filtered[categoryIndex];
+        if (!category) return 0;
+        if (category.type !== type) return 0;
+
+        return category.rows.reduce((categoryTotal, row) => {
+            return categoryTotal + row.values.reduce((sum, value) => sum + value, 0);
+        }, 0);
+    }
+
+    function getTotalCategoryMonth(data, type, categoryIndex, valueIndex) {
+
+        const category = data[categoryIndex];
         if (!category || !category.rows?.length) return 0;
 
         return category.rows.reduce((sum, row) => {
             return sum + (Number(row.values?.[valueIndex]) || 0);
         }, 0);
     };
-
-    console.log(getTotalYear(data, mode));
-    console.log(getTotalMonth(data, mode, 1));
-
-
-    let indexCat = -1
 
     return (
         <div className="p-3">
@@ -196,15 +201,15 @@ const BudgetTable = () => {
                     {/* Toggle Entrate / Uscite */}
                     <div className="relative flex bg-white/60 backdrop-blur rounded-lg p-1 shadow-inner">
                         <button
-                            onClick={() => setMode("expenditure")}
                             className={`px-4 py-1 text-sm font-medium rounded-md transition-all duration-200 ${mode === "expenditure" ? "bg-slate-800 text-white shadow" : "text-slate-700 hover:bg-white/70"}`}
+                            onClick={() => setMode("expenditure")}
                         >
                             Uscite
                         </button>
 
                         <button
-                            onClick={() => setMode("income")}
                             className={`px-4 py-1 text-sm font-medium rounded-md transition-all duration-200 ${mode === "income" ? "bg-slate-800 text-white shadow" : "text-slate-700 hover:bg-white/70"}`}
+                            onClick={() => setMode("income")}
                         >
                             Entrate
                         </button>
@@ -215,16 +220,10 @@ const BudgetTable = () => {
                     <Button variant="primary" size="sm" onClick={expandAll}>
                         Espandi tutto
                     </Button>
-
                     <Button variant="primary" size="sm" onClick={collapseAll}>
                         Collassa tutto
                     </Button>
-                    <Button
-                        variant="primary"
-                        onClick={addCategory}
-                        size="sm"
-                        className="d-flex align-items-center gap-2 px-3 shadow-sm ms-auto"
-                    >
+                    <Button variant="primary" onClick={addCategory} size="sm" className="d-flex align-items-center gap-2 px-3 shadow-sm ms-auto"   >
                         <Plus size={18} />
                         Aggiungi categoria
                     </Button>
@@ -269,56 +268,59 @@ const BudgetTable = () => {
                                 </Accordion.Button>
                             </h2>
                             <Accordion.Body>
-                                <div className="overflow-hidden">
-                                    <div className="space-y-2">
-                                        <div className="grid grid-cols-14 gap-0 items-center">
-                                            <div></div>
-                                            {monthsLabels.map((month, indexMonthLabels) => {
-                                                return (
-                                                    <div key={indexMonthLabels} className='flex flex-col items-end'>
-                                                        <div>
-                                                            {month.slice(0, 3)}
-                                                        </div>
-                                                        <div>
-                                                            {getTotalMonthByCategory(data, mode, indexCat, indexMonthLabels)}
-                                                        </div>
+                                <div className="overflow-x-auto pb-0">
+                                    <div className="space-y-2 min-w-7xl">
+
+                                        {/* HEADER */}
+                                        <div
+                                            className="grid gap-0 items-center border-b border-slate-100 pb-2 relative"
+                                            style={{ gridTemplateColumns: '110px repeat(12, 1fr) 100px' }}
+                                        >
+                                            <div className="sticky left-0 z-30 bg-white h-full border-r border-transparent">
+                                                {/* Lasciare vuoto o mettere un titolo tipo "Categorie" */}
+                                                <div className="bg-white h-full w-full"></div>
+                                            </div>
+
+                                            {monthsLabels.map((month, indexMonthLabels) => (
+                                                <div key={indexMonthLabels}
+                                                    className="text-right font-medium text-gray-400 text-sm italic flex flex-col items-end px-2 z-10">
+                                                    <div className="">{month.slice(0, 3)}</div>
+                                                    <div className="text-slate-500 font-semibold whitespace-nowrap">
+                                                        {getTotalCategoryMonth(data, mode, indexCat, indexMonthLabels)} €
                                                     </div>
-                                                )
-                                            })}
-                                            <div className='flex flex-col items-end'>
-                                                <div>
-                                                    Totale
                                                 </div>
-                                                <div>
-                                                    546
-                                                </div>
+                                            ))}
+
+                                            <div className='flex flex-col items-end font-bold text-gray-500 text-sm italic px-2 z-10'>
+                                                <div>All'anno</div>
+                                                <div className="text-indigo-600">{getCategoryTotal(data, mode, indexCat)} €</div>
                                             </div>
                                         </div>
-                                        {category.rows.map((row) => {
-                                            return (
 
-                                                <div key={row.id} className="grid grid-cols-14 gap-0 items-center" >
-                                                    <div className="sticky left-0 z-10 bg-white border-r border-slate-200">
-                                                        <div className="text-sm font-semibold text-slate-700 truncate pr-2">
-                                                            {row.name}
-                                                        </div>
-                                                    </div>
-                                                    {row.values.map((val, idx) => {
-
-                                                        return (
-                                                            <CustomInput
-                                                                key={`${row.id}_${idx}`}
-                                                                value={val}
-                                                                onChange={(v) => console.log(v)}
-                                                            />
-                                                        )
-                                                    })}
-                                                    <div className='flex justify-end'>
-                                                        {sumArray(row.values)}
+                                        {/* RIGHE DATI */}
+                                        {category.rows.map((row) => (
+                                            <div
+                                                key={row.id}
+                                                className="grid gap-0 items-center hover:bg-slate-50 group transition-colors"
+                                                style={{ gridTemplateColumns: '110px repeat(12, 1fr) 100px' }}
+                                            >
+                                                <div className="sticky left-0 z-20 bg-white border-r border-slate-200 py-2">
+                                                    <div className="text-xs font-bold text-slate-700 truncate px-0">
+                                                        {row.name}
                                                     </div>
                                                 </div>
-                                            )
-                                        })}
+
+                                                {row.values.map((val, idx) => (
+                                                    <div key={`${row.id}_${idx}`} className="px-1 z-10">
+                                                        <CustomInput value={val} onChange={(v) => console.log(v)} />
+                                                    </div>
+                                                ))}
+
+                                                <div className='flex justify-end font-bold text-slate-600 text-sm px-2 z-10 bg-slate-50/50 h-full items-center'>
+                                                    {sumArray(row.values)} €
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             </Accordion.Body>
