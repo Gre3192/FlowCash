@@ -79,9 +79,11 @@ export default function MonthBudget() {
     const expandAll = () => setActiveKeys(data.map((_, i) => String(i)));
     const collapseAll = () => setActiveKeys([]);
 
+    const bgColor = mode === 'expenditure' ? 'bg-[#f8a5a5]' : mode === 'income' ? 'bg-[#DDFBEA]' : 'bg-[#87CEEB]';
+
     return (
         <div>
-            <div className={`mb-4 sticky top-0 z-50 p-4 rounded-xl ${mode === 'expenditure' ? 'bg-[#f8a5a5]' : 'bg-[#a5f8c7]'} border border-slate-200 shadow-sm`} >
+            <div className={`mb-4 sticky top-0 z-50 p-4 rounded-xl ${bgColor} border border-slate-200 shadow-sm`} >
                 <div className="flex items-center justify-between flex-wrap gap-3">
                     <h1 className="text-xl font-bold text-slate-800">
                         {mode === 'expenditure' ? 'Uscite 2026' : 'Entrate 2026'}

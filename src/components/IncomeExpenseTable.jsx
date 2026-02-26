@@ -182,8 +182,8 @@ const IncomeExpenseTable = ({ data, setData, mode, activeKeys, setActiveKeys }) 
                                     <Button
                                         variant="outline"
                                         onClick={(e) => {
-                                            e.stopPropagation();          // non aprire/chiudere accordion
-                                            addRow(category.id);          // ✅ aggiunge riga alla categoria
+                                            e.stopPropagation();
+                                            addRow(category.id);
                                         }}
                                     >
                                         <Plus size={18} strokeWidth={2.5} />
