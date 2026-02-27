@@ -83,9 +83,6 @@ export default function MonthBudget() {
     const bgHeaderColor = mode === 'expenditure' ? 'bg-[#f8a5a5]' : mode === 'income' ? 'bg-[#DDFBEA]' : 'bg-[#87CEEB]';
     const textHeaderColor = mode === 'expenditure' ? 'Uscite 2026' : mode === 'income' ? 'Entrate 2026' : 'Bilancio 2026'
 
-    console.log(mode);
-
-
     return (
         <div>
             <div className={`mb-4 sticky top-0 z-50 p-4 rounded-xl ${bgHeaderColor} border border-slate-200 shadow-sm`} >
@@ -95,7 +92,7 @@ export default function MonthBudget() {
                     </h1>
                     <IncomeExpenseToggle mode={mode} data={data} setActiveKeys={setActiveKeys} setMode={setMode} />
                 </div>
-                <div className="flex gap-2 mt-0 flex-wrap">
+                <div className="flex gap-2 mt-0 flex-wrap hidden">
                     <Button variant="primary" size="sm" onClick={expandAll}>
                         Espandi tutto
                     </Button>
