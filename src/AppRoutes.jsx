@@ -3,8 +3,7 @@ import HomePage from './pages/HomePage';
 import MonthlyBudgetPage from './pages/MonthlyBudgetPage';
 import DailyBudgetPage from './pages/DailyBudgetPage';
 import Layout from './components/Layout/Layout';
-import MonthBudget from './components/MonthBudget';
-import MonthBudget1 from './components/MonthBudget copy';
+import MonthBudget from './pages/MonthBudget';
 
 
 export default function AppRoute() {
@@ -12,8 +11,7 @@ export default function AppRoute() {
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<Layout />}>
-                    <Route path="" element={<MonthBudget1 />} />
-                    <Route path="1" element={<MonthBudget />} />
+                    <Route path="/" element={<MonthBudget />} />
                     <Route path="daily" element={<DailyBudgetPage />} />
                     <Route path="monthly" element={<MonthlyBudgetPage />} />
                 </Route>

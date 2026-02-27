@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TrendingUp, TrendingDown, Wallet, Calendar, ChevronRight, ChevronLeft } from 'lucide-react';
-import MonthCard from "../components/MonthCard"
+import MonthCard from "./MonthCard"
 import formatEuro from '../utils/formatEuro';
 
 const BudgetTable = ({ mesi }) => {

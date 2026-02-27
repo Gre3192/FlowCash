@@ -1,5 +1,6 @@
-import IncomeExpenseTable from "./IncomeExpenseTable";
-import IncomeExpenseToggle from "./IncomeExpenseToggle";
+import IncomeExpenseTable from "../components/IncomeExpenseMonthlyTable";
+import IncomeExpenseToggle from "../components/IncomeExpenseToggle";
+import BudgetMonthlyTable from "../components/BudgetMonthlyTable";
 import { Button } from "react-bootstrap";
 import { useState } from "react";
 import { Plus } from "lucide-react";
@@ -80,7 +81,9 @@ export default function MonthBudget() {
     const collapseAll = () => setActiveKeys([]);
 
     const bgHeaderColor = mode === 'expenditure' ? 'bg-[#f8a5a5]' : mode === 'income' ? 'bg-[#DDFBEA]' : 'bg-[#87CEEB]';
-    const textHeaderColor = mode  === 'expenditure' ? 'Uscite 2026' : mode === 'income' ?'Entrate 2026' : 'Bilancio 2026'
+    const textHeaderColor = mode === 'expenditure' ? 'Uscite 2026' : mode === 'income' ? 'Entrate 2026' : 'Bilancio 2026'
+
+    console.log(mode);
 
 
     return (
@@ -110,15 +113,21 @@ export default function MonthBudget() {
                     </Button>
                 </div>
             </div>
+            {
+                mode === 'budget' ?
+                    <BudgetMonthlyTable
+                        data={data}
+                    />
+                    :
+                    <IncomeExpenseTable
+                        data={data}
+                        setData={setData}
+                        mode={mode}
+                        activeKeys={activeKeys}
+                        setActiveKeys={setActiveKeys}
 
-            <IncomeExpenseTable
-                data={data}
-                setData={setData}
-                mode={mode}
-                activeKeys={activeKeys}
-                setActiveKeys={setActiveKeys}
-
-            />
+                    />
+            }
         </div>
 
     )
