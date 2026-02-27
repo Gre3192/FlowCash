@@ -6,7 +6,8 @@ import sumArray from '../utils/sumArray';
 import IncomeExpenseToggle from './IncomeExpenseToggle';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const CustomInput = ({ value, onChange }) => {
+const CustomInput = ({ value, onChange, mode }) => {
+
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') e.target.blur();
         if (['e', 'E', '+', '-'].includes(e.key)) e.preventDefault();
@@ -18,7 +19,7 @@ const CustomInput = ({ value, onChange }) => {
     };
 
     return (
-        <div className="relative border-slate-200 flex items-center group/input bg-white focus-within:ring-1 focus-within:ring-red-500/20 transition-all">
+        <div className={`relative flex items-center group/input bg-white focus-within:ring-1 ${mode === 'expenditure' ? 'focus-within:ring-red-500' : 'focus-within:ring-green-500'} transition-all`}>
             <style>{`
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -39,9 +40,9 @@ const CustomInput = ({ value, onChange }) => {
                 placeholder="0,00"
             />
 
-            <span className="absolute right-1.5 top-1/2 -translate-y-1/2 
+            <span className={`absolute right-1.5 top-1/2 -translate-y-1/2 
                        text-[10px] text-gray-400 font-bold pointer-events-none 
-                       group-focus-within/input:text-red-500 transition-colors">
+                       ${mode === 'expenditure' ? 'group-focus-within/input:text-red-500' : 'group-focus-within/input:text-green-500'} transition-colors`}>
                 €
             </span>
         </div>
@@ -248,6 +249,7 @@ const IncomeExpenseTable = ({ data, setData, mode, activeKeys, setActiveKeys }) 
                                             {row.values.map((val, idx) => (
                                                 <div key={`${row.id}_${idx}`} className="px-1 z-10">
                                                     <CustomInput
+                                                        mode={mode}
                                                         value={val}
                                                         onChange={(v) => updateCellValue(category.id, row.id, idx, v)}
                                                     />
