@@ -1,19 +1,10 @@
 import React, { useMemo } from "react";
-
-const MONTHS = [
-    "Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
-    "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre",
-];
-
-const euro = (value) =>
-    new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(
-        Number(value || 0)
-    );
-
-const sum = (arr) => arr.reduce((acc, v) => acc + (Number(v) || 0), 0);
+import euro from "../utils/formatEuro";
+import sumArray from "../utils/sumArray";
+import CustomInput from "./CustomInput";
 
 const Cell = ({ children, className = "" }) => (
-    <td className={`px-3 py-2 text-right align-middle ${className}`}>{children}</td>
+    <td className={`px-2 py-2 text-right align-middle ${className}`}>{children}</td>
 );
 
 const RowLabel = ({ children, className = "" }) => (
@@ -23,9 +14,9 @@ const RowLabel = ({ children, className = "" }) => (
 );
 
 export default function BudgetSummaryTableCard({
-    title = "BILANCIO 2026",
-    savingsLabel = "Portafoglio risparmi",
-    savingsValue = 0,
+
+    monthsLabels,
+    data,
 
     // dati: array da 12 valori (uno per mese)
     startMonthHyp = Array(12).fill(0),
@@ -34,7 +25,30 @@ export default function BudgetSummaryTableCard({
 
     // opzionali
     endMonthReal = Array(12).fill(null), // null => cella vuota
+
 }) {
+
+    const getMonthlyTotals = (data) => {
+        const monthlyTotals = Array.from({ length: 12 }, () => ({
+            income: 0,
+            expenditure: 0,
+        }));
+
+        data.forEach(category => {
+            const { type, rows } = category;
+
+            rows.forEach(row => {
+                row.values.forEach((value, monthIndex) => {
+                    monthlyTotals[monthIndex][type] += Number(value) || 0;
+                });
+            });
+        });
+
+        return monthlyTotals;
+    };
+
+    const totals = getMonthlyTotals(data);
+
     const computed = useMemo(() => {
         const start = startMonthHyp.map((v) => Number(v) || 0);
         const inc = income.map((v) => Number(v) || 0);
@@ -50,49 +64,25 @@ export default function BudgetSummaryTableCard({
         const surplus = endReal.map((v, i) => (v === null ? null : v - endHyp[i]));
 
         const year = {
-            start: sum(start),
-            inc: sum(inc),
-            out: sum(out),
-            saving: sum(savingHyp),
-            endHyp: sum(endHyp),
-            endReal: endReal.some((v) => v !== null) ? sum(endReal.filter((v) => v !== null)) : null,
+            start: sumArray(start),
+            inc: sumArray(inc),
+            out: sumArray(out),
+            saving: sumArray(savingHyp),
+            endHyp: sumArray(endHyp),
+            endReal: endReal.some((v) => v !== null) ? sumArray(endReal.filter((v) => v !== null)) : null,
             surplus:
-                surplus.some((v) => v !== null) ? sum(surplus.filter((v) => v !== null)) : null,
+                surplus.some((v) => v !== null) ? sumArray(surplus.filter((v) => v !== null)) : null,
         };
 
         return { start, inc, out, savingHyp, endHyp, endReal, surplus, year };
     }, [startMonthHyp, income, expenses, endMonthReal]);
 
-    const headerCell =
-        "px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600 text-right";
-    const headerLabelCell =
-        "px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600 text-left sticky left-0 bg-white/90 backdrop-blur border-r border-slate-200";
+    const headerCell = "px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600 text-right";
+    const headerLabelCell = "px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600 text-left sticky left-0 bg-white/90 backdrop-blur border-r border-slate-200";
 
     return (
         <div className="w-full">
             <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-                {/* Header card */}
-                {/* <div className="flex flex-col gap-2 px-5 py-4 border-b border-slate-200">
-                    <div className="flex items-start justify-between gap-4">
-                        <div>
-                            <h2 className="text-lg font-bold tracking-tight text-slate-900">
-                                {title}
-                            </h2>
-                            <p className="text-sm text-slate-500">
-                                Riepilogo mensile (ipotetico / reale)
-                            </p>
-                        </div>
-
-                        <div className="text-right">
-                            <div className="text-xs font-medium text-slate-500">
-                                {savingsLabel}:
-                            </div>
-                            <div className="text-sm font-semibold text-slate-900">
-                                {euro(savingsValue)}
-                            </div>
-                        </div>
-                    </div>
-                </div> */}
 
                 {/* Table */}
                 <div className="overflow-x-auto">
@@ -100,7 +90,7 @@ export default function BudgetSummaryTableCard({
                         <thead>
                             <tr className="bg-slate-50">
                                 <th className={headerLabelCell}></th>
-                                {MONTHS.map((m) => (
+                                {monthsLabels.map((m) => (
                                     <th key={m} className={headerCell}>
                                         {m}
                                     </th>
@@ -110,12 +100,13 @@ export default function BudgetSummaryTableCard({
                         </thead>
 
                         <tbody className="text-sm">
+
                             {/* Inizio mese ipotetico */}
                             <tr className="border-b border-slate-100">
-                                <RowLabel className="text-slate-700">Inizio mese ipotetico</RowLabel>
+                                <RowLabel className="text-slate-700">Inizio mese</RowLabel>
                                 {computed.start.map((v, i) => (
                                     <Cell key={i} className="text-slate-700">
-                                        {euro(v)}
+                                        <CustomInput value={32} onChange={() => { }} mode='income' />
                                     </Cell>
                                 ))}
                                 <Cell className="font-semibold text-slate-900 pr-4">{euro(computed.year.start)}</Cell>
@@ -124,9 +115,9 @@ export default function BudgetSummaryTableCard({
                             {/* Entrate */}
                             <tr className="border-b border-slate-100">
                                 <RowLabel className="text-emerald-800">Entrate</RowLabel>
-                                {computed.inc.map((v, i) => (
+                                {totals.map((total, i) => (
                                     <Cell key={i} className="text-emerald-700">
-                                        {euro(v)}
+                                        {euro(total.income)}
                                     </Cell>
                                 ))}
                                 <Cell className="font-semibold text-emerald-800 pr-4">{euro(computed.year.inc)}</Cell>
@@ -135,9 +126,9 @@ export default function BudgetSummaryTableCard({
                             {/* Uscite */}
                             <tr className="border-b border-slate-100">
                                 <RowLabel className="text-rose-800">Uscite</RowLabel>
-                                {computed.out.map((v, i) => (
+                                {totals.map((total, i) => (
                                     <Cell key={i} className="text-rose-700">
-                                        {euro(v)}
+                                        {euro(total.expenditure)}
                                     </Cell>
                                 ))}
                                 <Cell className="font-semibold text-rose-800 pr-4">{euro(computed.year.out)}</Cell>
@@ -145,7 +136,7 @@ export default function BudgetSummaryTableCard({
 
                             {/* Risparmio ipotetico */}
                             <tr className="border-b border-slate-100">
-                                <RowLabel className="text-slate-700">Risparmio ipotetico</RowLabel>
+                                <RowLabel className="text-slate-700">Risparmio</RowLabel>
                                 {computed.savingHyp.map((v, i) => (
                                     <Cell key={i} className={v >= 0 ? "text-emerald-700" : "text-rose-700"}>
                                         {euro(v)}
@@ -161,10 +152,10 @@ export default function BudgetSummaryTableCard({
 
                             {/* Fine mese ipotetico */}
                             <tr className="border-b border-slate-200 bg-slate-50/60">
-                                <RowLabel className="text-slate-900">Fine mese ipotetico</RowLabel>
-                                {computed.endHyp.map((v, i) => (
+                                <RowLabel className="text-slate-900">Fine mese previsto</RowLabel>
+                                {totals.map((total, i) => (
                                     <Cell key={i} className="text-slate-900">
-                                        {euro(v)}
+                                        {euro(total.income-total.expenditure)}
                                     </Cell>
                                 ))}
                                 <Cell className="font-semibold text-slate-900 pr-4">{euro(computed.year.endHyp)}</Cell>
@@ -204,16 +195,6 @@ export default function BudgetSummaryTableCard({
                             </tr>
                         </tbody>
                     </table>
-                </div>
-
-                {/* Footer */}
-                <div className="px-5 py-3 border-t border-slate-200 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
-                    <div className="text-xs text-slate-500">
-                        Tip: su mobile scorri orizzontalmente la tabella.
-                    </div>
-                    <div className="text-xs text-slate-500">
-                        Formato valuta: <span className="font-medium">it-IT</span>
-                    </div>
                 </div>
             </div>
         </div>

@@ -56,9 +56,7 @@ export default function MonthBudget() {
     const [activeKeys, setActiveKeys] = useState(['0']);
     const [mode, setMode] = useState('expenditure');
 
-
     const makeId = (prefix = 'id') => `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-
 
     const addCategory = () => {
         const newKey = String(data.length);
@@ -77,10 +75,19 @@ export default function MonthBudget() {
         });
     };
 
+    function getTotalCategoryMonth(data, type, categoryIndex, valueIndex) {
+        const category = data[categoryIndex];
+        if (!category || category.type !== type || !category.rows?.length) return 0;
+
+        return category.rows.reduce((sum, row) => {
+            return sum + (Number(row.values?.[valueIndex]) || 0);
+        }, 0);
+    }
+
     const expandAll = () => setActiveKeys(data.map((_, i) => String(i)));
     const collapseAll = () => setActiveKeys([]);
 
-    const bgHeaderColor = mode === 'expenditure' ? 'bg-[#f8a5a5]' : mode === 'income' ? 'bg-[#DDFBEA]' : 'bg-[#87CEEB]';
+    const bgHeaderColor = mode === 'expenditure' ? 'bg-[#f8a5a5]' : mode === 'income' ? 'bg-[#7BC67B]' : 'bg-[#87CEEB]';
     const textHeaderColor = mode === 'expenditure' ? 'Uscite 2026' : mode === 'income' ? 'Entrate 2026' : 'Bilancio 2026'
 
     return (
@@ -92,7 +99,7 @@ export default function MonthBudget() {
                     </h1>
                     <IncomeExpenseToggle mode={mode} data={data} setActiveKeys={setActiveKeys} setMode={setMode} />
                 </div>
-                <div className="flex gap-2 mt-0 flex-wrap hidden">
+                <div className="gap-2 mt-0 flex-wrap hidden">
                     <Button variant="primary" size="sm" onClick={expandAll}>
                         Espandi tutto
                     </Button>
@@ -114,19 +121,21 @@ export default function MonthBudget() {
                 mode === 'budget' ?
                     <BudgetMonthlyTable
                         data={data}
+                        monthsLabels={monthsLabels}
                     />
                     :
                     <IncomeExpenseTable
+                        monthsLabels={monthsLabels}
                         data={data}
                         setData={setData}
                         mode={mode}
                         activeKeys={activeKeys}
                         setActiveKeys={setActiveKeys}
+                        getTotalCategoryMonth={getTotalCategoryMonth}
 
                     />
             }
         </div>
-
     )
 }
 

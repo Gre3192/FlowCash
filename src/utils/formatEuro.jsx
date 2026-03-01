@@ -1,3 +1,7 @@
-export default function formatEuro(val) {
-  return val.toFixed(2).replace(".", ",") + " €";
+export default function euro(val) {
+
+  return new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(Number(val || 0))
+
 }
+
+
