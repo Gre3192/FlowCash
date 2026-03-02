@@ -44,6 +44,55 @@ const DATA = [
     },
 ];
 
+const DATA1 = {
+
+    startWallet: [54, 564, 641, 546, 161, 897, 161, 544, 995, 616, 657, 166],
+    endRealWallet: [54, 564, 641, 546, 161, 897, 161, 544, 995, 616, 657, 166],
+    surplusAdded: [342,234,678,675,456,848,397,585,68,54,987,69],
+    currentSavings: [342,4234,25,325,532,654,234,76,987,456,34,346],
+    prevEndWallet: 123,
+    prevEndRealWallet: 123,
+    prevSaving: 4564,
+    categories: [
+        {
+            id: 'cat_1',
+            title: 'Abbonamenti',
+            type: 'expenditure',
+            elements: [
+                { id: 'row_1_1', name: 'ChatGPT', values: [0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
+                { id: 'row_1_2', name: 'Amazon Prime', values: [0, 1, 2, 3, 45, 78, 55, 22, 58, 22, 889, 22] },
+            ],
+        },
+        {
+            id: 'cat_2',
+            title: 'Sanità',
+            type: 'expenditure',
+            rows: [
+                { id: 'row_2_1', name: 'Nutrizionista', values: [0, 1, 234, 3645, 675, 78, 55, 453, 58, 22, 889, 22] },
+                { id: 'row_2_2', name: 'Dottore', values: [0, 1, 23453, 3345, 45, 78, 345, 3453, 58, 345, 889, 22] },
+            ],
+        },
+        {
+            id: 'cat_3',
+            title: 'Stipendio',
+            type: 'income',
+            rows: [
+                { id: 'row_3_1', name: 'Nutrizionista', values: [0, 1, 234, 3645, 675, 78, 55, 453, 58, 22, 889, 22] },
+                { id: 'row_3_2', name: 'Dottore', values: [0, 1, 23453, 3345, 45, 78, 345, 3453, 58, 345, 889, 22] },
+            ],
+        },
+        {
+            id: 'cat_4',
+            title: 'Lezioni private',
+            type: 'income',
+            rows: [
+                { id: 'row_4_1', name: 'Nutrizionista', values: [0, 3, 234, 3645, 675, 78, 55, 453, 58, 22, 889, 22] },
+                { id: 'row_4_2', name: 'Dottore', values: [0, 1, 23453, 3345, 45, 78, 345, 3453, 58, 345, 889, 22] },
+            ],
+        },
+    ]
+}
+
 const monthsLabels = [
     'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
     'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre',

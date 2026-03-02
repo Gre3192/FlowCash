@@ -49,6 +49,17 @@ export default function BudgetSummaryTableCard({
 
     const totals = getMonthlyTotals(data);
 
+    const totalIncomeYear = totals.reduce(
+        (acc, month) => acc + month.income,
+        0
+    );
+
+    const totalExpenditureYear = totals.reduce(
+        (acc, month) => acc + month.expenditure,
+        0
+    );
+
+
     const computed = useMemo(() => {
         const start = startMonthHyp.map((v) => Number(v) || 0);
         const inc = income.map((v) => Number(v) || 0);
@@ -120,7 +131,7 @@ export default function BudgetSummaryTableCard({
                                         {euro(total.income)}
                                     </Cell>
                                 ))}
-                                <Cell className="font-semibold text-emerald-800 pr-4">{euro(computed.year.inc)}</Cell>
+                                <Cell className="font-semibold text-emerald-800 pr-4">{euro(totalIncomeYear)}</Cell>
                             </tr>
 
                             {/* Uscite */}
@@ -131,7 +142,7 @@ export default function BudgetSummaryTableCard({
                                         {euro(total.expenditure)}
                                     </Cell>
                                 ))}
-                                <Cell className="font-semibold text-rose-800 pr-4">{euro(computed.year.out)}</Cell>
+                                <Cell className="font-semibold text-rose-800 pr-4">{euro(totalExpenditureYear)}</Cell>
                             </tr>
 
                             {/* Risparmio ipotetico */}
@@ -155,7 +166,7 @@ export default function BudgetSummaryTableCard({
                                 <RowLabel className="text-slate-900">Fine mese previsto</RowLabel>
                                 {totals.map((total, i) => (
                                     <Cell key={i} className="text-slate-900">
-                                        {euro(total.income-total.expenditure)}
+                                        {euro(total.income - total.expenditure)}
                                     </Cell>
                                 ))}
                                 <Cell className="font-semibold text-slate-900 pr-4">{euro(computed.year.endHyp)}</Cell>
@@ -182,7 +193,7 @@ export default function BudgetSummaryTableCard({
                             {/* Surplus (Reale - Ipotetico) */}
                             <tr>
                                 <RowLabel className="text-slate-700">
-                                    Surplus fine mese <span className="italic font-normal">(Reale - Ipotetico)</span>
+                                    Surplus fine mese 
                                 </RowLabel>
                                 {computed.surplus.map((v, i) => (
                                     <Cell key={i} className="text-slate-700">
