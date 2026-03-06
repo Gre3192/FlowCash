@@ -13,11 +13,11 @@ export default function IncomeExpenseToggle({
 
         <div className="relative flex bg-white/60 backdrop-blur rounded-lg p-1 shadow-inner">
             <button
-                className={`px-4 py-1 text-sm font-medium rounded-md transition-all duration-200 ${mode === 'expenditure'
+                className={`px-4 py-1 text-sm font-medium rounded-md transition-all duration-200 ${mode === 'expense'
                     ? 'bg-slate-800 text-white shadow'
                     : 'text-slate-700 hover:bg-white/70'
                     }`}
-                onClick={() => setMode('expenditure')}
+                onClick={() => setMode('expense')}
             >
                 Uscite
             </button>

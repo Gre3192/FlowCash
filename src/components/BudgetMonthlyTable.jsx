@@ -31,7 +31,7 @@ export default function BudgetSummaryTableCard({
     const getMonthlyTotals = (data) => {
         const monthlyTotals = Array.from({ length: 12 }, () => ({
             income: 0,
-            expenditure: 0,
+            expense: 0,
         }));
 
         data.forEach(category => {
@@ -54,8 +54,8 @@ export default function BudgetSummaryTableCard({
         0
     );
 
-    const totalExpenditureYear = totals.reduce(
-        (acc, month) => acc + month.expenditure,
+    const totalexpenseYear = totals.reduce(
+        (acc, month) => acc + month.expense,
         0
     );
 
@@ -139,10 +139,10 @@ export default function BudgetSummaryTableCard({
                                 <RowLabel className="text-rose-800">Uscite</RowLabel>
                                 {totals.map((total, i) => (
                                     <Cell key={i} className="text-rose-700">
-                                        {euro(total.expenditure)}
+                                        {euro(total.expense)}
                                     </Cell>
                                 ))}
-                                <Cell className="font-semibold text-rose-800 pr-4">{euro(totalExpenditureYear)}</Cell>
+                                <Cell className="font-semibold text-rose-800 pr-4">{euro(totalexpenseYear)}</Cell>
                             </tr>
 
                             {/* Risparmio ipotetico */}
@@ -166,7 +166,7 @@ export default function BudgetSummaryTableCard({
                                 <RowLabel className="text-slate-900">Fine mese previsto</RowLabel>
                                 {totals.map((total, i) => (
                                     <Cell key={i} className="text-slate-900">
-                                        {euro(total.income - total.expenditure)}
+                                        {euro(total.income - total.expense)}
                                     </Cell>
                                 ))}
                                 <Cell className="font-semibold text-slate-900 pr-4">{euro(computed.year.endHyp)}</Cell>
