@@ -26,7 +26,7 @@ export default function BudgetCard({
         : "text-slate-700";
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+    <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200">
 
       {/* HEADER */}
       <div className="flex justify-between items-start">
@@ -34,36 +34,36 @@ export default function BudgetCard({
         <div className="flex gap-3 items-center">
 
           <div className="bg-slate-100 p-3 rounded-lg">
-            {Icon && <CircleQuestionMark className="text-blue-500" size={22} />}
+            {!Icon ? <CircleQuestionMark className="text-blue-500" size={40} /> : <Icon className="text-blue-500" size={40} />}
           </div>
 
-          <div>
-            <h3 className="font-semibold text-slate-800 text-lg">
+          <div className="flex flex-col h-full justify-between">
+            <div className="mb-2 font-semibold text-slate-800 text-2xl">
               {title}
-            </h3>
+            </div>
 
-            <p className="text-sm text-slate-500">
+            <div className="text-base text-slate-500">
               €{spent.toFixed(2)} / €{limit.toFixed(2)}
               <span className="text-slate-400"> ({period})</span>
-            </p>
+            </div>
           </div>
 
         </div>
 
         <div className="text-right">
 
-          <p className={`font-semibold ${percentColor}`}>
+          <p className={`font-semibold text-xl ${percentColor}`}>
             {percentage.toFixed(1)}%
           </p>
 
           {!isOver && (
-            <p className="text-sm text-slate-500">
+            <p className="text-base text-slate-500">
               €{remaining.toFixed(2)} rimanenti
             </p>
           )}
 
           {isOver && (
-            <p className="text-sm text-red-500">
+            <p className="text-base text-red-500">
               €{Math.abs(remaining).toFixed(2)} oltre il limite
             </p>
           )}
@@ -77,21 +77,21 @@ export default function BudgetCard({
 
       {/* MESSAGGI */}
       {isWarning && (
-        <p className="text-sm text-orange-500 mt-3">
+        <div className="text-base text-orange-500 mt-3">
           Attenzione: stai per raggiungere il limite
-        </p>
+        </div>
       )}
 
       {isLimit && (
-        <p className="text-sm text-red-500 mt-3">
+        <div className="text-base text-red-500 mt-3">
           Limite raggiunto
-        </p>
+        </div>
       )}
 
       {isOver && (
-        <p className="text-sm text-red-600 mt-3">
+        <div className="text-base text-red-600 mt-3">
           Hai superato il limite di spesa
-        </p>
+        </div>
       )}
 
     </div>

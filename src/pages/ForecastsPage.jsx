@@ -15,7 +15,7 @@ export default function ForecastsPage() {
             />
             <BudgetCard
                 title="Alimentari"
-                spent={300}
+                spent={399}
                 limit={400}
             />
         </>

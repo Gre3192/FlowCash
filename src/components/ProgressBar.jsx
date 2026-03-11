@@ -14,7 +14,7 @@ export default function ProgressBar({ percentage }) {
                 : "bg-slate-900";
 
     return (
-        <div className="mt-4">
+        <div className="mt-3">
             <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
                 <div
                     className={`h-2 rounded-full transition-all duration-300 ${progressColor}`}
