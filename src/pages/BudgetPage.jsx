@@ -2,7 +2,7 @@ import BudgetCard from "../components/BudgetCard";
 import BudgetOverview from "../components/BudgetOverview";
 
 
-export default function TestPage() {
+export default function BudgetPage() {
 
 
 
@@ -13,8 +13,9 @@ export default function TestPage() {
                 title="Alimentari"
                 spent={300}
                 limit={400}
-                
             />
+
+            
         </>
     );
 }

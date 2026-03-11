@@ -98,7 +98,7 @@ const monthsLabels = [
 
 
 
-export default function MonthBudget() {
+export default function Dashboard() {
 
     const [data, setData] = useState(DATA);
     const [activeKeys, setActiveKeys] = useState(['0']);
