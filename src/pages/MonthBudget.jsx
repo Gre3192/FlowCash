@@ -46,6 +46,7 @@ const DATA = [
 
 const DATA1 = {
 
+    year: 2026,
     prevEndWallet: 123,
     currentSurplusMoneyAdded: [342,234,678,675,456,848,397,585,68,54,987,69],
     currentSavedMoney: [342,4234,25,325,532,654,234,76,987,456,34,346],
