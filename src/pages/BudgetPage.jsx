@@ -9,7 +9,6 @@ export default function BudgetPage() {
 
     return (
         <>
-
             <div className="mb-4">
                 <BudgetOverview
                     current={993.79}
