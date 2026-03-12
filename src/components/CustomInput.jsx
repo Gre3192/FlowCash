@@ -11,7 +11,7 @@
     };
 
     return (
-        <div className={`relative flex items-center group/input bg-white focus-within:ring-1 ${mode === 'expenditure' ? 'focus-within:ring-red-500' : 'focus-within:ring-green-500'} transition-all`}>
+        <div className={`relative flex items-center group/input bg-white focus-within:ring-1 ${mode === 'expense' ? 'focus-within:ring-red-500' : 'focus-within:ring-green-500'} transition-all`}>
             <style>{`
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -34,7 +34,7 @@
 
             <span className={`absolute right-1.5 top-1/2 -translate-y-1/2 
                        text-[10px] text-gray-400 font-bold pointer-events-none 
-                       ${mode === 'expenditure' ? 'group-focus-within/input:text-red-500' : 'group-focus-within/input:text-green-500'} transition-colors`}>
+                       ${mode === 'expense' ? 'group-focus-within/input:text-red-500' : 'group-focus-within/input:text-green-500'} transition-colors`}>
                 €
             </span>
         </div>

@@ -9,7 +9,7 @@ const DATA = [
     {
         id: 'cat_1',
         title: 'Abbonamenti',
-        type: 'expenditure',
+        type: 'expense',
         rows: [
             { id: 'row_1_1', name: 'ChatGPT', values: [0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
             { id: 'row_1_2', name: 'Amazon Prime', values: [0, 1, 2, 3, 45, 78, 55, 22, 58, 22, 889, 22] },
@@ -18,7 +18,7 @@ const DATA = [
     {
         id: 'cat_2',
         title: 'Sanità',
-        type: 'expenditure',
+        type: 'expense',
         rows: [
             { id: 'row_2_1', name: 'Nutrizionista', values: [0, 1, 234, 3645, 675, 78, 55, 453, 58, 22, 889, 22] },
             { id: 'row_2_2', name: 'Dottore', values: [0, 1, 23453, 3345, 45, 78, 345, 3453, 58, 345, 889, 22] },
@@ -46,18 +46,16 @@ const DATA = [
 
 const DATA1 = {
 
-    startWallet: [54, 564, 641, 546, 161, 897, 161, 544, 995, 616, 657, 166],
-    endRealWallet: [54, 564, 641, 546, 161, 897, 161, 544, 995, 616, 657, 166],
-    surplusAdded: [342,234,678,675,456,848,397,585,68,54,987,69],
-    currentSavings: [342,4234,25,325,532,654,234,76,987,456,34,346],
+    year: 2026,
     prevEndWallet: 123,
-    prevEndRealWallet: 123,
-    prevSaving: 4564,
+    currentSurplusMoneyAdded: [342,234,678,675,456,848,397,585,68,54,987,69],
+    currentSavedMoney: [342,4234,25,325,532,654,234,76,987,456,34,346],
+    savedMoney: 4564,
     categories: [
         {
             id: 'cat_1',
             title: 'Abbonamenti',
-            type: 'expenditure',
+            type: 'expense',
             elements: [
                 { id: 'row_1_1', name: 'ChatGPT', values: [0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
                 { id: 'row_1_2', name: 'Amazon Prime', values: [0, 1, 2, 3, 45, 78, 55, 22, 58, 22, 889, 22] },
@@ -66,7 +64,7 @@ const DATA1 = {
         {
             id: 'cat_2',
             title: 'Sanità',
-            type: 'expenditure',
+            type: 'expense',
             rows: [
                 { id: 'row_2_1', name: 'Nutrizionista', values: [0, 1, 234, 3645, 675, 78, 55, 453, 58, 22, 889, 22] },
                 { id: 'row_2_2', name: 'Dottore', values: [0, 1, 23453, 3345, 45, 78, 345, 3453, 58, 345, 889, 22] },
@@ -99,11 +97,12 @@ const monthsLabels = [
 ];
 
 
-export default function MonthBudget() {
+
+export default function Dashboard() {
 
     const [data, setData] = useState(DATA);
     const [activeKeys, setActiveKeys] = useState(['0']);
-    const [mode, setMode] = useState('expenditure');
+    const [mode, setMode] = useState('expense');
 
     const makeId = (prefix = 'id') => `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 
@@ -136,8 +135,8 @@ export default function MonthBudget() {
     const expandAll = () => setActiveKeys(data.map((_, i) => String(i)));
     const collapseAll = () => setActiveKeys([]);
 
-    const bgHeaderColor = mode === 'expenditure' ? 'bg-[#f8a5a5]' : mode === 'income' ? 'bg-[#7BC67B]' : 'bg-[#87CEEB]';
-    const textHeaderColor = mode === 'expenditure' ? 'Uscite 2026' : mode === 'income' ? 'Entrate 2026' : 'Bilancio 2026'
+    const bgHeaderColor = mode === 'expense' ? 'bg-[#f8a5a5]' : mode === 'income' ? 'bg-[#7BC67B]' : 'bg-[#87CEEB]';
+    const textHeaderColor = mode === 'expense' ? 'Uscite 2026' : mode === 'income' ? 'Entrate 2026' : 'Bilancio 2026'
 
     return (
         <div>

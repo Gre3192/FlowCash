@@ -127,7 +127,7 @@ const IncomeExpenseTable = ({
                             <Accordion.Button
                                 className="flex align-items-center justify-between gap-2"
                                 style={{
-                                    background: mode === 'expenditure' ? '#ffe2e2' : '#CFEAD0',
+                                    background: mode === 'expense' ? '#ffe2e2' : '#CFEAD0',
                                     color: '#333',
                                 }}
                             >

@@ -94,17 +94,25 @@ export default function Layout() {
                     />
                     <NavItem
                         icon={<ArrowLeftRight size={22} />}
-                        label="Bilancio giornaliero"
-                        to="/daily"
-                        active={location.pathname === '/daily'}
+                        label="Transazioni"
+                        to="/transactions"
+                        active={location.pathname === '/transactions'}
                         isExpanded={isExpanded}
                         isMobileOpen={isMobileOpen}
                     />
                     <NavItem
                         icon={<Wallet size={22} />}
-                        label="Bilancio Mensile"
-                        to="/monthly"
-                        active={location.pathname === '/monthly'}
+                        label="Budget"
+                        to="/budget"
+                        active={location.pathname === '/budget'}
+                        isExpanded={isExpanded}
+                        isMobileOpen={isMobileOpen}
+                    />
+                    <NavItem
+                        icon={<Wallet size={22} />}
+                        label="Previsoni"
+                        to="/projections"
+                        active={location.pathname === '/projections'}
                         isExpanded={isExpanded}
                         isMobileOpen={isMobileOpen}
                     />
