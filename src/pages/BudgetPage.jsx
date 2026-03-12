@@ -3,15 +3,18 @@ import BudgetOverview from "../components/BudgetOverview";
 import TransactionFilters from "../components/TransactionFilters";
 import { Wallet, Car } from "lucide-react";
 
+import DATA1 from "../Data/data";
+
 export default function BudgetPage() {
 
-
+    console.log(DATA1);
+    
 
     return (
         <>
             <div className="mb-4">
                 <BudgetOverview
-                    current={993.79}
+                    current={400}
                     total={1400}
                 />
             </div>
@@ -25,28 +28,21 @@ export default function BudgetPage() {
                     setCategory={() => { }}
                 />
             </div>
-            <div className="grid grid-cols-1 xl:grid-cols-3 lg gap-4">
-                <BudgetCard
-                    title="Auto"
-                    spent={399}
-                    limit={400}
-                    icon={Car}
-                />
-                <BudgetCard
-                    title="Alimentari"
-                    spent={300}
-                    limit={400}
-                />
-                <BudgetCard
-                    title="Alimentari"
-                    spent={300}
-                    limit={400}
-                />
-                <BudgetCard
-                    title="Alimentari"
-                    spent={300}
-                    limit={400}
-                />
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+                {
+                    DATA1.categories.map((cat, i) => {
+                        return (
+                            <BudgetCard
+                                key={i}
+                                title={cat.title}
+                                spent={697}
+                                limit={400}
+                                icon={Car}
+                            />
+
+                        )
+                    })
+                }
             </div>
         </>
     );
