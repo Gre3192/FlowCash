@@ -5,7 +5,6 @@ import DailyBudgetPage from './pages/DailyBudgetPage';
 import Layout from './components/Layout/Layout';
 import MonthBudget from './pages/MonthBudget';
 
-
 export default function AppRoute() {
     return (
         <BrowserRouter>
@@ -13,6 +12,7 @@ export default function AppRoute() {
                 <Route path="/" element={<Layout />}>
                     <Route path="/" element={<MonthBudget />} />
                     <Route path="daily" element={<DailyBudgetPage />} />
+                    <Route path="monthly" element={<MonthlyBudgetPage />} />
                     <Route path="monthly" element={<MonthlyBudgetPage />} />
                 </Route>
             </Routes>
