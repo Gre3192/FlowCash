@@ -20,11 +20,12 @@ export default function AppRoute() {
             <Routes>
                 <Route path="/" element={<Layout />}>
                     <Route path="/" element={<Dashboard />} />
-                    <Route path="budget" element={<BudgetPage />} />
-                    <Route path="transactions" element={<TransactionsPage />} />
+                    <Route path="budget" index element={<BudgetPage />} />
+                    <Route path="daily" index element={<DailyBudgetPage />} />
+                    {/* <Route path="transactions" element={<TransactionsPage />} />
                     <Route path="forecasts" element={<ForecastsPage />} />
                     <Route path="projections" element={<ProjectionsPage />} />
-                    <Route path="test" element={<TestPage />} />
+                    <Route path="test" element={<TestPage />} /> */}
                 </Route>
             </Routes>
         </BrowserRouter>
