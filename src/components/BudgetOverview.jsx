@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import { CalendarDays, ChevronDown } from "lucide-react";
 
 const BudgetOverview = ({
+
   title = "Panoramica generale",
   current = 993.79,
   total = 1400,
+  month = "Gennaio",
   years = [2024, 2025, 2026],
   defaultYear = 2026,
+
 }) => {
   const [year, setYear] = useState(defaultYear);
 
@@ -16,7 +19,7 @@ const BudgetOverview = ({
     <div className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
       <div className="mb-4 flex items-center justify-between gap-3">
         <h3 className="text-sm font-semibold text-slate-700">
-          {title} {year}
+          {title} - {month} {year}
         </h3>
 
         <div className="relative">
