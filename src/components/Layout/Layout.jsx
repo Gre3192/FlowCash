@@ -84,7 +84,7 @@ export default function Layout() {
 
                 {/* NAVIGAZIONE */}
                 <nav className="flex-1 px-3 mt-4 space-y-2 overflow-y-auto overflow-x-hidden">
-                    <NavItem
+                    {/* <NavItem
                         icon={<LayoutDashboard size={22} />}
                         label="Dashboard"
                         to="/"
@@ -99,7 +99,7 @@ export default function Layout() {
                         active={location.pathname === '/transactions'}
                         isExpanded={isExpanded}
                         isMobileOpen={isMobileOpen}
-                    />
+                    /> */}
                     <NavItem
                         icon={<Wallet size={22} />}
                         label="Budget"
@@ -108,14 +108,14 @@ export default function Layout() {
                         isExpanded={isExpanded}
                         isMobileOpen={isMobileOpen}
                     />
-                    <NavItem
+                    {/* <NavItem
                         icon={<Wallet size={22} />}
                         label="Previsoni"
                         to="/projections"
                         active={location.pathname === '/projections'}
                         isExpanded={isExpanded}
                         isMobileOpen={isMobileOpen}
-                    />
+                    /> */}
                 </nav>
 
                 {/* FOOTER */}
