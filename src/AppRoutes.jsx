@@ -21,6 +21,7 @@ export default function AppRoute() {
                 <Route path="/" element={<Layout />}>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="budget" element={<BudgetPage />} />
+                    <Route path="daily" element={<DailyBudgetPage />} />
                     <Route path="transactions" element={<TransactionsPage />} />
                     <Route path="forecasts" element={<ForecastsPage />} />
                     <Route path="projections" element={<ProjectionsPage />} />
