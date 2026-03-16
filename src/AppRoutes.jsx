@@ -25,7 +25,7 @@ export default function AppRoute() {
                     <Route path="transactions" element={<TransactionsPage />} />
                     <Route path="forecasts" element={<ForecastsPage />} />
                     <Route path="projections" element={<ProjectionsPage />} />
-                    <Route path="test" element={<TestPage />} /> */}
+                    <Route path="test" element={<TestPage />} />
                 </Route>
             </Routes>
         </BrowserRouter>
