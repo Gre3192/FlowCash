@@ -35,7 +35,7 @@ export default function BudgetPage() {
                             <BudgetCard
                                 key={i}
                                 title={cat.title}
-                                spent={697}
+                                spent={43}
                                 limit={400}
                                 icon={Car}
                             />
