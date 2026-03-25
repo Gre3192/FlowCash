@@ -4,6 +4,7 @@ import BudgetMonthlyTable from "../components/BudgetMonthlyTable";
 import { Button } from "react-bootstrap";
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import { useGet } from "../hooks/useGet";
 
 const DATA = [
     {
@@ -11,7 +12,7 @@ const DATA = [
         title: 'Abbonamenti',
         type: 'expense',
         rows: [
-            { id: 'row_1_1', name: 'ChatGPT', values: [0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
+            // { id: 'row_1_1', name: 'ChatGPT', values: [0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
             { id: 'row_1_2', name: 'Amazon Prime', values: [0, 1, 2, 3, 45, 78, 55, 22, 58, 22, 889, 22] },
         ],
     },
@@ -48,8 +49,8 @@ const DATA1 = {
 
     year: 2026,
     prevEndWallet: 123,
-    currentSurplusMoneyAdded: [342,234,678,675,456,848,397,585,68,54,987,69],
-    currentSavedMoney: [342,4234,25,325,532,654,234,76,987,456,34,346],
+    currentSurplusMoneyAdded: [342, 234, 678, 675, 456, 848, 397, 585, 68, 54, 987, 69],
+    currentSavedMoney: [342, 4234, 25, 325, 532, 654, 234, 76, 987, 456, 34, 346],
     savedMoney: 4564,
     categories: [
         {
@@ -100,7 +101,9 @@ const monthsLabels = [
 
 export default function Dashboard() {
 
-    const [data, setData] = useState(DATA);
+    const { data: data1 } = useGet('http://localhost:3000/transaction')
+
+    const [data, setData] = useState(data1);
     const [activeKeys, setActiveKeys] = useState(['0']);
     const [mode, setMode] = useState('expense');
 

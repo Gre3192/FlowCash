@@ -7,9 +7,10 @@ import MonthBudget from './pages/Dashboard';
 import TestPage from './pages/TestPage';
 import ForecastsPage from './pages/ForecastsPage';
 import ProjectionsPage from './pages/ProjectionsPage';
-import BudgetPage from './pages/BudgetPage';
+import CategoryPage from './pages/CategoryPage';
 import Dashboard from './pages/Dashboard';
 import TransactionsPage from './pages/TransactionsPage';
+import BudgetPage from './pages/BudgetPage';
 
 export default function AppRoute() {
 
@@ -19,12 +20,10 @@ export default function AppRoute() {
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<Layout />}>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route path="budget" element={<BudgetPage />} />
-                    <Route path="daily" element={<DailyBudgetPage />} />
-                    <Route path="transactions" element={<TransactionsPage />} />
-                    <Route path="forecasts" element={<ForecastsPage />} />
-                    <Route path="projections" element={<ProjectionsPage />} />
+                    <Route path="/budgetPage" element={<BudgetPage />} />
+                    {/* <Route path="daily" element={<DailyBudgetPage />} /> */}
+                    {/* <Route path="forecasts" element={<ForecastsPage />} />
+                    <Route path="projections" element={<ProjectionsPage />} /> */}
                     <Route path="test" element={<TestPage />} />
                 </Route>
             </Routes>

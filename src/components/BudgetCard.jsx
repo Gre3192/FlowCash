@@ -1,99 +1,149 @@
-import { CircleQuestionMark } from "lucide-react";
+import { CircleQuestionMark, CircleCheck, Pencil, TriangleAlert, CircleX, ReceiptText, Wallet, ScrollText, Trash2 } from "lucide-react";
 import ProgressBar from "./ProgressBar";
 
 export default function BudgetCard({
-
   title,
   spent,
   limit,
-  period = "Mensile",
   icon: Icon,
-
+  onBudgetClick,
+  budgetType,
 }) {
 
-  const percentage = (spent / limit) * 100;
+  const percentage = limit > 0 ? (spent / limit) * 100 : 0;
+  const safePercentage = Math.min(percentage, 100);
   const remaining = limit - spent;
+
+  const formatEuro = (value) =>
+    `${value.toLocaleString("it-IT", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} €`;
 
   const isWarning = percentage >= 80 && percentage < 100;
   const isLimit = percentage === 100;
   const isOver = percentage > 100;
 
-  const percentColor =
-    isOver || isLimit
-      ? "text-red-500"
-      : isWarning
-        ? "text-orange-500"
-        : "text-slate-700";
+  const progressColorBg = isOver || isLimit ? "bg-red-500" : isWarning ? "bg-amber-500" : "bg-amber-400";
+  const progressColorText = isOver || isLimit ? "text-red-500" : isWarning ? "text-amber-500" : "text-slate-600";
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200">
+    <div className="w-full bg-white border border-slate-200 rounded-[28px] p-6 shadow-sm transition-all duration-200 hover:shadow-md cursor-pointer">
 
       {/* HEADER */}
-      <div className="flex justify-between items-start">
-
-        <div className="flex gap-3 items-center">
-
-          <div className="bg-slate-100 p-3 rounded-lg">
-            {!Icon ? <CircleQuestionMark className="text-blue-500" size={40} /> : <Icon className="text-blue-500" size={40} />}
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center shrink-0">
+            {!Icon ? (
+              <CircleQuestionMark className="text-blue-500" size={30} />
+            ) : (
+              <Icon className="text-blue-500" size={30} />
+            )}
           </div>
 
-          <div className="flex flex-col h-full justify-between">
-            <div className="mb-2 font-semibold text-slate-800 text-2xl">
+          <div className="min-w-0">
+            <div className="text-[20px] font-semibold text-slate-900 leading-none mb-1">
               {title}
             </div>
 
-            <div className="text-base text-slate-500">
-              €{spent.toFixed(2)} / €{limit.toFixed(2)}
-              <span className="text-slate-400"> ({period})</span>
+            <div className="text-sm text-slate-500">
+              {formatEuro(spent)} / {formatEuro(limit)}
             </div>
           </div>
-
         </div>
 
-        <div className="text-right">
+        <div className="shrink-0 flex flex-col items-end">
 
-          <p className={`font-semibold text-xl ${percentColor}`}>
-            {percentage.toFixed(1)}%
-          </p>
 
-          {!isOver && (
-            <p className="text-base text-slate-500">
-              €{remaining.toFixed(2)} rimanenti
-            </p>
+          <div className="flex items-center gap-2">
+            <div className="mb-1 inline-flex items-center gap-2 rounded-full bg-slate-100 px-2 py-1">
+              {
+                isOver || isLimit ?
+                  <CircleX size={18} className="text-red-500" /> :
+                  isWarning ?
+                    <TriangleAlert size={18} className="text-amber-500" /> :
+                    <CircleCheck size={18} className="text-emerald-500" />
+              }
+              <span className={`text-[16px] font-medium`}  >
+                {percentage.toFixed(1)}%
+              </span>
+            </div>
+            <Trash2 size={16} className="text-red-500 mb-1" />
+          </div>
+
+
+          {isWarning && (
+            <div className="text-xs text-orange-500">
+              Attenzione: stai per raggiungere il limite
+            </div>
+          )}
+
+          {isLimit && (
+            <div className="text-xs text-red-500">
+              Limite raggiunto
+            </div>
           )}
 
           {isOver && (
-            <p className="text-base text-red-500">
-              €{Math.abs(remaining).toFixed(2)} oltre il limite
-            </p>
+            <div className="text-xs text-red-600">
+              Hai superato il limite di spesa
+            </div>
           )}
-
         </div>
-
       </div>
 
-      {/* PROGRESS BAR */}
       <ProgressBar percentage={percentage} />
 
-      {/* MESSAGGI */}
-      {isWarning && (
-        <div className="text-base text-orange-500 mt-3">
-          Attenzione: stai per raggiungere il limite
-        </div>
-      )}
+      {
+        budgetType !== 'category' ?
+          <div>
+            {/* DIVIDER */}
+            <div className="mt-3 border-t border-slate-200" />
 
-      {isLimit && (
-        <div className="text-base text-red-500 mt-3">
-          Limite raggiunto
-        </div>
-      )}
-
-      {isOver && (
-        <div className="text-base text-red-600 mt-3">
-          Hai superato il limite di spesa
-        </div>
-      )}
+            {/* FOOTER */}
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <div className="text-sm text-slate-500 mt-2">
+                  {isOver ? 'Fuori budget di:' : 'Rimanenti:'}
+                </div>
+                <div className={`text-lg font-semibold ${progressColorText}`} >
+                  {/* {remaining < 0 ? `-${formatEuro(Math.abs(remaining))}` : formatEuro(remaining)} */}
+                  {formatEuro(Math.abs(remaining))}
+                </div>
+              </div>
+              {
+                !budgetType ?
+                  <div className="flex items-center gap-2">
+                    <div
+                      onClick={onBudgetClick}
+                      className="mt-2 rounded-full w-fit inline-flex items-center justify-center gap-2 bg-slate-100 px-3 h-11 text-[16px] font-medium text-slate-800 hover:bg-slate-200 transition-colors whitespace-nowrap shrink-0"
+                    >
+                      <ReceiptText size={15} />
+                      Spese
+                    </div>
+                    <div
+                      onClick={onBudgetClick}
+                      className="mt-2 rounded-full w-fit inline-flex items-center justify-center gap-2 bg-slate-100 px-3 h-11 text-[16px] font-medium text-slate-800 hover:bg-slate-200 transition-colors whitespace-nowrap shrink-0"
+                    >
+                      <Wallet size={15} />
+                      Budget
+                    </div>
+                  </div>
+                  :
+                  <div
+                    onClick={onBudgetClick}
+                    className="mt-2 rounded-full w-fit inline-flex items-center justify-center gap-2 bg-slate-100 px-3 h-11 text-[16px] font-medium text-slate-800 hover:bg-slate-200 transition-colors whitespace-nowrap shrink-0"
+                  >
+                    <ScrollText size={15} />
+                    Transazioni
+                  </div>
+              }
+            </div>
+          </div>
+          :
+          null
+      }
 
     </div>
   );
-};
+}

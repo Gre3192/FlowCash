@@ -103,8 +103,8 @@ export default function Layout() {
                     <NavItem
                         icon={<Wallet size={22} />}
                         label="Budget"
-                        to="/budget"
-                        active={location.pathname === '/budget'}
+                        to="/budgetPage"
+                        active={location.pathname === '/budgetPage'}
                         isExpanded={isExpanded}
                         isMobileOpen={isMobileOpen}
                     />
