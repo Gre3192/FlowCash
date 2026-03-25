@@ -23,9 +23,8 @@ export default function BudgetPage() {
         setIsCategoryPage(true)
     }
 
-
-    return (
-        <div>
+return (
+        <>
             {
                 loading ?
                     <div>Loading...</div>
@@ -43,6 +42,6 @@ export default function BudgetPage() {
                             setDateSelected={setDateSelected}
                         />
             }
-        </div>
+        </>
     )
 }

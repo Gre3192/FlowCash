@@ -14,6 +14,7 @@ export default function CategoryPage({
 }) {
 
 
+    console.log(data)
 
 
     return (
