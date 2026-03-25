@@ -43,11 +43,7 @@ export default function CategoryPage({
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                 {
-                    data.categories.map((cat, i) => {
-
-
-                        console.log(cat);
-
+                    data?.categories?.map((cat, i) => {
 
                         return (
                             <BudgetCard

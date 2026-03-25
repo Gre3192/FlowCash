@@ -13,8 +13,6 @@ export default function TransactionPage({
 
 }) {
 
-    console.log(data);
-
 
     return (
         <>
@@ -24,7 +22,7 @@ export default function TransactionPage({
                     <ArrowLeft size={18} onClick={backToCategoryPage} className="cursor-pointer" />
                     <div>
                         <div className="text-2xl  font-semibold text-slate-900 leading-none mb-1">
-                            {data.title}
+                            {data?.title}
                         </div>
                         <div className="text-[16px] text-slate-500">
                             Gestisci i tuoi budget mensili
@@ -66,9 +64,7 @@ export default function TransactionPage({
             </div> */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                 {
-                    data.elements.map((el, i) => {
-
-
+                    data?.elements.map((el, i) => {
 
 
                         return (

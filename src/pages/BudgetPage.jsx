@@ -1,42 +1,46 @@
 import { useState } from "react";
+import { useGet } from "../hooks/useGet";
 import CategoryPage from "./CategoryPage"
 import TransactionPage from "./TransactionsPage"
-import DATA1 from "../Data/data"
 
 export default function BudgetPage() {
 
-    console.log(DATA1);
+    const { data, loading } = useGet("http://localhost:3000/budget")
 
     const [isCategoryPage, setIsCategoryPage] = useState(true)
     const [selectedCategory, setSelectedCategory] = useState(null)
 
-
     function onCategoryClick(category) {
         setSelectedCategory(category)
-        setIsCategoryPage(!isCategoryPage)
+        setIsCategoryPage(false)
     }
 
-    function backToCategoryPage(params) {
+    function backToCategoryPage() {
         setSelectedCategory(null)
         setIsCategoryPage(true)
     }
 
 
     return (
-        <>
+        <div>
             {
-                isCategoryPage ?
-                    <CategoryPage
-                        data={DATA1}
-                        onCategoryClick={onCategoryClick}
-                    />
+                loading ?
+                    <div>Loading...</div>
                     :
-                    <TransactionPage
-                        data={selectedCategory}
-                        backToCategoryPage={backToCategoryPage}
+                    isCategoryPage ?
+                        <CategoryPage
+                            data={data}
+                            onCategoryClick={onCategoryClick}
+                        />
+                        :
+                        <TransactionPage
+                            data={selectedCategory}
+                            backToCategoryPage={backToCategoryPage}
 
-                    />
+                        />
             }
-        </>
+
+
+        </div>
     )
 }

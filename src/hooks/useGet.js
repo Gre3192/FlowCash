@@ -1,53 +1,50 @@
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 
-export function useGet(url, options = {}) {
-
+export function useGet(url, options) {
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(!!url);
   const [error, setError] = useState(null);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (signal) => {
     
     if (!url) return;
 
-    setLoading(true);
-    setError(null);
-
     try {
+      setLoading(true);
+      setError(null);
+
       const response = await fetch(url, {
         method: "GET",
         ...options,
+        signal,
       });
 
       if (!response.ok) {
-        throw {
-          message: "Richiesta fallita",
-          status: response.status,
-          statusText: response.statusText,
-        };
+        throw new Error(`Errore HTTP: ${response.status}`);
       }
 
-      const result = await response.json();
+      const text = await response.text();
+      console.log("RISPOSTA RAW:", text);
+
+      const result = JSON.parse(text);
       setData(result);
     } catch (err) {
-      setError({
-        message: err.message || "Errore sconosciuto",
-        status: err.status || null,
-        statusText: err.statusText || null,
-      });
+      if (err.name !== "AbortError") {
+        console.error("fetch error:", err);
+        setError(err.message || "Errore sconosciuto");
+      }
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
     }
   }, [url, options]);
 
   useEffect(() => {
-    fetchData();
+    const controller = new AbortController();
+    fetchData(controller.signal);
+    return () => controller.abort();
   }, [fetchData]);
 
-  return {
-    data,
-    loading,
-    error,
-    refetch: fetchData,
-  };
+  return { data, loading, error };
 }
