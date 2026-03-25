@@ -4,16 +4,16 @@ import TransactionFilters from "../components/TransactionFilters";
 import MonthBanner from "../components/MonthBanner";
 import { Wallet, Car, Plus, ArrowLeft } from "lucide-react";
 
-import DATA1 from "../Data/data";
 
 export default function TransactionPage({
 
+    data,
+    backToCategoryPage
 
 
-    
 }) {
 
-    console.log(DATA1);
+    console.log(data);
 
 
     return (
@@ -21,10 +21,10 @@ export default function TransactionPage({
 
             <div className="flex items-start justify-between gap-5 mb-4">
                 <div className="flex items-center gap-2">
-                    <ArrowLeft size={18} />
+                    <ArrowLeft size={18} onClick={backToCategoryPage} className="cursor-pointer" />
                     <div>
                         <div className="text-2xl  font-semibold text-slate-900 leading-none mb-1">
-                            Transazioni
+                            {data.title}
                         </div>
                         <div className="text-[16px] text-slate-500">
                             Gestisci i tuoi budget mensili
@@ -64,13 +64,17 @@ export default function TransactionPage({
                     setCategory={() => { }}
                 />
             </div> */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
                 {
-                    DATA1.categories.map((cat, i) => {
+                    data.elements.map((el, i) => {
+
+
+
+
                         return (
                             <BudgetCard
                                 key={i}
-                                title={cat.title}
+                                title={el.name}
                                 spent={300}
                                 limit={400}
                                 icon={Car}

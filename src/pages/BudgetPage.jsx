@@ -8,12 +8,19 @@ export default function BudgetPage() {
     console.log(DATA1);
 
     const [isCategoryPage, setIsCategoryPage] = useState(true)
-    const [categoryElements, setCategoryElements] = useState(null)
+    const [selectedCategory, setSelectedCategory] = useState(null)
 
 
-    function onChangePageType() {
+    function onCategoryClick(category) {
+        setSelectedCategory(category)
         setIsCategoryPage(!isCategoryPage)
     }
+
+    function backToCategoryPage(params) {
+        setSelectedCategory(null)
+        setIsCategoryPage(true)
+    }
+
 
     return (
         <>
@@ -21,11 +28,12 @@ export default function BudgetPage() {
                 isCategoryPage ?
                     <CategoryPage
                         data={DATA1}
-                        onChangePageType={onChangePageType}
-                        setCategoryElements={setCategoryElements}
+                        onCategoryClick={onCategoryClick}
                     />
                     :
                     <TransactionPage
+                        data={selectedCategory}
+                        backToCategoryPage={backToCategoryPage}
 
                     />
             }

@@ -4,13 +4,12 @@ import TransactionFilters from "../components/TransactionFilters";
 import MonthBanner from "../components/MonthBanner";
 import { Wallet, Car, Plus } from "lucide-react";
 
-import DATA1 from "../Data/data";
 
 export default function CategoryPage({
 
     data,
-    onChangePageType,
-    setCategoryElements
+    onCategoryClick,
+
 
 }) {
 
@@ -19,7 +18,6 @@ export default function CategoryPage({
 
     return (
         <>
-
             <div className="flex items-start justify-between gap-4 mb-2">
                 <div>
                     <div className="text-2xl font-semibold text-slate-900 leading-none mb-2">
@@ -42,14 +40,14 @@ export default function CategoryPage({
             <div className="mb-4">
                 <MonthBanner />
             </div>
-            
+
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                 {
                     data.categories.map((cat, i) => {
 
 
                         console.log(cat);
-                        
+
 
                         return (
                             <BudgetCard
@@ -59,6 +57,7 @@ export default function CategoryPage({
                                 limit={400}
                                 icon={Car}
                                 isCategoryShape={true}
+                                onCategoryClick={() => onCategoryClick(cat)}
                             />
 
                         )

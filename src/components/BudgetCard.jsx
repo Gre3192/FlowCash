@@ -8,6 +8,7 @@ export default function BudgetCard({
   icon: Icon,
   onBudgetClick,
   isCategoryShape,
+  onCategoryClick,
 }) {
 
   const percentage = limit > 0 ? (spent / limit) * 100 : 0;
@@ -28,7 +29,10 @@ export default function BudgetCard({
   const progressColorText = isOver || isLimit ? "text-red-500" : isWarning ? "text-amber-500" : "text-slate-600";
 
   return (
-    <div className="w-full bg-white border border-slate-200 rounded-[28px] p-6 shadow-sm transition-all duration-200 hover:shadow-md cursor-pointer">
+    <div
+      onClick={isCategoryShape ? onCategoryClick : null}
+      className="w-full bg-white border border-slate-200 rounded-[28px] p-6 shadow-sm transition-all duration-200 hover:shadow-md cursor-pointer"
+    >
 
       {/* HEADER */}
       <div className="flex items-start justify-between gap-4">
@@ -111,33 +115,22 @@ export default function BudgetCard({
                   {formatEuro(Math.abs(remaining))}
                 </div>
               </div>
-              {
-                !isCategoryShape ?
-                  <div className="flex items-center gap-2">
-                    <div
-                      onClick={onBudgetClick}
-                      className="mt-2 rounded-full w-fit inline-flex items-center justify-center gap-2 bg-slate-100 px-3 h-11 text-[16px] font-medium text-slate-800 hover:bg-slate-200 transition-colors whitespace-nowrap shrink-0"
-                    >
-                      <ReceiptText size={15} />
-                      Spese
-                    </div>
-                    <div
-                      onClick={onBudgetClick}
-                      className="mt-2 rounded-full w-fit inline-flex items-center justify-center gap-2 bg-slate-100 px-3 h-11 text-[16px] font-medium text-slate-800 hover:bg-slate-200 transition-colors whitespace-nowrap shrink-0"
-                    >
-                      <Wallet size={15} />
-                      Budget
-                    </div>
-                  </div>
-                  :
-                  <div
-                    onClick={onBudgetClick}
-                    className="mt-2 rounded-full w-fit inline-flex items-center justify-center gap-2 bg-slate-100 px-3 h-11 text-[16px] font-medium text-slate-800 hover:bg-slate-200 transition-colors whitespace-nowrap shrink-0"
-                  >
-                    <ScrollText size={15} />
-                    Transazioni
-                  </div>
-              }
+              <div className="flex items-center gap-2">
+                <div
+                  onClick={onBudgetClick}
+                  className="mt-2 rounded-full w-fit inline-flex items-center justify-center gap-2 bg-slate-100 px-3 h-11 text-[16px] font-medium text-slate-800 hover:bg-slate-200 transition-colors whitespace-nowrap shrink-0"
+                >
+                  <ReceiptText size={15} />
+                  Spese
+                </div>
+                <div
+                  onClick={onBudgetClick}
+                  className="mt-2 rounded-full w-fit inline-flex items-center justify-center gap-2 bg-slate-100 px-3 h-11 text-[16px] font-medium text-slate-800 hover:bg-slate-200 transition-colors whitespace-nowrap shrink-0"
+                >
+                  <Wallet size={15} />
+                  Budget
+                </div>
+              </div>
             </div>
           </div>
           :
