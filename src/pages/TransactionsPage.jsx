@@ -64,7 +64,7 @@ export default function TransactionPage({
                     setCategory={() => { }}
                 />
             </div> */}
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                 {
                     data.elements.map((el, i) => {
 
@@ -75,7 +75,7 @@ export default function TransactionPage({
                             <BudgetCard
                                 key={i}
                                 title={el.name}
-                                spent={300}
+                                spent={390}
                                 limit={400}
                                 icon={Car}
                             />
