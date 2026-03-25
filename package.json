@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@gre3192/grebrary": "^0.1.0",
     "@tailwindcss/vite": "^4.2.0",
     "axios": "^1.13.5",
     "bootstrap": "^5.3.8",
