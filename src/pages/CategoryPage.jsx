@@ -20,7 +20,7 @@ export default function CategoryPage({
         <>
             <div className="flex items-start justify-between gap-4 mb-2">
                 <div>
-                    <div className="text-2xl font-semibold text-slate-900 leading-none mb-2">
+                    <div className="text-3xl font-semibold text-slate-900 leading-none mb-2">
                         Categorie
                     </div>
                     <p className="text-[16px] text-slate-500">
@@ -43,13 +43,13 @@ export default function CategoryPage({
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                 {
-                    data?.categories?.map((cat, i) => {
+                    data?.categories.map((cat, i) => {
 
                         return (
                             <BudgetCard
                                 key={i}
                                 title={cat.title}
-                                spent={390}
+                                spent={300}
                                 limit={400}
                                 icon={Car}
                                 isCategoryShape={true}

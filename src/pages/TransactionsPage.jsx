@@ -21,7 +21,7 @@ export default function TransactionPage({
                 <div className="flex items-center gap-2">
                     <ArrowLeft size={18} onClick={backToCategoryPage} className="cursor-pointer" />
                     <div>
-                        <div className="text-2xl  font-semibold text-slate-900 leading-none mb-1">
+                        <div className="text-3xl  font-semibold text-slate-900 leading-none mb-1">
                             {data?.title}
                         </div>
                         <div className="text-[16px] text-slate-500">
@@ -66,12 +66,14 @@ export default function TransactionPage({
                 {
                     data?.elements.map((el, i) => {
 
+                        console.log(el);
+                        
 
                         return (
                             <BudgetCard
                                 key={i}
                                 title={el.name}
-                                spent={390}
+                                spent={200}
                                 limit={400}
                                 icon={Car}
                             />
