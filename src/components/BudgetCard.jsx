@@ -7,7 +7,7 @@ export default function BudgetCard({
   limit,
   icon: Icon,
   onBudgetClick,
-  budgetType,
+  isCategoryShape,
 }) {
 
   const percentage = limit > 0 ? (spent / limit) * 100 : 0;
@@ -95,7 +95,7 @@ export default function BudgetCard({
       <ProgressBar percentage={percentage} />
 
       {
-        budgetType !== 'category' ?
+        !isCategoryShape ?
           <div>
             {/* DIVIDER */}
             <div className="mt-3 border-t border-slate-200" />
@@ -112,7 +112,7 @@ export default function BudgetCard({
                 </div>
               </div>
               {
-                !budgetType ?
+                !isCategoryShape ?
                   <div className="flex items-center gap-2">
                     <div
                       onClick={onBudgetClick}

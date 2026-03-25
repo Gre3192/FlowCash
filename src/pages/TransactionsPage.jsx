@@ -6,7 +6,12 @@ import { Wallet, Car, Plus, ArrowLeft } from "lucide-react";
 
 import DATA1 from "../Data/data";
 
-export default function TransactionPage() {
+export default function TransactionPage({
+
+
+
+    
+}) {
 
     console.log(DATA1);
 

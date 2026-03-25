@@ -58,7 +58,7 @@ export default function CategoryPage({
                                 spent={390}
                                 limit={400}
                                 icon={Car}
-                                budgetType={'category'}
+                                isCategoryShape={true}
                             />
 
                         )
