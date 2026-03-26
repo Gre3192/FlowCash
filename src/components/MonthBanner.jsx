@@ -23,8 +23,13 @@ const MonthYearTrigger = forwardRef(function MonthYearTrigger(
   );
 });
 
-export default function MonthBanner() {
-  const [selectedDate, setSelectedDate] = useState(new Date(2026, 2, 1));
+export default function MonthBanner({
+
+  selectedDate,
+  setSelectedDate
+
+}) {
+  // const [selectedDate, setSelectedDate] = useState(new Date(2026, 2, 1));
 
   const formattedValue = useMemo(() => {
     return selectedDate.toLocaleDateString("it-IT", {

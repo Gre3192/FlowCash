@@ -102,6 +102,14 @@ export default function Layout() {
                     /> */}
                     <NavItem
                         icon={<Wallet size={22} />}
+                        label="Riepilogo"
+                        to="/summaryPage"
+                        active={location.pathname === '/summary'}
+                        isExpanded={isExpanded}
+                        isMobileOpen={isMobileOpen}
+                    />
+                    <NavItem
+                        icon={<Wallet size={22} />}
                         label="Budget"
                         to="/budgetPage"
                         active={location.pathname === '/budgetPage'}

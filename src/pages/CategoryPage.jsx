@@ -9,7 +9,8 @@ export default function CategoryPage({
 
     data,
     onCategoryClick,
-
+    setSelectedDate,
+    selectedDate
 
 }) {
 
@@ -39,12 +40,18 @@ export default function CategoryPage({
             </div>
 
             <div className="mb-4">
-                <MonthBanner />
+                <MonthBanner
+                    selectedDate={selectedDate}
+                    setSelectedDate={setSelectedDate}
+                />
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                 {
                     data?.categories.map((cat, i) => {
+
+                        console.log(cat);
+
 
                         return (
                             <BudgetCard

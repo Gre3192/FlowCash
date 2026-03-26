@@ -8,8 +8,9 @@ import { Wallet, Car, Plus, ArrowLeft } from "lucide-react";
 export default function TransactionPage({
 
     data,
-    backToCategoryPage
-
+    backToCategoryPage,
+    selectedDate,
+    setSelectedDate
 
 }) {
 
@@ -48,7 +49,10 @@ export default function TransactionPage({
             </div> */}
 
             <div className="mb-4">
-                <MonthBanner />
+                <MonthBanner
+                    selectedDate={selectedDate}
+                    setSelectedDate={setSelectedDate}
+                />
             </div>
 
 
@@ -67,7 +71,7 @@ export default function TransactionPage({
                     data?.elements.map((el, i) => {
 
                         console.log(el);
-                        
+
 
                         return (
                             <BudgetCard

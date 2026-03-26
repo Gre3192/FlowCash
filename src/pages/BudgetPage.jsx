@@ -10,8 +10,7 @@ export default function BudgetPage() {
 
     const [isCategoryPage, setIsCategoryPage] = useState(true)
     const [selectedCategory, setSelectedCategory] = useState(null)
-    const [dateSelected, setDateSelected] = useState('')
-
+    const [selectedDate, setSelectedDate] = useState(new Date())
 
     function onCategoryClick(category) {
         setSelectedCategory(category)
@@ -23,7 +22,9 @@ export default function BudgetPage() {
         setIsCategoryPage(true)
     }
 
-return (
+
+
+    return (
         <>
             {
                 loading ?
@@ -33,13 +34,16 @@ return (
                         <CategoryPage
                             data={data}
                             onCategoryClick={onCategoryClick}
-                            setDateSelected={setDateSelected}
+                            selectedDate={selectedDate}
+                            setSelectedDate={setSelectedDate}
+
                         />
                         :
                         <TransactionPage
                             data={selectedCategory}
                             backToCategoryPage={backToCategoryPage}
-                            setDateSelected={setDateSelected}
+                            selectedDate={selectedDate}
+                            setSelectedDate={setSelectedDate}
                         />
             }
         </>
