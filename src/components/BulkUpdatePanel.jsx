@@ -138,14 +138,14 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                                 onClick={selectAllMonths}
                                                 className="text-zinc-500 hover:text-zinc-800"
                                             >
-                                                Tutti
+                                                Seleziona tutti
                                             </button>
                                             <button
                                                 type="button"
                                                 onClick={clearMonths}
                                                 className="text-zinc-500 hover:text-zinc-800"
                                             >
-                                                Pulisci
+                                                Reset
                                             </button>
                                         </div>
                                     </div>
@@ -175,14 +175,14 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                                 onClick={selectAllYears}
                                                 className="text-zinc-500 hover:text-zinc-800"
                                             >
-                                                Tutti
+                                               Seleziona tutti
                                             </button>
                                             <button
                                                 type="button"
                                                 onClick={clearYears}
                                                 className="text-zinc-500 hover:text-zinc-800"
                                             >
-                                                Pulisci
+                                                Reset
                                             </button>
                                         </div>
                                     </div>
@@ -207,7 +207,7 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                         onClick={handleApplyBulkValue}
                                         className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-black px-5 text-sm font-medium text-white transition hover:bg-zinc-800"
                                     >
-                                        Aggiungi
+                                        Popola tabella
                                     </button>
                                     <button
                                         type="button"
