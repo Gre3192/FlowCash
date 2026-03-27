@@ -73,7 +73,7 @@ export default function BulkUpdatePanel({ rows, setRows }) {
     const getToggleClass = (isActive) =>
         `h-10 rounded-full border px-4 text-sm font-semibold transition-all duration-200 shadow-sm ${
             isActive
-                ? "border-rose-300 bg-rose-100 text-rose-700 shadow-rose-100"
+                ? "border-rose-300 bg-blue-100 text-blue-700 shadow-rose-100"
                 : "border-zinc-200 bg-zinc-50 text-zinc-700 hover:border-zinc-300 hover:bg-white"
         }`;
 
