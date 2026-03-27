@@ -77,8 +77,8 @@ export default function TransactionPage({
                             <BudgetCard
                                 key={i}
                                 title={el.name}
-                                spent={200}
                                 limit={400}
+                                spent={200}
                                 icon={Car}
                             />
                         )

@@ -1,15 +1,11 @@
-import { useState } from "react"
-
+import { useState } from "react";
 
 const MONTHS = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
 
-
 export default function BulkUpdatePanel({ rows, setRows }) {
-
     const [bulkValue, setBulkValue] = useState("");
     const [selectedMonths, setSelectedMonths] = useState([]);
     const [selectedYears, setSelectedYears] = useState([]);
-
 
     const selectAllMonths = () => {
         setSelectedMonths(MONTHS.map((_, index) => index));
@@ -62,13 +58,24 @@ export default function BulkUpdatePanel({ rows, setRows }) {
         );
     };
 
+    const handleClearTable = () => {
+        setRows((prev) =>
+            prev.map((row) => ({
+                ...row,
+                values: row.values.map(() => ""),
+            }))
+        );
+    };
+
+    const getToggleClass = (isActive) =>
+        `h-10 rounded-full border px-4 text-sm font-semibold transition-all duration-200 shadow-sm ${isActive
+            ? "border-rose-300 bg-rose-100 text-rose-700 shadow-rose-100"
+            : "border-zinc-200 bg-zinc-50 text-zinc-700 hover:border-zinc-300 hover:bg-white"
+        }`;
 
     return (
         <div className="mb-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
             <div className="grid gap-4 xl:grid-cols-[220px_1fr_1fr_auto]">
-
-
-
                 <div>
                     <label className="mb-2 block text-sm font-medium text-zinc-700">
                         Valore
@@ -82,8 +89,6 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                         className="h-10 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm text-zinc-700 outline-none transition placeholder:text-zinc-400 focus:border-zinc-300 focus:bg-white focus:ring-2 focus:ring-zinc-200"
                     />
                 </div>
-
-
 
                 <div>
                     <div className="mb-2 flex items-center justify-between">
@@ -108,25 +113,19 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                         </div>
                     </div>
 
-
-                    <div className="grid grid-cols-4 gap-2 h-40 rounded-xl border border-zinc-200 p-3">
+                    <div className="grid h-44 grid-cols-4 gap-2 rounded-2xl border border-zinc-200 bg-zinc-50/60 p-3">
                         {MONTHS.map((month, index) => (
-                            <label
+                            <button
                                 key={month}
-                                className="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-zinc-50"
+                                type="button"
+                                onClick={() => toggleMonth(index)}
+                                className={getToggleClass(selectedMonths.includes(index))}
                             >
-                                <input
-                                    type="checkbox"
-                                    checked={selectedMonths.includes(index)}
-                                    onChange={() => toggleMonth(index)}
-                                    className="h-4 w-4 rounded border-zinc-300"
-                                />
-                                <span className="text-sm text-zinc-700">{month}</span>
-                            </label>
+                                {month}
+                            </button>
                         ))}
                     </div>
                 </div>
-
 
                 <div>
                     <div className="mb-2 flex items-center justify-between">
@@ -151,34 +150,37 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                         </div>
                     </div>
 
-                    <div className="grid h-40 grid-cols-3 gap-2 overflow-y-auto rounded-xl border border-zinc-200 p-3">
+                    <div className="grid h-44 grid-cols-3 gap-2 overflow-y-auto rounded-2xl border border-zinc-200 bg-zinc-50/60 p-3">
                         {rows.map((row) => (
-                            <label
+                            <button
                                 key={row.year}
-                                className="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-zinc-50"
+                                type="button"
+                                onClick={() => toggleYear(row.year)}
+                                className={getToggleClass(selectedYears.includes(row.year))}
                             >
-                                <input
-                                    type="checkbox"
-                                    checked={selectedYears.includes(row.year)}
-                                    onChange={() => toggleYear(row.year)}
-                                    className="h-4 w-4 rounded border-zinc-300"
-                                />
-                                <span className="text-sm text-zinc-700">{row.year}</span>
-                            </label>
+                                {row.year}
+                            </button>
                         ))}
                     </div>
                 </div>
 
-                <div className="flex items-center">
+                <div className="flex flex-col justify-center items-center gap-2">
                     <button
                         type="button"
                         onClick={handleApplyBulkValue}
-                        className="inline-flex h-10 items-center justify-center rounded-xl bg-black px-5 text-sm font-medium text-white transition hover:bg-zinc-800"
+                        className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-black px-5 text-sm font-medium text-white transition hover:bg-zinc-800"
                     >
                         Aggiungi
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleClearTable}
+                        className="inline-flex h-10 items-center justify-center rounded-xl border border-zinc-200 bg-white px-5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50"
+                    >
+                        Pulisci tabella
                     </button>
                 </div>
             </div>
         </div>
-    )
+    );
 }
