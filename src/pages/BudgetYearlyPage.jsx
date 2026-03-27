@@ -19,6 +19,7 @@ function getYearTotal(values) {
 const MONTHS = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
 
 export default function BudgetYearlyPage() {
+
   const [title] = useState("Amazon Prime");
   const [subtitle] = useState("Gestisci i tuoi budget");
 
@@ -118,9 +119,9 @@ export default function BudgetYearlyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-100 p-4 md:p-6">
-      <div className="mx-auto w-full max-w-7xl">
-        <div className="mb-5 flex items-start justify-between gap-4">
+    <div className="min-h-screen">
+      <div className="w-full px-8 py-3">
+        <div className="mb-1 flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
             <button
               type="button"
