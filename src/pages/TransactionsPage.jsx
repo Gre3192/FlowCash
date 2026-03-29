@@ -3,7 +3,7 @@ import BudgetOverview from "../components/BudgetOverview";
 import TransactionFilters from "../components/TransactionFilters";
 import MonthBanner from "../components/MonthBanner";
 import { Wallet, Car, Plus, ArrowLeft } from "lucide-react";
-
+import { useNavigate } from "react-router-dom";
 
 export default function TransactionPage({
 
@@ -14,6 +14,8 @@ export default function TransactionPage({
 
 }) {
 
+
+    const { navigate } = useNavigate();
 
     return (
         <>
@@ -80,6 +82,7 @@ export default function TransactionPage({
                                 limit={400}
                                 spent={200}
                                 icon={Car}
+                                onBudgetButtonClick={() => navigate('budgetYearlyPage')}
                             />
                         )
                     })

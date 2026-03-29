@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { ArrowLeft, Save, PlusCircle, CalendarRange } from "lucide-react";
+import { ArrowLeft, Save, PlusCircle, CalendarRange, Trash2 } from "lucide-react";
 import BulkUpdatePanel from "../components/BulkUpdatePanel";
 
 function createYearRow(year) {
@@ -36,7 +36,7 @@ export default function BudgetYearlyPage() {
     }
     return initial;
   });
-  
+
 
   const [isYearsModalOpen, setIsYearsModalOpen] = useState(false);
   const [startYear, setStartYear] = useState("");
@@ -51,14 +51,14 @@ export default function BudgetYearlyPage() {
     return sortedRows[sortedRows.length - 1].year + 1;
   }, [sortedRows]);
 
-  const handleChange = (year, monthIndex, value) => {
+  const handleValueChange = (year, monthIndex, value) => {
     setRows((prev) =>
       prev.map((row) =>
         row.year === year
           ? {
-              ...row,
-              values: row.values.map((v, i) => (i === monthIndex ? value : v)),
-            }
+            ...row,
+            values: row.values.map((v, i) => (i === monthIndex ? value : v)),
+          }
           : row
       )
     );
@@ -117,6 +117,16 @@ export default function BudgetYearlyPage() {
     setRows(nextRows);
     setIsYearsModalOpen(false);
   };
+
+const handleClearRow = (year) => {
+    setRows((prev) =>
+        prev.map((row) =>
+            row.year === year
+                ? { ...row, values: row.values.map(() => '') }
+                : row
+        )
+    );
+};
 
   return (
     <div className="min-h-screen">
@@ -185,32 +195,31 @@ export default function BudgetYearlyPage() {
                   const total = getYearTotal(row.values);
 
                   return (
-                    <tr key={row.year} className="border-b border-zinc-100 last:border-b-0">
-                      <td className="px-3 py-2 align-top">
-                        <div className="flex min-h-[56px] flex-col justify-center">
-                          <span className="text-sm font-medium text-zinc-900">
-                            {row.year}
-                          </span>
-                          <span className="mt-1 text-xs text-zinc-500">
-                            Totale: {total}
-                          </span>
-                        </div>
+                    <tr key={row.year} className="border-b border-zinc-100">
+                      <td className="px-3 py-2 text-sm font-semibold text-zinc-700">
+                        {row.year}
                       </td>
 
                       {row.values.map((value, monthIndex) => (
-                        <td key={`${row.year}-${monthIndex}`} className="px-3 py-2">
+                        <td key={monthIndex} className="px-2 py-2">
                           <input
                             type="number"
-                            inputMode="numeric"
                             value={value}
-                            onChange={(e) =>
-                              handleChange(row.year, monthIndex, e.target.value)
-                            }
-                            placeholder="-"
-                            className="h-8 w-full rounded-md border border-zinc-200 bg-zinc-50 px-2 text-sm text-zinc-700 outline-none transition placeholder:text-zinc-400 focus:border-zinc-300 focus:bg-white focus:ring-2 focus:ring-zinc-200"
+                            onChange={(e) => handleValueChange(row.year, monthIndex, e.target.value)}
+                            className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-center text-sm text-zinc-700"
                           />
                         </td>
                       ))}
+
+                      <td className="px-2 py-2">
+                        <button
+                          type="button"
+                          onClick={() => handleClearRow(row.year)}
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-red-200 bg-red-50 text-red-600 transition hover:bg-red-100"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
                     </tr>
                   );
                 })}

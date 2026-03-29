@@ -9,6 +9,8 @@ export default function BudgetCard({
   onBudgetClick,
   isCategoryShape,
   onCategoryClick,
+  onBudgetButtonClick,
+  onSpentClick,
 }) {
 
   const percentage = limit > 0 ? (spent / limit) * 100 : 0;
@@ -117,14 +119,14 @@ export default function BudgetCard({
               </div>
               <div className="flex items-center gap-2">
                 <div
-                  onClick={onBudgetClick}
+                  onClick={onSpentClick}
                   className="mt-2 rounded-full w-fit inline-flex items-center justify-center gap-2 bg-slate-100 px-3 h-11 text-[16px] font-medium text-slate-800 hover:bg-slate-200 transition-colors whitespace-nowrap shrink-0"
                 >
                   <ReceiptText size={15} />
                   Spese
                 </div>
                 <div
-                  onClick={onBudgetClick}
+                  onClick={onBudgetButtonClick}
                   className="mt-2 rounded-full w-fit inline-flex items-center justify-center gap-2 bg-slate-100 px-3 h-11 text-[16px] font-medium text-slate-800 hover:bg-slate-200 transition-colors whitespace-nowrap shrink-0"
                 >
                   <Wallet size={15} />
