@@ -72,15 +72,13 @@ export default function TransactionPage({
                 {
                     data?.elements.map((el, i) => {
 
-                        console.log(el);
-
 
                         return (
                             <BudgetCard
                                 key={i}
                                 title={el.name}
+                                spent={300}
                                 limit={400}
-                                spent={200}
                                 icon={Car}
                                 onBudgetButtonClick={() => navigate('budgetYearlyPage')}
                             />

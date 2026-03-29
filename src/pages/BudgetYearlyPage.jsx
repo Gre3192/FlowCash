@@ -173,7 +173,7 @@ const handleClearRow = (year) => {
 
         <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1100px] border-collapse">
+            <table className="w-full min-w-275 border-collapse">
               <thead>
                 <tr className="border-b border-zinc-200 bg-zinc-50/80">
                   <th className="w-32 px-3 py-3 text-left text-sm font-medium text-zinc-500">
