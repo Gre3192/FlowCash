@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { ArrowLeft, Save, PlusCircle, CalendarRange, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, PlusCircle, CalendarRange, Eraser } from "lucide-react";
 import BulkUpdatePanel from "../components/BulkUpdatePanel";
 
 function createYearRow(year) {
@@ -19,7 +19,6 @@ function getYearTotal(values) {
 const MONTHS = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
 
 export default function BudgetYearlyPage() {
-
   const [title] = useState("Amazon Prime");
   const [subtitle] = useState("Gestisci i tuoi budget");
 
@@ -36,7 +35,6 @@ export default function BudgetYearlyPage() {
     }
     return initial;
   });
-
 
   const [isYearsModalOpen, setIsYearsModalOpen] = useState(false);
   const [startYear, setStartYear] = useState("");
@@ -118,15 +116,15 @@ export default function BudgetYearlyPage() {
     setIsYearsModalOpen(false);
   };
 
-const handleClearRow = (year) => {
+  const handleClearRow = (year) => {
     setRows((prev) =>
-        prev.map((row) =>
-            row.year === year
-                ? { ...row, values: row.values.map(() => '') }
-                : row
-        )
+      prev.map((row) =>
+        row.year === year
+          ? { ...row, values: row.values.map(() => "") }
+          : row
+      )
     );
-};
+  };
 
   return (
     <div className="min-h-screen">
@@ -173,12 +171,13 @@ const handleClearRow = (year) => {
 
         <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-275 border-collapse">
+            <table className="w-full min-w-[1270px] border-collapse">
               <thead>
                 <tr className="border-b border-zinc-200 bg-zinc-50/80">
-                  <th className="w-32 px-3 py-3 text-left text-sm font-medium text-zinc-500">
+                  <th className="w-40 px-3 py-3 text-left text-sm font-medium text-zinc-500">
                     Anno
                   </th>
+
                   {MONTHS.map((month) => (
                     <th
                       key={month}
@@ -187,6 +186,8 @@ const handleClearRow = (year) => {
                       {month}
                     </th>
                   ))}
+
+                  <th className="w-16 px-3 py-3" />
                 </tr>
               </thead>
 
@@ -196,8 +197,16 @@ const handleClearRow = (year) => {
 
                   return (
                     <tr key={row.year} className="border-b border-zinc-100">
-                      <td className="px-3 py-2 text-sm font-semibold text-zinc-700">
-                        {row.year}
+                      <td className="px-3 py-2 align-middle">
+                        <div className="text-sm font-semibold text-zinc-700">
+                          {row.year}
+                        </div>
+                        <div className="mt-0 text-xs font-medium text-zinc-500">
+                          Totale:{" "}
+                          <span className="font-semibold text-zinc-800">
+                            {total}{" "}&euro;
+                          </span>
+                        </div>
                       </td>
 
                       {row.values.map((value, monthIndex) => (
@@ -205,19 +214,21 @@ const handleClearRow = (year) => {
                           <input
                             type="number"
                             value={value}
-                            onChange={(e) => handleValueChange(row.year, monthIndex, e.target.value)}
-                            className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-center text-sm text-zinc-700"
+                            onChange={(e) =>
+                              handleValueChange(row.year, monthIndex, e.target.value)
+                            }
+                            className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-center text-sm text-zinc-700 outline-none transition focus:border-zinc-300 focus:ring-2 focus:ring-zinc-200"
                           />
                         </td>
                       ))}
 
-                      <td className="px-2 py-2">
+                      <td className="px-2 py-2 text-center">
                         <button
                           type="button"
                           onClick={() => handleClearRow(row.year)}
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-red-200 bg-red-50 text-red-600 transition hover:bg-red-100"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-600 transition hover:scale-125"
                         >
-                          <Trash2 size={16} />
+                          <Eraser size={16} />
                         </button>
                       </td>
                     </tr>
