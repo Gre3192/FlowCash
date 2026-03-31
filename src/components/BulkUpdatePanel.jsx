@@ -87,7 +87,7 @@ export default function BulkUpdatePanel({
 
         const safeDeltaTime = deltaTime <= 0 ? 1 : deltaTime;
         const speed = Math.abs(deltaY) / safeDeltaTime;
-        
+
         if (mode === "integer") {
             if (speed < 1.5) return 1;
             if (speed < 3) return 5;
@@ -167,6 +167,12 @@ export default function BulkUpdatePanel({
             }))
         );
     };
+
+    const resetAllSelections = () => {
+        setBulkValue("");
+        setSelectedMonths([]);
+        setSelectedYears([]);
+    }
 
     useEffect(() => {
         const handleGlobalWheel = (e) => {
@@ -267,7 +273,7 @@ export default function BulkUpdatePanel({
                                         />
                                     </div>
 
-                                    <div className="mt-3 rounded-xl px-0">
+                                    <div className="mt-3">
                                         <div className="mb-2 text-xs font-base tracking-wide text-zinc-500">
                                             Incremento scroll
                                         </div>
@@ -315,6 +321,8 @@ export default function BulkUpdatePanel({
                                             </div>
                                         </div>
                                     </div>
+
+
                                 </div>
 
                                 <div>
@@ -429,6 +437,13 @@ export default function BulkUpdatePanel({
                                 <div className="flex flex-col justify-end gap-2">
                                     <button
                                         type="button"
+                                        onClick={resetAllSelections}
+                                        className="mb-4 inline-flex h-10 w-full items-center justify-center rounded-xl border border-zinc-200 bg-white px-5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50"
+                                    >
+                                        Reset selezioni
+                                    </button>
+                                    <button
+                                        type="button"
                                         onClick={handleApplyBulkValue}
                                         className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-black px-5 text-sm font-medium text-white transition hover:bg-zinc-800"
                                     >
@@ -442,6 +457,7 @@ export default function BulkUpdatePanel({
                                     >
                                         Pulisci tabella
                                     </button>
+
                                 </div>
                             </div>
                         </motion.div>
