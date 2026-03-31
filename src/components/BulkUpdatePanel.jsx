@@ -124,7 +124,7 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                             type="number"
                                             inputMode="decimal"
                                             min="0"
-                                            step="0.01"
+                                            step="0.00"
                                             value={bulkValue}
                                             onChange={(e) => setBulkValue(e.target.value)}
                                             placeholder="0,00"
