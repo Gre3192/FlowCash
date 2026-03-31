@@ -163,7 +163,7 @@ export default function BudgetYearlyPage() {
   return (
     <div className="min-h-screen bg-zinc-50">
       <div className="flex min-h-screen flex-col px-3 py-3 sm:px-4 md:px-6 lg:px-8">
-        <div className="sticky top-0 z-30 -mx-3 mb-3 border-b border-zinc-200 bg-zinc-50/95 px-3 py-3 backdrop-blur supports-[backdrop-filter]:bg-zinc-50/80 sm:-mx-4 sm:px-4 md:-mx-6 md:px-6 lg:-mx-8 lg:px-8">
+        <div className="sticky top-0 z-30 -mx-3 mb-3 border-b border-zinc-200 bg-zinc-50/95 px-3 py-3 backdrop-blur supports-backdrop-filter:bg-zinc-50/80 sm:-mx-4 sm:px-4 md:-mx-6 md:px-6 lg:-mx-8 lg:px-8">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div className="flex min-w-0 items-start gap-3">
               <button
@@ -218,7 +218,7 @@ export default function BudgetYearlyPage() {
           <div className="rounded-2xl border border-zinc-200 bg-white shadow-sm">
             <div className="h-[52vh] overflow-x-auto overflow-y-scroll rounded-2xl pb-2 sm:h-[56vh] lg:h-[58vh] md:overflow-x-hidden">
               <table className="w-[980px] border-collapse sm:w-[1080px] md:w-full md:table-fixed">
-                <thead className="sticky top-0 z-10 bg-white">
+                <thead className="sticky top-[128px] z-20 bg-white sm:top-[92px]">
                   <tr className="border-b border-zinc-200 bg-zinc-50/80">
                     <th className="w-32 px-3 py-3 text-left text-xs font-medium text-zinc-500 sm:w-36 sm:text-sm md:w-40 md:px-3">
                       Anno
