@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -9,6 +9,9 @@ export default function BulkUpdatePanel({ rows, setRows }) {
     const [bulkValue, setBulkValue] = useState("");
     const [selectedMonths, setSelectedMonths] = useState([]);
     const [selectedYears, setSelectedYears] = useState([]);
+    const [valueMode, setValueMode] = useState("decimal");
+
+    const inputRef = useRef(null);
 
     const selectAllMonths = () => {
         setSelectedMonths(MONTHS.map((_, index) => index));
@@ -42,10 +45,79 @@ export default function BulkUpdatePanel({ rows, setRows }) {
         setSelectedYears([]);
     };
 
+    const normalizeValueString = (value) => {
+        return String(value).replace(",", ".");
+    };
+
+    const splitNumberParts = (value) => {
+        const normalized = normalizeValueString(value);
+
+        if (!normalized || Number.isNaN(Number(normalized))) {
+            return { integerPart: 0, decimalPart: 0 };
+        }
+
+        const [intStr = "0", decStr = ""] = normalized.split(".");
+        const integerPart = parseInt(intStr, 10) || 0;
+        const decimalPart = parseInt((decStr + "00").slice(0, 2), 10) || 0;
+
+        return { integerPart, decimalPart };
+    };
+
+    const buildValueFromParts = (integerPart, decimalPart) => {
+        const safeInteger = Math.max(0, integerPart);
+        const safeDecimal = Math.max(0, Math.min(99, decimalPart));
+        return `${safeInteger},${String(safeDecimal).padStart(2, "0")}`;
+    };
+
+    const handleWheelValue = (e) => {
+        const direction = e.deltaY < 0 ? 1 : -1;
+        const { integerPart, decimalPart } = splitNumberParts(bulkValue);
+
+        if (valueMode === "integer") {
+            const nextInteger = Math.max(0, integerPart + direction);
+            setBulkValue(buildValueFromParts(nextInteger, decimalPart));
+            return;
+        }
+
+        let nextInteger = integerPart;
+        let nextDecimal = decimalPart + direction;
+
+        if (nextDecimal > 99) {
+            nextDecimal = 0;
+            nextInteger += 1;
+        }
+
+        if (nextDecimal < 0) {
+            if (nextInteger > 0) {
+                nextDecimal = 99;
+                nextInteger -= 1;
+            } else {
+                nextDecimal = 0;
+            }
+        }
+
+        setBulkValue(buildValueFromParts(nextInteger, nextDecimal));
+    };
+
+    const handleValueChange = (e) => {
+        const value = e.target.value;
+
+        if (value === "") {
+            setBulkValue("");
+            return;
+        }
+
+        if (!/^\d*([.,]?\d{0,2})?$/.test(value)) return;
+
+        setBulkValue(value);
+    };
+
     const handleApplyBulkValue = () => {
         if (bulkValue === "") return;
         if (selectedMonths.length === 0) return;
         if (selectedYears.length === 0) return;
+
+        const normalizedBulkValue = bulkValue.replace(",", ".");
 
         setRows((prev) =>
             prev.map((row) => {
@@ -54,7 +126,7 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                 return {
                     ...row,
                     values: row.values.map((currentValue, monthIndex) =>
-                        selectedMonths.includes(monthIndex) ? bulkValue : currentValue
+                        selectedMonths.includes(monthIndex) ? normalizedBulkValue : currentValue
                     ),
                 };
             })
@@ -69,6 +141,22 @@ export default function BulkUpdatePanel({ rows, setRows }) {
             }))
         );
     };
+
+    useEffect(() => {
+        const input = inputRef.current;
+        if (!input) return;
+
+        const onWheel = (e) => {
+            e.preventDefault();
+            handleWheelValue(e);
+        };
+
+        input.addEventListener("wheel", onWheel, { passive: false });
+
+        return () => {
+            input.removeEventListener("wheel", onWheel);
+        };
+    }, [bulkValue, valueMode]);
 
     const getToggleClass = (isActive) =>
         `h-10 rounded-full border px-3 sm:px-4 text-xs sm:text-sm font-semibold transition-all duration-200 shadow-sm ${
@@ -128,15 +216,46 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                         </span>
 
                                         <input
-                                            type="number"
+                                            ref={inputRef}
+                                            type="text"
                                             inputMode="decimal"
-                                            min="0"
-                                            step="0.01"
                                             value={bulkValue}
-                                            onChange={(e) => setBulkValue(e.target.value)}
+                                            onChange={handleValueChange}
                                             placeholder="0,00"
                                             className="h-10 w-full rounded-xl border border-zinc-200 bg-zinc-50 pl-8 pr-3 text-sm text-zinc-700 outline-none transition placeholder:text-zinc-400 focus:border-zinc-300 focus:bg-white focus:ring-2 focus:ring-zinc-200"
                                         />
+                                    </div>
+
+                                    <div className="mt-3 rounded-xl border border-zinc-200 bg-zinc-50/70 p-3">
+                                        <div className="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-500">
+                                            Tipo incremento
+                                        </div>
+
+                                        <div className="flex flex-col gap-2">
+                                            <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-700">
+                                                <input
+                                                    type="radio"
+                                                    name="valueMode"
+                                                    value="integer"
+                                                    checked={valueMode === "integer"}
+                                                    onChange={(e) => setValueMode(e.target.value)}
+                                                    className="h-4 w-4"
+                                                />
+                                                Interi
+                                            </label>
+
+                                            <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-700">
+                                                <input
+                                                    type="radio"
+                                                    name="valueMode"
+                                                    value="decimal"
+                                                    checked={valueMode === "decimal"}
+                                                    onChange={(e) => setValueMode(e.target.value)}
+                                                    className="h-4 w-4"
+                                                />
+                                                Decimali
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -202,18 +321,18 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                         </div>
                                     </div>
 
-                       <div className="grid h-44 content-start grid-cols-2 auto-rows-[40px] gap-2 overflow-y-auto rounded-2xl border border-zinc-200 bg-zinc-50/60 p-3 sm:grid-cols-3">
-    {rows.map((row) => (
-        <button
-            key={row.year}
-            type="button"
-            onClick={() => toggleYear(row.year)}
-            className={getToggleClass(selectedYears.includes(row.year))}
-        >
-            {row.year}
-        </button>
-    ))}
-</div>
+                                    <div className="grid h-44 content-start grid-cols-2 auto-rows-[40px] gap-2 overflow-y-auto rounded-2xl border border-zinc-200 bg-zinc-50/60 p-3 sm:grid-cols-3">
+                                        {rows.map((row) => (
+                                            <button
+                                                key={row.year}
+                                                type="button"
+                                                onClick={() => toggleYear(row.year)}
+                                                className={getToggleClass(selectedYears.includes(row.year))}
+                                            >
+                                                {row.year}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
 
                                 <div className="flex flex-col justify-end gap-2">
