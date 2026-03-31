@@ -267,9 +267,9 @@ export default function BulkUpdatePanel({
                                         />
                                     </div>
 
-                                    <div className="mt-3 rounded-xl border border-zinc-200 bg-zinc-50/70 p-3">
-                                        <div className="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-500">
-                                            Tipo incremento
+                                    <div className="mt-3 rounded-xl px-0">
+                                        <div className="mb-2 text-xs font-base tracking-wide text-zinc-500">
+                                            Incremento scroll
                                         </div>
                                         <div className="flex flex-row flex-wrap gap-4">
                                             <div className="inline-flex items-center gap-1 text-sm text-zinc-700">

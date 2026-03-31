@@ -269,6 +269,7 @@ export default function BudgetYearlyPage() {
                               type="text"
                               step="0.01"
                               value={value}
+                              placeholder="-"
                               onChange={(e) =>
                                 handleValueChange(
                                   row.year,
