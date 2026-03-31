@@ -75,6 +75,9 @@ export default function BudgetYearlyPage() {
   }, [sortedRows]);
 
   const handleValueChange = (year, monthIndex, value) => {
+
+    if (!/^\d*([.,]?\d{0,2})?$/.test(value)) return;
+
     setRows((prev) =>
       prev.map((row) =>
         row.year === year
@@ -263,6 +266,7 @@ export default function BudgetYearlyPage() {
                           <td key={monthIndex} className="px-1 py-2 md:px-2">
                             <input
                               type="number"
+                              inputMode="decimal"
                               step="0.01"
                               value={value}
                               onChange={(e) =>
