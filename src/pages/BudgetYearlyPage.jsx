@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Save, PlusCircle, CalendarRange, Eraser } from "lucide-react";
 import BulkUpdatePanel from "../components/BulkUpdatePanel";
 
@@ -21,6 +21,11 @@ const MONTHS = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "
 export default function BudgetYearlyPage() {
   const [title] = useState("Amazon Prime");
   const [subtitle] = useState("Gestisci i tuoi budget");
+  const [isBulkOpen, setIsBulkOpen] = useState(false);
+  const [tableMaxHeight, setTableMaxHeight] = useState(null);
+
+  const tableSectionRef = useRef(null);
+  const addButtonRef = useRef(null);
 
   const [rows, setRows] = useState(() => {
     const initial = [];
@@ -126,10 +131,34 @@ export default function BudgetYearlyPage() {
     );
   };
 
+  useEffect(() => {
+    if (isBulkOpen) return;
+
+    const calculateTableMaxHeight = () => {
+      if (!tableSectionRef.current || !addButtonRef.current) return;
+
+      const tableTop = tableSectionRef.current.getBoundingClientRect().top;
+      const addButtonHeight = addButtonRef.current.getBoundingClientRect().height;
+
+      const bottomSafeSpace = 24;
+      const gapAboveButton = 16;
+
+      const availableHeight =
+        window.innerHeight - tableTop - addButtonHeight - gapAboveButton - bottomSafeSpace;
+
+      setTableMaxHeight(Math.max(220, Math.floor(availableHeight)));
+    };
+
+    calculateTableMaxHeight();
+
+    window.addEventListener("resize", calculateTableMaxHeight);
+    return () => window.removeEventListener("resize", calculateTableMaxHeight);
+  }, [isBulkOpen, rows.length]);
+
   return (
-    <div className="min-h-screen">
-      <div className="w-full px-8 py-3">
-        <div className="mb-1 flex items-start justify-between gap-4">
+    <div className="min-h-screen overflow-y-auto bg-zinc-50">
+      <div className="flex min-h-screen flex-col px-4 py-3 md:px-8">
+        <div className="mb-1 flex shrink-0 items-start justify-between gap-4">
           <div className="flex items-start gap-3">
             <button
               type="button"
@@ -142,7 +171,9 @@ export default function BudgetYearlyPage() {
               <h1 className="text-[34px] font-semibold leading-none text-zinc-900">
                 {title}
               </h1>
-              <p className="mt-1 text-sm text-zinc-500">{subtitle}</p>
+              <p className="mt-1 text-sm text-zinc-500">
+                {subtitle}
+              </p>
             </div>
           </div>
 
@@ -167,27 +198,40 @@ export default function BudgetYearlyPage() {
           </div>
         </div>
 
-        <BulkUpdatePanel rows={sortedRows} setRows={setRows} />
+        <div className="shrink-0">
+          <BulkUpdatePanel
+            rows={sortedRows}
+            setRows={setRows}
+            isOpen={isBulkOpen}
+            setIsOpen={setIsBulkOpen}
+          />
+        </div>
 
-        <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[1270px] border-collapse">
-              <thead>
+        <div ref={tableSectionRef} className="mt-4">
+          <div
+            className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white shadow-sm md:overflow-x-hidden"
+            style={{
+              maxHeight: tableMaxHeight ? `${tableMaxHeight}px` : "none",
+              overflowY: "auto",
+            }}
+          >
+            <table className="w-[1120px] border-collapse md:w-full md:table-fixed">
+              <thead className="sticky top-0 z-10 bg-white">
                 <tr className="border-b border-zinc-200 bg-zinc-50/80">
-                  <th className="w-40 px-3 py-3 text-left text-sm font-medium text-zinc-500">
+                  <th className="w-36 px-2 py-3 text-left text-sm font-medium text-zinc-500 md:w-40 md:px-3">
                     Anno
                   </th>
 
                   {MONTHS.map((month) => (
                     <th
                       key={month}
-                      className="px-3 py-3 text-center text-sm font-medium text-zinc-500"
+                      className="px-1 py-3 text-center text-xs font-medium text-zinc-500 md:px-2 md:text-sm"
                     >
                       {month}
                     </th>
                   ))}
 
-                  <th className="w-16 px-3 py-3" />
+                  <th className="w-14 px-2 py-3 md:w-16 md:px-3" />
                 </tr>
               </thead>
 
@@ -197,32 +241,32 @@ export default function BudgetYearlyPage() {
 
                   return (
                     <tr key={row.year} className="border-b border-zinc-100">
-                      <td className="px-3 py-2 align-middle">
+                      <td className="px-2 py-2 align-middle md:px-3">
                         <div className="text-sm font-semibold text-zinc-700">
                           {row.year}
                         </div>
                         <div className="mt-0 text-xs font-medium text-zinc-500">
                           Totale:{" "}
                           <span className="font-semibold text-zinc-800">
-                            {total}{" "}&euro;
+                            {total} &euro;
                           </span>
                         </div>
                       </td>
 
                       {row.values.map((value, monthIndex) => (
-                        <td key={monthIndex} className="px-2 py-2">
+                        <td key={monthIndex} className="px-1 py-2 md:px-2">
                           <input
                             type="number"
                             value={value}
                             onChange={(e) =>
                               handleValueChange(row.year, monthIndex, e.target.value)
                             }
-                            className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 text-center text-sm text-zinc-700 outline-none transition focus:border-zinc-300 focus:ring-2 focus:ring-zinc-200"
+                            className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-2 text-center text-sm text-zinc-700 outline-none transition focus:border-zinc-300 focus:ring-2 focus:ring-zinc-200 md:px-3"
                           />
                         </td>
                       ))}
 
-                      <td className="px-2 py-2 text-center">
+                      <td className="px-1 py-2 text-center md:px-2">
                         <button
                           type="button"
                           onClick={() => handleClearRow(row.year)}
@@ -239,7 +283,7 @@ export default function BudgetYearlyPage() {
           </div>
         </div>
 
-        <div className="mt-7 flex justify-center">
+        <div ref={addButtonRef} className="mt-4 flex shrink-0 justify-center">
           <button
             type="button"
             onClick={handleAddNextYear}
