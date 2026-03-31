@@ -5,21 +5,18 @@ import { AnimatePresence, motion } from "framer-motion";
 const MONTHS = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
 
 export default function BulkUpdatePanel({ rows, setRows }) {
+
     const [isOpen, setIsOpen] = useState(true);
     const [bulkValue, setBulkValue] = useState("");
     const [selectedMonths, setSelectedMonths] = useState([]);
     const [selectedYears, setSelectedYears] = useState([]);
     const [valueMode, setValueMode] = useState("decimal");
+    const [isValueFocused, setIsValueFocused] = useState(false);
 
     const inputRef = useRef(null);
 
-    const selectAllMonths = () => {
-        setSelectedMonths(MONTHS.map((_, index) => index));
-    };
 
-    const clearMonths = () => {
-        setSelectedMonths([]);
-    };
+
 
     const toggleMonth = (monthIndex) => {
         setSelectedMonths((prev) =>
@@ -37,11 +34,23 @@ export default function BulkUpdatePanel({ rows, setRows }) {
         );
     };
 
+    const selectAllMonths = () => {
+        setSelectedMonths(MONTHS.map((_, index) => index));
+    };
+
     const selectAllYears = () => {
         setSelectedYears(rows.map((row) => row.year));
     };
 
-    const clearYears = () => {
+    const handleClearValue = () => {
+        setBulkValue("");
+    };
+
+    const handleClearMonths = () => {
+        setSelectedMonths([]);
+    };
+
+    const handleClearYears = () => {
         setSelectedYears([]);
     };
 
@@ -143,20 +152,20 @@ export default function BulkUpdatePanel({ rows, setRows }) {
     };
 
     useEffect(() => {
-        const input = inputRef.current;
-        if (!input) return;
+        const handleGlobalWheel = (e) => {
+            if (!isValueFocused) return;
+            if (document.activeElement !== inputRef.current) return;
 
-        const onWheel = (e) => {
             e.preventDefault();
             handleWheelValue(e);
         };
 
-        input.addEventListener("wheel", onWheel, { passive: false });
+        window.addEventListener("wheel", handleGlobalWheel, { passive: false });
 
         return () => {
-            input.removeEventListener("wheel", onWheel);
+            window.removeEventListener("wheel", handleGlobalWheel);
         };
-    }, [bulkValue, valueMode]);
+    }, [isValueFocused, bulkValue, valueMode]);
 
     const getToggleClass = (isActive) =>
         `h-10 rounded-full border px-3 sm:px-4 text-xs sm:text-sm font-semibold transition-all duration-200 shadow-sm select-none ${isActive
@@ -164,9 +173,7 @@ export default function BulkUpdatePanel({ rows, setRows }) {
             : "border-zinc-200 bg-zinc-50 text-zinc-700 hover:border-zinc-300 hover:bg-white"
         }`;
 
-    const handleClearValue = () => {
-        setBulkValue("");
-    };
+
 
     return (
         <div className="mb-3 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
@@ -236,6 +243,8 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                             inputMode="decimal"
                                             value={bulkValue}
                                             onChange={handleValueChange}
+                                            onFocus={() => setIsValueFocused(true)}
+                                            onBlur={() => setIsValueFocused(false)}
                                             placeholder="0,00"
                                             className="h-10 w-full rounded-xl border border-zinc-200 bg-zinc-50 pl-8 pr-3 text-sm text-zinc-700 outline-none transition placeholder:text-zinc-400 focus:border-zinc-300 focus:bg-white focus:ring-2 focus:ring-zinc-200"
                                         />
@@ -253,7 +262,10 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                                     name="valueMode"
                                                     value="integer"
                                                     checked={valueMode === "integer"}
-                                                    onChange={(e) => setValueMode(e.target.value)}
+                                                    onChange={(e) => {
+                                                        setValueMode(e.target.value);
+                                                        inputRef.current?.focus();
+                                                    }}
                                                     className="relative cursor-pointer top-px m-0 h-4 w-4 shrink-0"
                                                 />
                                                 <label
@@ -271,7 +283,10 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                                     name="valueMode"
                                                     value="decimal"
                                                     checked={valueMode === "decimal"}
-                                                    onChange={(e) => setValueMode(e.target.value)}
+                                                    onChange={(e) => {
+                                                        setValueMode(e.target.value);
+                                                        inputRef.current?.focus();
+                                                    }}
                                                     className="relative cursor-pointer top-px m-0 h-4 w-4 shrink-0"
                                                 />
                                                 <label
@@ -294,7 +309,7 @@ export default function BulkUpdatePanel({ rows, setRows }) {
 
                                             <button
                                                 type="button"
-                                                onClick={clearMonths}
+                                                onClick={handleClearMonths}
                                                 className="h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition hover:scale-110"
                                                 aria-label="Reset valore"
                                                 title="Reset valore"
@@ -338,7 +353,7 @@ export default function BulkUpdatePanel({ rows, setRows }) {
 
                                             <button
                                                 type="button"
-                                                onClick={clearYears}
+                                                onClick={handleClearYears}
                                                 className="h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition hover:scale-110"
                                                 aria-label="Reset valore"
                                                 title="Reset valore"
