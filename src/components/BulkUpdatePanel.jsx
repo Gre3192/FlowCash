@@ -71,10 +71,9 @@ export default function BulkUpdatePanel({ rows, setRows }) {
     };
 
     const getToggleClass = (isActive) =>
-        `h-10 rounded-full border px-4 text-sm font-semibold transition-all duration-200 shadow-sm ${
-            isActive
-                ? "border-rose-300 bg-blue-100 text-blue-700 shadow-rose-100"
-                : "border-zinc-200 bg-zinc-50 text-zinc-700 hover:border-zinc-300 hover:bg-white"
+        `h-10 rounded-full border px-4 text-sm font-semibold transition-all duration-200 shadow-sm ${isActive
+            ? "border-rose-300 bg-blue-100 text-blue-700 shadow-rose-100"
+            : "border-zinc-200 bg-zinc-50 text-zinc-700 hover:border-zinc-300 hover:bg-white"
         }`;
 
     return (
@@ -117,15 +116,21 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                     <label className="mb-2 block text-sm font-medium text-zinc-700">
                                         Valore
                                     </label>
-                                    <input
-                                        type="number"
-                                        inputMode="numeric"
-                                        value={bulkValue}
-                                        step="0.00"
-                                        onChange={(e) => setBulkValue(e.target.value)}
-                                        placeholder="0.00 &euro;"
-                                        className="h-10 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm text-zinc-700 outline-none transition placeholder:text-zinc-400 focus:border-zinc-300 focus:bg-white focus:ring-2 focus:ring-zinc-200"
-                                    />
+                                    <div className="relative">
+                                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-zinc-500">
+                                           &euro;
+                                        </span>
+                                        <input
+                                            type="number"
+                                            inputMode="decimal"
+                                            min="0"
+                                            step="0.01"
+                                            value={bulkValue}
+                                            onChange={(e) => setBulkValue(e.target.value)}
+                                            placeholder="0,00"
+                                            className="h-10 w-full rounded-xl border border-zinc-200 bg-zinc-50 pl-8 pr-3 text-sm text-zinc-700 outline-none transition placeholder:text-zinc-400 focus:border-zinc-300 focus:bg-white focus:ring-2 focus:ring-zinc-200"
+                                        />
+                                    </div>
                                 </div>
 
                                 <div>
@@ -176,7 +181,7 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                                 onClick={selectAllYears}
                                                 className="text-zinc-500 hover:text-zinc-800"
                                             >
-                                               Seleziona tutti
+                                                Seleziona tutti
                                             </button>
                                             <button
                                                 type="button"
