@@ -71,26 +71,31 @@ export default function BulkUpdatePanel({ rows, setRows }) {
     };
 
     const getToggleClass = (isActive) =>
-        `h-10 rounded-full border px-4 text-sm font-semibold transition-all duration-200 shadow-sm ${isActive
-            ? "border-rose-300 bg-blue-100 text-blue-700 shadow-rose-100"
-            : "border-zinc-200 bg-zinc-50 text-zinc-700 hover:border-zinc-300 hover:bg-white"
+        `h-10 rounded-full border px-3 sm:px-4 text-xs sm:text-sm font-semibold transition-all duration-200 shadow-sm ${
+            isActive
+                ? "border-rose-300 bg-blue-100 text-blue-700 shadow-rose-100"
+                : "border-zinc-200 bg-zinc-50 text-zinc-700 hover:border-zinc-300 hover:bg-white"
         }`;
 
     return (
-        <div className="mb-4 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+        <div className="mb-3 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
             <button
                 type="button"
                 onClick={() => setIsOpen((prev) => !prev)}
-                className="flex w-full items-center justify-between py-3 px-4 text-left transition hover:bg-zinc-50"
+                className="flex w-full items-start justify-between gap-3 px-4 py-3 text-left transition hover:bg-zinc-50"
             >
-                <div>
-                    <div className="text-base font-semibold text-zinc-800">Aggiornamento massivo</div>
-                    <div className="text-xs text-zinc-500">Seleziona anni, mesi e applica un valore in blocco</div>
+                <div className="min-w-0">
+                    <div className="text-sm font-semibold text-zinc-800 sm:text-base">
+                        Aggiornamento massivo
+                    </div>
+                    <div className="text-xs text-zinc-500">
+                        Seleziona anni, mesi e applica un valore in blocco
+                    </div>
                 </div>
 
                 <ChevronDown
                     size={18}
-                    className={`text-zinc-500 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                    className={`mt-0.5 shrink-0 text-zinc-500 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
                 />
             </button>
 
@@ -109,17 +114,19 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                             animate={{ y: 0 }}
                             exit={{ y: -8 }}
                             transition={{ duration: 0.22, ease: "easeOut" }}
-                            className="border-t border-zinc-200 p-4"
+                            className="border-t border-zinc-200 p-3 sm:p-4"
                         >
                             <div className="grid gap-4 xl:grid-cols-[220px_1fr_1fr_auto]">
                                 <div>
                                     <label className="mb-2 block text-sm font-medium text-zinc-700">
                                         Valore
                                     </label>
+
                                     <div className="relative">
                                         <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-zinc-500">
-                                           &euro;
+                                            &euro;
                                         </span>
+
                                         <input
                                             type="number"
                                             inputMode="decimal"
@@ -134,29 +141,30 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                 </div>
 
                                 <div>
-                                    <div className="mb-2 flex items-center justify-between">
+                                    <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                         <label className="block text-sm font-medium text-zinc-700">
                                             Mesi
                                         </label>
-                                        <div className="flex gap-3 text-xs">
+
+                                        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
                                             <button
                                                 type="button"
                                                 onClick={selectAllMonths}
-                                                className="text-zinc-500 hover:text-zinc-800"
+                                                className="text-zinc-500 transition hover:text-zinc-800"
                                             >
                                                 Seleziona tutti
                                             </button>
                                             <button
                                                 type="button"
                                                 onClick={clearMonths}
-                                                className="text-zinc-500 hover:text-zinc-800"
+                                                className="text-zinc-500 transition hover:text-zinc-800"
                                             >
                                                 Reset
                                             </button>
                                         </div>
                                     </div>
 
-                                    <div className="grid h-44 grid-cols-4 gap-2 rounded-2xl border border-zinc-200 bg-zinc-50/60 p-3">
+                                    <div className="grid h-auto min-h-[176px] grid-cols-3 gap-2 rounded-2xl border border-zinc-200 bg-zinc-50/60 p-3 sm:h-44 sm:grid-cols-4">
                                         {MONTHS.map((month, index) => (
                                             <button
                                                 key={month}
@@ -171,29 +179,30 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                 </div>
 
                                 <div>
-                                    <div className="mb-2 flex items-center justify-between">
+                                    <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                         <label className="block text-sm font-medium text-zinc-700">
                                             Anni presenti
                                         </label>
-                                        <div className="flex gap-3 text-xs">
+
+                                        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
                                             <button
                                                 type="button"
                                                 onClick={selectAllYears}
-                                                className="text-zinc-500 hover:text-zinc-800"
+                                                className="text-zinc-500 transition hover:text-zinc-800"
                                             >
                                                 Seleziona tutti
                                             </button>
                                             <button
                                                 type="button"
                                                 onClick={clearYears}
-                                                className="text-zinc-500 hover:text-zinc-800"
+                                                className="text-zinc-500 transition hover:text-zinc-800"
                                             >
                                                 Reset
                                             </button>
                                         </div>
                                     </div>
 
-                                    <div className="grid h-44 grid-cols-3 gap-2 overflow-y-auto rounded-2xl border border-zinc-200 bg-zinc-50/60 p-3">
+                                    <div className="grid h-auto max-h-44 grid-cols-2 gap-2 overflow-y-auto rounded-2xl border border-zinc-200 bg-zinc-50/60 p-3 sm:grid-cols-3">
                                         {rows.map((row) => (
                                             <button
                                                 key={row.year}
@@ -207,7 +216,7 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col items-center justify-center gap-2">
+                                <div className="flex flex-col justify-end gap-2">
                                     <button
                                         type="button"
                                         onClick={handleApplyBulkValue}
@@ -215,6 +224,7 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                     >
                                         Popola tabella
                                     </button>
+
                                     <button
                                         type="button"
                                         onClick={handleClearTable}

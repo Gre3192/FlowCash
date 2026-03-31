@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Save, PlusCircle, CalendarRange, Eraser } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { ArrowLeft, Save, PlusCircle, MinusCircle, CalendarRange, Eraser } from "lucide-react";
 import BulkUpdatePanel from "../components/BulkUpdatePanel";
 
 function createYearRow(year) {
@@ -10,10 +10,14 @@ function createYearRow(year) {
 }
 
 function getYearTotal(values) {
-  return values.reduce((sum, value) => {
+  const totalCents = values.reduce((sum, value) => {
     const num = Number(value);
-    return sum + (Number.isNaN(num) ? 0 : num);
+    if (Number.isNaN(num)) return sum;
+
+    return sum + Math.round(num * 100);
   }, 0);
+
+  return totalCents / 100;
 }
 
 const MONTHS = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
@@ -22,10 +26,6 @@ export default function BudgetYearlyPage() {
   const [title] = useState("Amazon Prime");
   const [subtitle] = useState("Gestisci i tuoi budget");
   const [isBulkOpen, setIsBulkOpen] = useState(false);
-  const [tableMaxHeight, setTableMaxHeight] = useState(null);
-
-  const tableSectionRef = useRef(null);
-  const addButtonRef = useRef(null);
 
   const [rows, setRows] = useState(() => {
     const initial = [];
@@ -59,9 +59,9 @@ export default function BudgetYearlyPage() {
       prev.map((row) =>
         row.year === year
           ? {
-            ...row,
-            values: row.values.map((v, i) => (i === monthIndex ? value : v)),
-          }
+              ...row,
+              values: row.values.map((v, i) => (i === monthIndex ? value : v)),
+            }
           : row
       )
     );
@@ -69,6 +69,17 @@ export default function BudgetYearlyPage() {
 
   const handleAddNextYear = () => {
     setRows((prev) => [...prev, createYearRow(nextYear)]);
+  };
+
+  const handleRemoveLastYear = () => {
+    setRows((prev) => {
+      if (prev.length <= 1) return prev;
+
+      const sorted = [...prev].sort((a, b) => a.year - b.year);
+      const lastYear = sorted[sorted.length - 1].year;
+
+      return prev.filter((row) => row.year !== lastYear);
+    });
   };
 
   const handleSave = () => {
@@ -131,44 +142,20 @@ export default function BudgetYearlyPage() {
     );
   };
 
-  useEffect(() => {
-    if (isBulkOpen) return;
-
-    const calculateTableMaxHeight = () => {
-      if (!tableSectionRef.current || !addButtonRef.current) return;
-
-      const tableTop = tableSectionRef.current.getBoundingClientRect().top;
-      const addButtonHeight = addButtonRef.current.getBoundingClientRect().height;
-
-      const bottomSafeSpace = 24;
-      const gapAboveButton = 16;
-
-      const availableHeight =
-        window.innerHeight - tableTop - addButtonHeight - gapAboveButton - bottomSafeSpace;
-
-      setTableMaxHeight(Math.max(220, Math.floor(availableHeight)));
-    };
-
-    calculateTableMaxHeight();
-
-    window.addEventListener("resize", calculateTableMaxHeight);
-    return () => window.removeEventListener("resize", calculateTableMaxHeight);
-  }, [isBulkOpen, rows.length]);
-
   return (
-    <div className="min-h-screen  bg-zinc-50">
-      <div className="flex min-h-screen flex-col px-4 py-3 md:px-8">
-        <div className="mb-1 flex shrink-0 items-start justify-between gap-4">
-          <div className="flex items-start gap-3">
+    <div className="min-h-screen bg-zinc-50">
+      <div className="flex min-h-screen flex-col px-3 py-3 sm:px-4 md:px-6 lg:px-8">
+        <div className="mb-3 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex min-w-0 items-start gap-3">
             <button
               type="button"
-              className="mt-1 rounded-md p-1 text-zinc-500 transition hover:bg-white hover:text-zinc-800"
+              className="mt-1 shrink-0 rounded-md p-1 text-zinc-500 transition hover:bg-white hover:text-zinc-800"
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
 
-            <div>
-              <h1 className="text-[34px] font-semibold leading-none text-zinc-900">
+            <div className="min-w-0">
+              <h1 className="truncate text-2xl font-semibold leading-none text-zinc-900 sm:text-3xl md:text-[34px]">
                 {title}
               </h1>
               <p className="mt-1 text-sm text-zinc-500">
@@ -177,23 +164,23 @@ export default function BudgetYearlyPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap lg:justify-end">
             <button
               type="button"
               onClick={handleOpenYearsModal}
-              className="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50 sm:w-auto"
             >
-              <CalendarRange className="h-4 w-4" />
-              Gestisci anni
+              <CalendarRange className="h-4 w-4 shrink-0" />
+              <span className="truncate">Gestisci anni</span>
             </button>
 
             <button
               type="button"
               onClick={handleSave}
-              className="inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-zinc-800"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-black px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-zinc-800 sm:w-auto"
             >
-              <Save className="h-4 w-4" />
-              Salva
+              <Save className="h-4 w-4 shrink-0" />
+              <span>Salva</span>
             </button>
           </div>
         </div>
@@ -207,105 +194,116 @@ export default function BudgetYearlyPage() {
           />
         </div>
 
-        <div ref={tableSectionRef} className="mt-0">
-          <div
-            className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white shadow-sm md:overflow-x-hidden"
-            style={{
-              maxHeight: tableMaxHeight ? `${tableMaxHeight}px` : "none",
-              overflowY: "auto",
-            }}
-          >
-            <table className="w-[1120px] border-collapse md:w-full md:table-fixed">
-              <thead className="sticky top-0 z-10 bg-white">
-                <tr className="border-b border-zinc-200 bg-zinc-50/80">
-                  <th className="w-36 px-2 py-3 text-left text-sm font-medium text-zinc-500 md:w-40 md:px-3">
-                    Anno
-                  </th>
-
-                  {MONTHS.map((month) => (
-                    <th
-                      key={month}
-                      className="px-1 py-3 text-center text-xs font-medium text-zinc-500 md:px-2 md:text-sm"
-                    >
-                      {month}
+        <div className="mt-2">
+          <div className="rounded-2xl border border-zinc-200 bg-white shadow-sm">
+            <div className="h-[52vh] overflow-x-auto overflow-y-scroll sm:h-[56vh] lg:h-[58vh] md:overflow-x-hidden">
+              <table className="w-[980px] border-collapse sm:w-[1080px] md:w-full md:table-fixed">
+                <thead className="sticky top-0 z-10 bg-white">
+                  <tr className="border-b border-zinc-200 bg-zinc-50/80">
+                    <th className="w-32 px-3 py-3 text-left text-xs font-medium text-zinc-500 sm:w-36 sm:text-sm md:w-40 md:px-3">
+                      Anno
                     </th>
-                  ))}
 
-                  <th className="w-14 px-2 py-3 md:w-16 md:px-3" />
-                </tr>
-              </thead>
+                    {MONTHS.map((month) => (
+                      <th
+                        key={month}
+                        className="px-1 py-3 text-center text-[11px] font-medium text-zinc-500 sm:text-xs md:px-2 md:text-sm"
+                      >
+                        {month}
+                      </th>
+                    ))}
 
-              <tbody>
-                {sortedRows.map((row) => {
-                  const total = getYearTotal(row.values);
+                    <th className="w-12 px-2 py-3 sm:w-14 md:w-16 md:px-3" />
+                  </tr>
+                </thead>
 
-                  return (
-                    <tr key={row.year} className="border-b border-zinc-100">
-                      <td className="px-2 py-2 align-middle md:px-3">
-                        <div className="text-sm font-semibold text-zinc-700">
-                          {row.year}
-                        </div>
-                        <div className="mt-0 text-xs font-medium text-zinc-500">
-                          Totale:{" "}
-                          <span className="font-semibold text-zinc-800">
-                            {total} &euro;
-                          </span>
-                        </div>
-                      </td>
+                <tbody>
+                  {sortedRows.map((row) => {
+                    const total = getYearTotal(row.values);
 
-                      {row.values.map((value, monthIndex) => (
-                        <td key={monthIndex} className="px-1 py-2 md:px-2">
-                          <input
-                            type="number"
-                            value={value}
-                            onChange={(e) =>
-                              handleValueChange(row.year, monthIndex, e.target.value)
-                            }
-                            className="h-10 w-full rounded-xl border border-zinc-200 bg-white px-2 text-center text-sm text-zinc-700 outline-none transition focus:border-zinc-300 focus:ring-2 focus:ring-zinc-200 md:px-3"
-                          />
+                    return (
+                      <tr key={row.year} className="border-b border-zinc-100">
+                        <td className="px-3 py-2 align-middle md:px-3">
+                          <div className="text-sm font-semibold text-zinc-700">
+                            {row.year}
+                          </div>
+                          <div className="mt-0 text-xs font-medium leading-tight text-zinc-500">
+                            Totale:{" "}
+                            <span className="font-semibold text-zinc-800">
+                              {total.toLocaleString("it-IT", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}{" "}
+                              &euro;
+                            </span>
+                          </div>
                         </td>
-                      ))}
 
-                      <td className="px-1 py-2 text-center md:px-2">
-                        <button
-                          type="button"
-                          onClick={() => handleClearRow(row.year)}
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-600 transition hover:scale-125"
-                        >
-                          <Eraser size={16} />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        {row.values.map((value, monthIndex) => (
+                          <td key={monthIndex} className="px-1 py-2 md:px-2">
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={value}
+                              onChange={(e) =>
+                                handleValueChange(row.year, monthIndex, e.target.value)
+                              }
+                              className="h-9 w-full rounded-xl border border-zinc-200 bg-white px-2 text-center text-sm text-zinc-700 outline-none transition focus:border-zinc-300 focus:ring-2 focus:ring-zinc-200 sm:h-10 md:px-3"
+                            />
+                          </td>
+                        ))}
+
+                        <td className="px-1 py-2 text-center md:px-2">
+                          <button
+                            type="button"
+                            onClick={() => handleClearRow(row.year)}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-600 transition hover:scale-110 sm:h-9 sm:w-9"
+                          >
+                            <Eraser size={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
-        <div ref={addButtonRef} className="mt-4 flex shrink-0 justify-center">
+        <div className="mt-4 flex shrink-0 flex-col gap-3 sm:flex-row sm:justify-center">
+          <button
+            type="button"
+            onClick={handleRemoveLastYear}
+            disabled={sortedRows.length <= 1}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:px-5"
+          >
+            <MinusCircle className="h-5 w-5 shrink-0" />
+            <span className="truncate">Togli ultimo anno ({nextYear - 1})</span>
+          </button>
+
           <button
             type="button"
             onClick={handleAddNextYear}
-            className="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-5 py-3 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm font-medium text-zinc-800 shadow-sm transition hover:bg-zinc-50 sm:w-auto sm:px-5"
           >
-            <PlusCircle className="h-5 w-5" />
-            Aggiungi anno successivo ({nextYear})
+            <PlusCircle className="h-5 w-5 shrink-0" />
+            <span className="truncate">Aggiungi anno successivo ({nextYear})</span>
           </button>
         </div>
       </div>
 
       {isYearsModalOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-3 sm:p-4"
           onClick={handleCloseYearsModal}
         >
           <div
-            className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl"
+            className="w-full max-w-md rounded-2xl bg-white p-4 shadow-xl sm:p-5"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4">
-              <h2 className="text-lg font-semibold text-zinc-800">
+              <h2 className="text-base font-semibold text-zinc-800 sm:text-lg">
                 Gestisci anni
               </h2>
               <p className="mt-1 text-sm text-zinc-500">
@@ -341,11 +339,11 @@ export default function BudgetYearlyPage() {
               </div>
             </div>
 
-            <div className="mt-5 flex justify-end gap-2">
+            <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={handleCloseYearsModal}
-                className="inline-flex h-10 items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50"
+                className="inline-flex h-10 w-full items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 sm:w-auto"
               >
                 Annulla
               </button>
@@ -353,7 +351,7 @@ export default function BudgetYearlyPage() {
               <button
                 type="button"
                 onClick={handleApplyYearsRange}
-                className="inline-flex h-10 items-center justify-center rounded-xl bg-black px-4 text-sm font-medium text-white transition hover:bg-zinc-800"
+                className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-black px-4 text-sm font-medium text-white transition hover:bg-zinc-800 sm:w-auto"
               >
                 Conferma
               </button>
