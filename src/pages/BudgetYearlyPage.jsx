@@ -47,9 +47,12 @@ const MONTHS = [
 
 export default function BudgetYearlyPage() {
 
+  const { data, loading } = useGet(API_ENDPOINTS.transactionBudget())
+  console.log(data);
+  
+
   const [title] = useState("Amazon Prime");
   const [subtitle] = useState("Gestisci i tuoi budget");
-
   const [rows, setRows] = useState(() => {
     const initial = [];
     for (let year = 2025; year <= 2031; year++) {
@@ -63,11 +66,6 @@ export default function BudgetYearlyPage() {
     }
     return initial;
   });
-
-  const { data, loading } = useGet(API_ENDPOINTS.transactionBudget())
-
-  console.log(data);
-  
 
   const [isYearsModalOpen, setIsYearsModalOpen] = useState(false);
   const [startYear, setStartYear] = useState("");
