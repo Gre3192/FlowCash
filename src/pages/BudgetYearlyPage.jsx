@@ -165,6 +165,7 @@ export default function BudgetYearlyPage() {
   };
 
   return (
+
     <div className="bg-zinc-50">
       <div className="flex flex-col px-3 pb-3 sm:px-4 md:px-6 lg:px-8">
 
@@ -286,9 +287,6 @@ export default function BudgetYearlyPage() {
     </div>
   );
 }
-
-
-
 
 
 function BudgetHeader({
