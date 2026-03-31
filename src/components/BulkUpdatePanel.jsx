@@ -121,8 +121,9 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                         type="number"
                                         inputMode="numeric"
                                         value={bulkValue}
+                                        step="0.00"
                                         onChange={(e) => setBulkValue(e.target.value)}
-                                        placeholder="Es. 25"
+                                        placeholder="0.00 &euro;"
                                         className="h-10 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm text-zinc-700 outline-none transition placeholder:text-zinc-400 focus:border-zinc-300 focus:bg-white focus:ring-2 focus:ring-zinc-200"
                                     />
                                 </div>

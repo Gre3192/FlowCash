@@ -156,7 +156,7 @@ export default function BudgetYearlyPage() {
   }, [isBulkOpen, rows.length]);
 
   return (
-    <div className="min-h-screen overflow-y-auto bg-zinc-50">
+    <div className="min-h-screen  bg-zinc-50">
       <div className="flex min-h-screen flex-col px-4 py-3 md:px-8">
         <div className="mb-1 flex shrink-0 items-start justify-between gap-4">
           <div className="flex items-start gap-3">
@@ -207,7 +207,7 @@ export default function BudgetYearlyPage() {
           />
         </div>
 
-        <div ref={tableSectionRef} className="mt-4">
+        <div ref={tableSectionRef} className="mt-0">
           <div
             className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white shadow-sm md:overflow-x-hidden"
             style={{
