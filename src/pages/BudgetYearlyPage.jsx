@@ -198,7 +198,7 @@ export default function BudgetYearlyPage() {
 
         <div className="mt-2">
           <div className="rounded-2xl border border-zinc-200 bg-white shadow-sm">
-            <div className="h-[52vh] overflow-x-auto overflow-y-scroll sm:h-[56vh] lg:h-[58vh] md:overflow-x-hidden">
+            <div className="h-[52vh] pb-2 rounded-2xl  overflow-x-auto overflow-y-scroll sm:h-[56vh] lg:h-[58vh] md:overflow-x-hidden">
               <table className="w-[980px] border-collapse sm:w-[1080px] md:w-full md:table-fixed">
                 <thead className="sticky top-0 z-10 bg-white">
                   <tr className="border-b border-zinc-200 bg-zinc-50/80">
@@ -219,7 +219,7 @@ export default function BudgetYearlyPage() {
                   </tr>
                 </thead>
 
-                <tbody>
+                <tbody className="pb-2">
                   {sortedRows.map((row) => {
                     const total = getYearTotal(row.values);
 
