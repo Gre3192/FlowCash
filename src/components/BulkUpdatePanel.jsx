@@ -202,7 +202,7 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                         </div>
                                     </div>
 
-                                    <div className="grid h-auto max-h-44 grid-cols-2 gap-2 overflow-y-auto rounded-2xl border border-zinc-200 bg-zinc-50/60 p-3 sm:grid-cols-3">
+                                    <div className="grid  h-44 grid-cols-2 gap-2 overflow-y-auto rounded-2xl border border-zinc-200 bg-zinc-50/60 p-3 sm:grid-cols-3">
                                         {rows.map((row) => (
                                             <button
                                                 key={row.year}
