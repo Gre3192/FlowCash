@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useGet } from "../hooks/useGet";
 import CategoryPage from "./CategoryPage"
 import TransactionPage from "./TransactionsPage"
+import { API_ENDPOINTS } from "../api/endpoint";
 
 export default function BudgetPage() {
 
-    const { data, loading } = useGet("http://localhost:3000/budget")
+    const { data, loading } = useGet(API_ENDPOINTS.budget())
 
 
     const [isCategoryPage, setIsCategoryPage] = useState(true)
@@ -21,8 +22,6 @@ export default function BudgetPage() {
         setSelectedCategory(null)
         setIsCategoryPage(true)
     }
-
-
 
     return (
         <>

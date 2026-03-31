@@ -1,9 +1,9 @@
 export default function getBaseUrl(envName) {
 
   const envMap = {
-    mock: process.env.REACT_APP_API_BASE_URL_MOCKOON,
-    local: process.env.REACT_APP_API_BASE_URL_LOCAL,
-    server: process.env.REACT_APP_API_BASE_URL_SERVER,
+    mock: import.meta.env.VITE_BASE_URL_MOCKOON,
+    local: import.meta.env.VITE_BASE_URL_LOCAL,
+    server: import.meta.env.VITE_BASE_URL_SERVER,
   };
 
   const baseUrl = envMap[envName?.toLowerCase()];

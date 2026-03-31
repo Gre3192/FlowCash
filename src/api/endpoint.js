@@ -8,7 +8,7 @@ const base_url = getBaseUrl('mock')  // mock, local, server
 export const API_ENDPOINTS = {
 
   //GET ? status
-  getAllAllarms: buildEndpoint(base_url, `/api/mqtt/alarms/all/`),
+  budget: buildEndpoint(base_url, `/api/budget`),
   // DELETE ? alarm_id
   deleteAllarm: buildEndpoint(base_url, `/api/mqtt/cart/alarm/delete/`),
   // DELETE ALL ? status
