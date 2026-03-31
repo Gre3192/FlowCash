@@ -59,9 +59,9 @@ export default function BudgetYearlyPage() {
       prev.map((row) =>
         row.year === year
           ? {
-              ...row,
-              values: row.values.map((v, i) => (i === monthIndex ? value : v)),
-            }
+            ...row,
+            values: row.values.map((v, i) => (i === monthIndex ? value : v)),
+          }
           : row
       )
     );
@@ -260,6 +260,8 @@ export default function BudgetYearlyPage() {
                             type="button"
                             onClick={() => handleClearRow(row.year)}
                             className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-600 transition hover:scale-110 sm:h-9 sm:w-9"
+                            aria-label="Pulisci riga"
+                            title="Pulisci riga"
                           >
                             <Eraser size={16} />
                           </button>

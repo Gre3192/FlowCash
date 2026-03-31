@@ -23,8 +23,6 @@ export default function BulkUpdatePanel({
     const inputRef = useRef(null);
 
 
-
-
     const toggleMonth = (monthIndex) => {
         setSelectedMonths((prev) =>
             prev.includes(monthIndex)
@@ -318,8 +316,8 @@ export default function BulkUpdatePanel({
                                                 type="button"
                                                 onClick={handleClearMonths}
                                                 className="h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition hover:scale-110"
-                                                aria-label="Reset valore"
-                                                title="Reset valore"
+                                                aria-label="Reset mesi selezionati"
+                                                title="Reset mesi selezionati"
                                             >
                                                 <RotateCcw  size={14} />
                                             </button>
@@ -362,8 +360,8 @@ export default function BulkUpdatePanel({
                                                 type="button"
                                                 onClick={handleClearYears}
                                                 className="h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition hover:scale-110"
-                                                aria-label="Reset valore"
-                                                title="Reset valore"
+                                                aria-label="Reset anni selezionati"
+                                                title="Reset anni selezionati"
                                             >
                                                 <RotateCcw  size={14} />
                                             </button>
@@ -373,8 +371,8 @@ export default function BulkUpdatePanel({
                                                     type="button"
                                                     onClick={handleRemoveLastYear}
                                                     className="h-8  items-center justify-center rounded-lg text-zinc-500 transition hover:scale-110"
-                                                    aria-label="Reset valore"
-                                                    title="Reset valore"
+                                                    aria-label="Togli ultimo anno"
+                                                    title="Togli ultimo anno"
                                                 >
                                                     <MinusCircle size={14} />
                                                 </button>
@@ -382,8 +380,8 @@ export default function BulkUpdatePanel({
                                                     type="button"
                                                     onClick={handleAddNextYear}
                                                     className="h-8  items-center justify-center rounded-lg text-zinc-500 transition hover:scale-110"
-                                                    aria-label="Reset valore"
-                                                    title="Reset valore"
+                                                    aria-label="Aggiungi anno successivo"
+                                                    title="Aggiungi anno successivo"
                                                 >
                                                     <PlusCircle size={14} />
                                                 </button>
