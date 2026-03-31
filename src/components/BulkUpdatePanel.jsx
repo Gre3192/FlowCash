@@ -185,7 +185,7 @@ export default function BulkUpdatePanel({
             <button
                 type="button"
                 onClick={() => setIsOpen((prev) => !prev)}
-                className="flex w-full items-start justify-between gap-3 px-4 py-3 text-left transition hover:bg-zinc-50"
+                className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition hover:bg-zinc-50"
             >
                 <div className="min-w-0">
                     <div className="text-sm font-semibold text-zinc-800 sm:text-base">
@@ -196,10 +196,12 @@ export default function BulkUpdatePanel({
                     </div>
                 </div>
 
+
                 <ChevronDown
-                    size={18}
+                    size={22}
                     className={`mt-0.5 shrink-0 text-zinc-500 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
-                />
+                    />
+
             </button>
 
             <AnimatePresence initial={false}>
