@@ -82,9 +82,9 @@ export default function BudgetYearlyPage() {
       prev.map((row) =>
         row.year === year
           ? {
-              ...row,
-              values: row.values.map((v, i) => (i === monthIndex ? value : v)),
-            }
+            ...row,
+            values: row.values.map((v, i) => (i === monthIndex ? value : v)),
+          }
           : row
       )
     );
@@ -265,8 +265,8 @@ export default function BudgetYearlyPage() {
                         {row.values.map((value, monthIndex) => (
                           <td key={monthIndex} className="px-1 py-2 md:px-2">
                             <input
-                              type="number"
                               inputMode="decimal"
+                              type="text"
                               step="0.01"
                               value={value}
                               onChange={(e) =>

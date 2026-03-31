@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Eraser, MinusCircle, PlusCircle, RotateCcw  } from "lucide-react";
+import { ChevronDown, Eraser, MinusCircle, PlusCircle, RotateCcw } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 const MONTHS = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
@@ -21,7 +21,7 @@ export default function BulkUpdatePanel({
     const [isValueFocused, setIsValueFocused] = useState(false);
 
     const inputRef = useRef(null);
-
+    const lastWheelTimeRef = useRef(0);
 
     const toggleMonth = (monthIndex) => {
         setSelectedMonths((prev) =>
@@ -83,33 +83,45 @@ export default function BulkUpdatePanel({
         return `${safeInteger},${String(safeDecimal).padStart(2, "0")}`;
     };
 
+    const getScrollStep = (deltaY, deltaTime, mode) => {
+
+        const safeDeltaTime = deltaTime <= 0 ? 1 : deltaTime;
+        const speed = Math.abs(deltaY) / safeDeltaTime;
+
+        if (mode === "integer") {
+            if (speed < 1.5) return 1;
+            if (speed < 3) return 5;
+            return 10;
+        }
+
+        if (speed < 1.5) return 1;  // 0,01
+        if (speed < 3) return 5;    // 0,05
+        return 10;                  // 0,10
+    };
+
     const handleWheelValue = (e) => {
+        const now = performance.now();
+        const deltaTime = lastWheelTimeRef.current
+            ? now - lastWheelTimeRef.current
+            : 999;
+
+        lastWheelTimeRef.current = now;
+
         const direction = e.deltaY < 0 ? 1 : -1;
+        const step = getScrollStep(e.deltaY, deltaTime, valueMode);
         const { integerPart, decimalPart } = splitNumberParts(bulkValue);
 
         if (valueMode === "integer") {
-            const nextInteger = Math.max(0, integerPart + direction);
+            const nextInteger = Math.max(0, integerPart + direction * step);
             setBulkValue(buildValueFromParts(nextInteger, decimalPart));
             return;
         }
 
-        let nextInteger = integerPart;
-        let nextDecimal = decimalPart + direction;
+        let totalCents = integerPart * 100 + decimalPart;
+        totalCents = Math.max(0, totalCents + direction * step);
 
-        if (nextDecimal > 99) {
-            nextDecimal = 0;
-            nextInteger += 1;
-        }
-
-        if (nextDecimal < 0) {
-            if (nextInteger > 0) {
-                nextDecimal = 99;
-                nextInteger -= 1;
-            } else {
-                nextDecimal = 0;
-            }
-        }
-
+        const nextInteger = Math.floor(totalCents / 100);
+        const nextDecimal = totalCents % 100;
         setBulkValue(buildValueFromParts(nextInteger, nextDecimal));
     };
 
@@ -200,7 +212,7 @@ export default function BulkUpdatePanel({
                 <ChevronDown
                     size={22}
                     className={`mt-0.5 shrink-0 text-zinc-500 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
-                    />
+                />
 
             </button>
 
@@ -321,7 +333,7 @@ export default function BulkUpdatePanel({
                                                 aria-label="Reset mesi selezionati"
                                                 title="Reset mesi selezionati"
                                             >
-                                                <RotateCcw  size={14} />
+                                                <RotateCcw size={14} />
                                             </button>
                                         </div>
 
@@ -365,7 +377,7 @@ export default function BulkUpdatePanel({
                                                 aria-label="Reset anni selezionati"
                                                 title="Reset anni selezionati"
                                             >
-                                                <RotateCcw  size={14} />
+                                                <RotateCcw size={14} />
                                             </button>
 
                                             <div className="flex items-center gap-2">
