@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import BulkUpdatePanel from "../components/BulkUpdatePanel";
 import { useNavigate } from "react-router-dom";
+import { useGet } from "../hooks/useGet";
+import { API_ENDPOINTS } from "../api/endpoint";
 
 function createYearRow(year) {
   return {
@@ -61,6 +63,11 @@ export default function BudgetYearlyPage() {
     }
     return initial;
   });
+
+  const { data, loading } = useGet(API_ENDPOINTS.transactionBudget())
+
+  console.log(data);
+  
 
   const [isYearsModalOpen, setIsYearsModalOpen] = useState(false);
   const [startYear, setStartYear] = useState("");
