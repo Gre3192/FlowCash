@@ -1,10 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Eraser } from "lucide-react";
+import { ChevronDown, Eraser, MinusCircle, PlusCircle } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 const MONTHS = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
 
-export default function BulkUpdatePanel({ rows, setRows }) {
+export default function BulkUpdatePanel({
+
+    rows,
+    setRows,
+    handleAddNextYear,
+    handleRemoveLastYear
+
+}) {
 
     const [isOpen, setIsOpen] = useState(true);
     const [bulkValue, setBulkValue] = useState("");
@@ -360,6 +367,27 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                             >
                                                 <Eraser size={14} />
                                             </button>
+
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={handleRemoveLastYear}
+                                                    className="h-8  items-center justify-center rounded-lg text-zinc-500 transition hover:scale-110"
+                                                    aria-label="Reset valore"
+                                                    title="Reset valore"
+                                                >
+                                                    <MinusCircle size={14} />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={handleAddNextYear}
+                                                    className="h-8  items-center justify-center rounded-lg text-zinc-500 transition hover:scale-110"
+                                                    aria-label="Reset valore"
+                                                    title="Reset valore"
+                                                >
+                                                    <PlusCircle size={14} />
+                                                </button>
+                                            </div>
                                         </div>
 
                                         <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs">

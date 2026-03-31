@@ -191,6 +191,8 @@ export default function BudgetYearlyPage() {
             setRows={setRows}
             isOpen={isBulkOpen}
             setIsOpen={setIsBulkOpen}
+            handleAddNextYear={handleAddNextYear}
+            handleRemoveLastYear={handleRemoveLastYear}
           />
         </div>
 
