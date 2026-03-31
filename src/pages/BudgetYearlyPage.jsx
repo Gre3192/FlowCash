@@ -8,6 +8,7 @@ import {
   Eraser,
 } from "lucide-react";
 import BulkUpdatePanel from "../components/BulkUpdatePanel";
+import { useNavigate } from "react-router-dom";
 
 function createYearRow(year) {
   return {
@@ -43,9 +44,9 @@ const MONTHS = [
 ];
 
 export default function BudgetYearlyPage() {
+
   const [title] = useState("Amazon Prime");
   const [subtitle] = useState("Gestisci i tuoi budget");
-  const [isBulkOpen, setIsBulkOpen] = useState(false);
 
   const [rows, setRows] = useState(() => {
     const initial = [];
@@ -61,8 +62,6 @@ export default function BudgetYearlyPage() {
     return initial;
   });
 
-
-
   const [isYearsModalOpen, setIsYearsModalOpen] = useState(false);
   const [startYear, setStartYear] = useState("");
   const [endYear, setEndYear] = useState("");
@@ -77,6 +76,9 @@ export default function BudgetYearlyPage() {
   }, [sortedRows]);
 
   const handleValueChange = (year, monthIndex, value) => {
+
+    if (!/^\d*([.,]?\d{0,2})?$/.test(value)) return;
+
     setRows((prev) =>
       prev.map((row) =>
         row.year === year
@@ -166,8 +168,6 @@ export default function BudgetYearlyPage() {
     <div className="bg-zinc-50">
       <div className="flex flex-col px-3 pb-3 sm:px-4 md:px-6 lg:px-8">
 
-
-
         <BudgetHeader
           title={title}
           subtitle={subtitle}
@@ -175,15 +175,11 @@ export default function BudgetYearlyPage() {
           handleSave={handleSave}
         />
 
-
-
         <div className="pt-3 px-1">
 
           <BulkUpdatePanel
             rows={sortedRows}
             setRows={setRows}
-            isOpen={isBulkOpen}
-            setIsOpen={setIsBulkOpen}
             handleAddNextYear={handleAddNextYear}
             handleRemoveLastYear={handleRemoveLastYear}
           />
@@ -304,6 +300,7 @@ function BudgetHeader({
 
 }) {
 
+  const navigate = useNavigate();
 
   return (
 
@@ -311,7 +308,7 @@ function BudgetHeader({
       <div className="absolute inset-0  bg-zinc-50 shadow-sm" />
       <div className="relative flex flex-col gap-3 py-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="flex min-w-0 items-center gap-4">
-          <ArrowLeft size={25} />
+          <ArrowLeft size={25} className="cursor-pointer" onClick={() => navigate('/budgetPage')} />
           <div className="min-w-0">
             <div className="flex min-w-0 items-center gap-2">
               <div className="truncate text-2xl font-semibold leading-none text-zinc-900 sm:text-3xl md:text-3xl">

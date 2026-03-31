@@ -15,7 +15,7 @@ export default function TransactionPage({
 }) {
 
 
-    const { navigate } = useNavigate();
+    const navigate = useNavigate();
 
     return (
         <>
@@ -80,7 +80,7 @@ export default function TransactionPage({
                                 spent={300}
                                 limit={400}
                                 icon={Car}
-                                onBudgetButtonClick={() => navigate('budgetYearlyPage')}
+                                onBudgetButtonClick={() => navigate('/budgetYearlyPage')}
                             />
                         )
                     })

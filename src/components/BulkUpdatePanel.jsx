@@ -13,7 +13,7 @@ export default function BulkUpdatePanel({
 
 }) {
 
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
     const [bulkValue, setBulkValue] = useState("");
     const [selectedMonths, setSelectedMonths] = useState([]);
     const [selectedYears, setSelectedYears] = useState([]);
