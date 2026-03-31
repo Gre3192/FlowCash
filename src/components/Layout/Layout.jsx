@@ -182,8 +182,8 @@ export default function Layout() {
                 </header>
 
                 {/* CONTENUTO DELLA PAGINA */}
-                <main className="flex-1 min-h-0 overflow-y-auto p-4 md:p-6">
-                    <div className="flex-1 flex flex-col min-h-0">
+                <main className="flex-1 min-h-0 overflow-y-scroll px-4 pb-4 md:px-6 md:pb-6">
+                    <div className="flex min-h-0 flex-1 flex-col">
                         <Outlet />
                     </div>
                 </main>
