@@ -164,6 +164,8 @@ export default function BudgetYearlyPage() {
     <div className="bg-zinc-50">
       <div className="flex flex-col px-3 pb-3 sm:px-4 md:px-6 lg:px-8">
 
+
+
         <BudgetHeader
           title={title}
           subtitle={subtitle}
@@ -172,7 +174,8 @@ export default function BudgetYearlyPage() {
         />
 
 
-        <div className="pt-3">
+
+        <div className="pt-3 px-1">
 
           <BulkUpdatePanel
             rows={sortedRows}
@@ -303,20 +306,17 @@ function BudgetHeader({
   return (
 
     <div className="sticky top-0 z-40 overflow-hidden">
-      <div className="absolute inset-0 bg-zinc-50 border-b border-zinc-200 shadow-sm" />
-      <div className="relative flex flex-col gap-3 px-0 py-3 lg:flex-row lg:items-start lg:justify-between">
-        <div className="flex min-w-0 items-start gap-3">
-          <button
-            type="button"
-            className="mt-1 shrink-0 rounded-md p-1 text-zinc-500 transition hover:bg-white hover:text-zinc-800"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-
+      <div className="absolute inset-0  bg-zinc-50 shadow-sm" />
+      <div className="relative flex flex-col gap-3 py-3 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex min-w-0 items-center gap-4">
+          <ArrowLeft size={25} />
           <div className="min-w-0">
-            <h1 className="truncate text-2xl font-semibold leading-none text-zinc-900 sm:text-3xl md:text-[34px]">
-              {title}
-            </h1>
+            <div className="flex min-w-0 items-center gap-2">
+              <div className="truncate text-2xl font-semibold leading-none text-zinc-900 sm:text-3xl md:text-3xl">
+                {title}
+              </div>
+            </div>
+
             <div className="mt-1 text-sm text-zinc-500">
               {subtitle}
             </div>
@@ -400,7 +400,6 @@ function BudgetTable({
               {row.values.map((value, monthIndex) => (
                 <td key={monthIndex} className="px-1 py-2 md:px-2">
                   <input
-                    type="number"
                     step="0.01"
                     value={value}
                     onChange={(e) =>
