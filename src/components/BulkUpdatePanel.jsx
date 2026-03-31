@@ -202,18 +202,18 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                         </div>
                                     </div>
 
-                                    <div className="grid  h-44 grid-cols-2 gap-2 overflow-y-auto rounded-2xl border border-zinc-200 bg-zinc-50/60 p-3 sm:grid-cols-3">
-                                        {rows.map((row) => (
-                                            <button
-                                                key={row.year}
-                                                type="button"
-                                                onClick={() => toggleYear(row.year)}
-                                                className={getToggleClass(selectedYears.includes(row.year))}
-                                            >
-                                                {row.year}
-                                            </button>
-                                        ))}
-                                    </div>
+                       <div className="grid h-44 content-start grid-cols-2 auto-rows-[40px] gap-2 overflow-y-auto rounded-2xl border border-zinc-200 bg-zinc-50/60 p-3 sm:grid-cols-3">
+    {rows.map((row) => (
+        <button
+            key={row.year}
+            type="button"
+            onClick={() => toggleYear(row.year)}
+            className={getToggleClass(selectedYears.includes(row.year))}
+        >
+            {row.year}
+        </button>
+    ))}
+</div>
                                 </div>
 
                                 <div className="flex flex-col justify-end gap-2">
