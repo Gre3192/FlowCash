@@ -322,7 +322,7 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                             <button
                                                 type="button"
                                                 onClick={selectAllMonths}
-                                                className="text-zinc-500 transition hover:text-zinc-800"
+                                                className="text-zinc-500 transition select-none hover:text-zinc-800"
                                             >
                                                 Seleziona tutti
                                             </button>
@@ -366,7 +366,7 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                             <button
                                                 type="button"
                                                 onClick={selectAllYears}
-                                                className="text-zinc-500 transition hover:text-zinc-800"
+                                                className="text-zinc-500 transition select-none hover:text-zinc-800"
                                             >
                                                 Seleziona tutti
                                             </button>
