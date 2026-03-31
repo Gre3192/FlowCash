@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Eraser } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 const MONTHS = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
@@ -159,11 +159,14 @@ export default function BulkUpdatePanel({ rows, setRows }) {
     }, [bulkValue, valueMode]);
 
     const getToggleClass = (isActive) =>
-        `h-10 rounded-full border px-3 sm:px-4 text-xs sm:text-sm font-semibold transition-all duration-200 shadow-sm ${
-            isActive
-                ? "border-rose-300 bg-blue-100 text-blue-700 shadow-rose-100"
-                : "border-zinc-200 bg-zinc-50 text-zinc-700 hover:border-zinc-300 hover:bg-white"
+        `h-10 rounded-full border px-3 sm:px-4 text-xs sm:text-sm font-semibold transition-all duration-200 shadow-sm ${isActive
+            ? "border-rose-300 bg-blue-100 text-blue-700 shadow-rose-100"
+            : "border-zinc-200 bg-zinc-50 text-zinc-700 hover:border-zinc-300 hover:bg-white"
         }`;
+
+    const handleClearValue = () => {
+        setBulkValue("");
+    };
 
     return (
         <div className="mb-3 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
@@ -206,9 +209,21 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                         >
                             <div className="grid gap-4 xl:grid-cols-[220px_1fr_1fr_auto]">
                                 <div>
-                                    <label className="mb-2 block text-sm font-medium text-zinc-700">
-                                        Valore
-                                    </label>
+                                    <div className="mb-0 flex items-center gap-2">
+                                        <label className="block text-sm font-medium text-zinc-700">
+                                            Valore
+                                        </label>
+
+                                        <button
+                                            type="button"
+                                            onClick={handleClearValue}
+                                            className="h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition hover:scale-110"
+                                            aria-label="Reset valore"
+                                            title="Reset valore"
+                                        >
+                                            <Eraser size={14} />
+                                        </button>
+                                    </div>
 
                                     <div className="relative">
                                         <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-zinc-500">
@@ -231,39 +246,51 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                             Tipo incremento
                                         </div>
 
-                                        <div className="flex flex-col gap-2">
-                                            <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-700">
+                                        <div className="flex flex-row flex-wrap gap-4">
+                                            <div className="inline-flex cursor-pointer items-center gap-1 text-sm leading-none text-zinc-700">
                                                 <input
                                                     type="radio"
                                                     name="valueMode"
                                                     value="integer"
                                                     checked={valueMode === "integer"}
                                                     onChange={(e) => setValueMode(e.target.value)}
-                                                    className="h-4 w-4"
+                                                    className="m-0 h-4 w-4"
                                                 />
-                                                Interi
-                                            </label>
+                                                <div className="leading-none">Interi</div>
+                                            </div>
 
-                                            <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-700">
+                                            <div className="inline-flex cursor-pointer items-center gap-1 text-sm leading-none text-zinc-700">
                                                 <input
                                                     type="radio"
                                                     name="valueMode"
                                                     value="decimal"
                                                     checked={valueMode === "decimal"}
                                                     onChange={(e) => setValueMode(e.target.value)}
-                                                    className="h-4 w-4"
+                                                    className="m-0 h-4 w-4"
                                                 />
-                                                Decimali
-                                            </label>
+                                                <span className="leading-none">Decimali</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                        <label className="block text-sm font-medium text-zinc-700">
-                                            Mesi
-                                        </label>
+                                    <div className="mb-0 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                        <div className="mb-0 flex items-center gap-2">
+                                            <label className="block text-sm font-medium text-zinc-700">
+                                                Mesi
+                                            </label>
+
+                                            <button
+                                                type="button"
+                                                onClick={clearMonths}
+                                                className="h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition hover:scale-110"
+                                                aria-label="Reset valore"
+                                                title="Reset valore"
+                                            >
+                                                <Eraser size={14} />
+                                            </button>
+                                        </div>
 
                                         <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
                                             <button
@@ -273,13 +300,7 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                             >
                                                 Seleziona tutti
                                             </button>
-                                            <button
-                                                type="button"
-                                                onClick={clearMonths}
-                                                className="text-zinc-500 transition hover:text-zinc-800"
-                                            >
-                                                Reset
-                                            </button>
+
                                         </div>
                                     </div>
 
@@ -298,10 +319,22 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                 </div>
 
                                 <div>
-                                    <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                        <label className="block text-sm font-medium text-zinc-700">
-                                            Anni presenti
-                                        </label>
+                                    <div className="mb-0 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                        <div className="mb-0 flex items-center gap-2">
+                                            <label className="block text-sm font-medium text-zinc-700">
+                                                Anni presenti
+                                            </label>
+
+                                            <button
+                                                type="button"
+                                                onClick={clearYears}
+                                                className="h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition hover:scale-110"
+                                                aria-label="Reset valore"
+                                                title="Reset valore"
+                                            >
+                                                <Eraser size={14} />
+                                            </button>
+                                        </div>
 
                                         <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
                                             <button
@@ -311,13 +344,7 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                             >
                                                 Seleziona tutti
                                             </button>
-                                            <button
-                                                type="button"
-                                                onClick={clearYears}
-                                                className="text-zinc-500 transition hover:text-zinc-800"
-                                            >
-                                                Reset
-                                            </button>
+
                                         </div>
                                     </div>
 
