@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Eraser, MinusCircle, PlusCircle } from "lucide-react";
+import { ChevronDown, Eraser, MinusCircle, PlusCircle, RotateCcw  } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 const MONTHS = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
@@ -321,7 +321,7 @@ export default function BulkUpdatePanel({
                                                 aria-label="Reset valore"
                                                 title="Reset valore"
                                             >
-                                                <Eraser size={14} />
+                                                <RotateCcw  size={14} />
                                             </button>
                                         </div>
 
@@ -365,7 +365,7 @@ export default function BulkUpdatePanel({
                                                 aria-label="Reset valore"
                                                 title="Reset valore"
                                             >
-                                                <Eraser size={14} />
+                                                <RotateCcw  size={14} />
                                             </button>
 
                                             <div className="flex items-center gap-2">
