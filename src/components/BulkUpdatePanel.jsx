@@ -245,30 +245,41 @@ export default function BulkUpdatePanel({ rows, setRows }) {
                                         <div className="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-500">
                                             Tipo incremento
                                         </div>
-
                                         <div className="flex flex-row flex-wrap gap-4">
-                                            <div className="inline-flex cursor-pointer items-center gap-1 text-sm leading-none text-zinc-700">
+                                            <div className="inline-flex items-center gap-1 text-sm text-zinc-700">
                                                 <input
+                                                    id="valueMode-integer"
                                                     type="radio"
                                                     name="valueMode"
                                                     value="integer"
                                                     checked={valueMode === "integer"}
                                                     onChange={(e) => setValueMode(e.target.value)}
-                                                    className="m-0 h-4 w-4"
+                                                    className="relative cursor-pointer top-px m-0 h-4 w-4 shrink-0"
                                                 />
-                                                <div className="leading-none">Interi</div>
+                                                <label
+                                                    htmlFor="valueMode-integer"
+                                                    className="cursor-pointer leading-none select-none"
+                                                >
+                                                    Interi
+                                                </label>
                                             </div>
 
-                                            <div className="inline-flex cursor-pointer items-center gap-1 text-sm leading-none text-zinc-700">
+                                            <div className="inline-flex items-center gap-1 text-sm text-zinc-700">
                                                 <input
+                                                    id="valueMode-decimal"
                                                     type="radio"
                                                     name="valueMode"
                                                     value="decimal"
                                                     checked={valueMode === "decimal"}
                                                     onChange={(e) => setValueMode(e.target.value)}
-                                                    className="m-0 h-4 w-4"
+                                                    className="relative cursor-pointer top-px m-0 h-4 w-4 shrink-0"
                                                 />
-                                                <span className="leading-none">Decimali</span>
+                                                <label
+                                                    htmlFor="valueMode-decimal"
+                                                    className="cursor-pointer leading-none select-none"
+                                                >
+                                                    Decimali
+                                                </label>
                                             </div>
                                         </div>
                                     </div>
