@@ -49,10 +49,10 @@ export default function BudgetYearlyPage() {
 
   const { data, loading } = useGet(API_ENDPOINTS.transactionBudget())
   console.log(data);
-  
 
-  const [title] = useState("Amazon Prime");
-  const [subtitle] = useState("Gestisci i tuoi budget");
+  const [isYearsModalOpen, setIsYearsModalOpen] = useState(false);
+  const [startYear, setStartYear] = useState("");
+  const [endYear, setEndYear] = useState("");
   const [rows, setRows] = useState(() => {
     const initial = [];
     for (let year = 2025; year <= 2031; year++) {
@@ -67,9 +67,7 @@ export default function BudgetYearlyPage() {
     return initial;
   });
 
-  const [isYearsModalOpen, setIsYearsModalOpen] = useState(false);
-  const [startYear, setStartYear] = useState("");
-  const [endYear, setEndYear] = useState("");
+
 
   const sortedRows = useMemo(() => {
     return [...rows].sort((a, b) => a.year - b.year);
@@ -175,8 +173,8 @@ export default function BudgetYearlyPage() {
       <div className="flex flex-col px-3 pb-3 sm:px-4 md:px-6 lg:px-8">
 
         <BudgetHeader
-          title={title}
-          subtitle={subtitle}
+          title={"Amazon Prime"}
+          subtitle={"Gestisci i tuoi budget"}
           handleOpenYearsModal={handleOpenYearsModal}
           handleSave={handleSave}
         />
