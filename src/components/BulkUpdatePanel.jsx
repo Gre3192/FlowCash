@@ -87,7 +87,7 @@ export default function BulkUpdatePanel({
 
         const safeDeltaTime = deltaTime <= 0 ? 1 : deltaTime;
         const speed = Math.abs(deltaY) / safeDeltaTime;
-
+        
         if (mode === "integer") {
             if (speed < 1.5) return 1;
             if (speed < 3) return 5;
@@ -189,8 +189,6 @@ export default function BulkUpdatePanel({
             ? "border-rose-300 bg-blue-100 text-blue-700 shadow-rose-100"
             : "border-zinc-200 bg-zinc-50 text-zinc-700 hover:border-zinc-300 hover:bg-white"
         }`;
-
-
 
     return (
         <div className="mb-3 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
