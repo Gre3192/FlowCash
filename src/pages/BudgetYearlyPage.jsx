@@ -49,8 +49,6 @@ const MONTHS = [
 
 export default function BudgetYearlyPage() {
   const { data, loading } = useGet(API_ENDPOINTS.transactionBudget());
-  console.log(data);
-
   const [isYearsModalOpen, setIsYearsModalOpen] = useState(false);
   const [startYear, setStartYear] = useState("");
   const [endYear, setEndYear] = useState("");
@@ -58,9 +56,9 @@ export default function BudgetYearlyPage() {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    if (!Array.isArray(data) || isInitialized) return;
+    if (!data?.rows || !Array.isArray(data.rows) || isInitialized) return;
 
-    const mappedRows = data.map((item) => ({
+    const mappedRows = data.rows.map((item) => ({
       year: Number(item.year),
       values: Array.from({ length: 12 }, (_, i) => {
         const value = item.values?.[i];
@@ -88,11 +86,11 @@ export default function BudgetYearlyPage() {
       prev.map((row) =>
         row.year === year
           ? {
-              ...row,
-              values: row.values.map((v, i) =>
-                i === monthIndex ? value : v
-              ),
-            }
+            ...row,
+            values: row.values.map((v, i) =>
+              i === monthIndex ? value : v
+            ),
+          }
           : row
       )
     );
@@ -114,14 +112,14 @@ export default function BudgetYearlyPage() {
   };
 
   const handleSave = () => {
-    const payload = sortedRows.map((row) => ({
-      year: row.year,
-      values: row.values.map((v) => {
-        if (v === "") return null;
-        return Number(String(v).replace(",", "."));
-      }),
-      total: getYearTotal(row.values),
-    }));
+    const payload = {
+      title: "Amazon prime",
+      icon: "",
+      rows: sortedRows.map((row) => ({
+        year: row.year,
+        values: row.values,
+      })),
+    };
 
     console.log("Salvataggio:", payload);
   };
@@ -188,7 +186,7 @@ export default function BudgetYearlyPage() {
     <div className="bg-zinc-50">
       <div className="flex flex-col px-3 pb-3 sm:px-4 md:px-6 lg:px-8">
         <BudgetHeader
-          title={"Amazon Prime"}
+          title={data.title}
           subtitle={"Gestisci i tuoi budget"}
           handleOpenYearsModal={handleOpenYearsModal}
           handleSave={handleSave}
