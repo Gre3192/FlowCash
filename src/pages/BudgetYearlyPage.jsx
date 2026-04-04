@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   Save,
@@ -21,7 +21,9 @@ function createYearRow(year) {
 
 function getYearTotal(values) {
   const totalCents = values.reduce((sum, value) => {
-    const num = Number(value);
+    const normalized = String(value).replace(",", ".");
+    const num = Number(normalized);
+
     if (Number.isNaN(num)) return sum;
 
     return sum + Math.round(num * 100);
@@ -46,28 +48,29 @@ const MONTHS = [
 ];
 
 export default function BudgetYearlyPage() {
-
-  const { data, loading } = useGet(API_ENDPOINTS.transactionBudget())
+  const { data, loading } = useGet(API_ENDPOINTS.transactionBudget());
   console.log(data);
 
   const [isYearsModalOpen, setIsYearsModalOpen] = useState(false);
   const [startYear, setStartYear] = useState("");
   const [endYear, setEndYear] = useState("");
-  const [rows, setRows] = useState(() => {
-    const initial = [];
-    for (let year = 2025; year <= 2031; year++) {
-      const row = createYearRow(year);
+  const [rows, setRows] = useState([]);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-      if (year === 2026) {
-        row.values[6] = "400";
-      }
+  useEffect(() => {
+    if (!Array.isArray(data) || isInitialized) return;
 
-      initial.push(row);
-    }
-    return initial;
-  });
+    const mappedRows = data.map((item) => ({
+      year: Number(item.year),
+      values: Array.from({ length: 12 }, (_, i) => {
+        const value = item.values?.[i];
+        return value === null || value === undefined ? "" : String(value);
+      }),
+    }));
 
-
+    setRows(mappedRows);
+    setIsInitialized(true);
+  }, [data, isInitialized]);
 
   const sortedRows = useMemo(() => {
     return [...rows].sort((a, b) => a.year - b.year);
@@ -79,16 +82,17 @@ export default function BudgetYearlyPage() {
   }, [sortedRows]);
 
   const handleValueChange = (year, monthIndex, value) => {
-
     if (!/^\d*([.,]?\d{0,2})?$/.test(value)) return;
 
     setRows((prev) =>
       prev.map((row) =>
         row.year === year
           ? {
-            ...row,
-            values: row.values.map((v, i) => (i === monthIndex ? value : v)),
-          }
+              ...row,
+              values: row.values.map((v, i) =>
+                i === monthIndex ? value : v
+              ),
+            }
           : row
       )
     );
@@ -112,7 +116,10 @@ export default function BudgetYearlyPage() {
   const handleSave = () => {
     const payload = sortedRows.map((row) => ({
       year: row.year,
-      values: row.values.map((v) => (v === "" ? null : Number(v))),
+      values: row.values.map((v) => {
+        if (v === "") return null;
+        return Number(String(v).replace(",", "."));
+      }),
       total: getYearTotal(row.values),
     }));
 
@@ -167,11 +174,19 @@ export default function BudgetYearlyPage() {
     );
   };
 
-  return (
+  if (loading && !isInitialized) {
+    return (
+      <div className="bg-zinc-50">
+        <div className="flex flex-col px-3 pb-3 sm:px-4 md:px-6 lg:px-8">
+          <div className="py-6 text-sm text-zinc-500">Caricamento...</div>
+        </div>
+      </div>
+    );
+  }
 
+  return (
     <div className="bg-zinc-50">
       <div className="flex flex-col px-3 pb-3 sm:px-4 md:px-6 lg:px-8">
-
         <BudgetHeader
           title={"Amazon Prime"}
           subtitle={"Gestisci i tuoi budget"}
@@ -180,7 +195,6 @@ export default function BudgetYearlyPage() {
         />
 
         <div className="pt-3 px-1">
-
           <BulkUpdatePanel
             rows={sortedRows}
             setRows={setRows}
@@ -188,7 +202,7 @@ export default function BudgetYearlyPage() {
             handleRemoveLastYear={handleRemoveLastYear}
           />
 
-          <div className="rounded-2xl mt-2 border border-zinc-200 bg-white shadow-sm h-[52vh] overflow-x-auto overflow-y-scroll  pb-2 sm:h-[56vh] lg:h-[54vh] md:overflow-x-hidden">
+          <div className="rounded-2xl mt-2 border border-zinc-200 bg-white shadow-sm h-[52vh] overflow-x-auto overflow-y-scroll pb-2 sm:h-[56vh] lg:h-[54vh] md:overflow-x-hidden">
             <BudgetTable
               sortedRows={sortedRows}
               handleValueChange={handleValueChange}
@@ -291,25 +305,24 @@ export default function BudgetYearlyPage() {
   );
 }
 
-
 function BudgetHeader({
-
   title,
   subtitle,
   handleOpenYearsModal,
   handleSave,
-
 }) {
-
   const navigate = useNavigate();
 
   return (
-
     <div className="sticky top-0 z-40 overflow-hidden">
-      <div className="absolute inset-0  bg-zinc-50 shadow-sm" />
+      <div className="absolute inset-0 bg-zinc-50 shadow-sm" />
       <div className="relative flex flex-col gap-3 py-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="flex min-w-0 items-center gap-4">
-          <ArrowLeft size={25} className="cursor-pointer" onClick={() => navigate('/budgetPage')} />
+          <ArrowLeft
+            size={25}
+            className="cursor-pointer"
+            onClick={() => navigate("/budgetPage")}
+          />
           <div className="min-w-0">
             <div className="flex min-w-0 items-center gap-2">
               <div className="truncate text-2xl font-semibold leading-none text-zinc-900 sm:text-3xl md:text-3xl">
@@ -317,9 +330,7 @@ function BudgetHeader({
               </div>
             </div>
 
-            <div className="mt-1 text-sm text-zinc-500">
-              {subtitle}
-            </div>
+            <div className="mt-1 text-sm text-zinc-500">{subtitle}</div>
           </div>
         </div>
 
@@ -344,7 +355,7 @@ function BudgetHeader({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function BudgetTable({
@@ -352,7 +363,6 @@ function BudgetTable({
   handleValueChange,
   handleClearRow,
 }) {
-
   return (
     <table className="w-245 border-collapse sm:w-270 md:w-full md:table-fixed">
       <thead className="sticky top-0 z-20 bg-white">
@@ -376,7 +386,6 @@ function BudgetTable({
 
       <tbody className="pb-2">
         {sortedRows.map((row) => {
-
           const total = getYearTotal(row.values);
 
           return (
@@ -403,11 +412,7 @@ function BudgetTable({
                     step="0.01"
                     value={value}
                     onChange={(e) =>
-                      handleValueChange(
-                        row.year,
-                        monthIndex,
-                        e.target.value
-                      )
+                      handleValueChange(row.year, monthIndex, e.target.value)
                     }
                     className="h-9 w-full rounded-xl border border-zinc-200 bg-white px-2 text-center text-sm text-zinc-700 outline-none transition focus:border-zinc-300 focus:ring-2 focus:ring-zinc-200 sm:h-10 md:px-3"
                   />
@@ -430,5 +435,5 @@ function BudgetTable({
         })}
       </tbody>
     </table>
-  )
+  );
 }
