@@ -48,6 +48,7 @@ const MONTHS = [
 ];
 
 export default function BudgetYearlyPage() {
+  
   const { data, loading } = useGet(API_ENDPOINTS.transactionBudget());
   const [isYearsModalOpen, setIsYearsModalOpen] = useState(false);
   const [startYear, setStartYear] = useState("");
