@@ -7,7 +7,7 @@ import {
   CalendarRange,
   Eraser,
 } from "lucide-react";
-import BulkUpdatePanel from "../components/BulkUpdatePanel";
+import BulkUpdatePanel from "../components/Old/BulkUpdatePanel";
 import { useNavigate } from "react-router-dom";
 import { useGet } from "../hooks/useGet";
 import { API_ENDPOINTS } from "../api/endpoint";

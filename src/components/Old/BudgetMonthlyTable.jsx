@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
-import euro from "../utils/formatEuro";
-import sumArray from "../utils/sumArray";
+import euro from "../../utils/formatEuro";
+import sumArray from "../../utils/sumArray";
 import CustomInput from "./CustomInput";
 
 const Cell = ({ children, className = "" }) => (

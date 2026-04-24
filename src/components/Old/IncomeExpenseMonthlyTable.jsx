@@ -1,7 +1,7 @@
 import { Plus } from 'lucide-react';
 import Accordion from 'react-bootstrap/Accordion';
 import Button from 'react-bootstrap/Button';
-import sumArray from '../utils/sumArray';
+import sumArray from '../../utils/sumArray';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import CustomInput from './CustomInput';
 

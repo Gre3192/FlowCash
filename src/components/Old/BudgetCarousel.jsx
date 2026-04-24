@@ -3,7 +3,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import MonthCard from './MonthCard';
-import formatEuro from '../utils/formatEuro';
+import formatEuro from '../../utils/formatEuro';
 
 const BudgetCarousel = ({ onMonthClick, mesi }) => {
 
