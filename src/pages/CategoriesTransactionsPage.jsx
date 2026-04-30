@@ -20,14 +20,14 @@ const initialCategories = [
         transactions: [
             { id: 201, date: "2026-04-01", description: "Netflix", current: 13, target: 20 },
             { id: 202, date: "2026-04-03", description: "Spotify", current: 11, target: 15 },
-            { id: 203, date: "2026-05-05", description: "Amazon Prime", current: 5, target: 10 },
+            { id: 203, date: "2027-05-05", description: "Amazon Prime", current: 5, target: 10 },
         ],
     },
     {
         id: 3,
         name: "Trasporti",
         transactions: [
-            { id: 301, date: "2026-04-04", description: "Benzina", current: 50, target: 120 },
+            { id: 301, date: "2028-04-04", description: "Benzina", current: 50, target: 120 },
             { id: 302, date: "2026-04-10", description: "Parcheggio", current: 8, target: 30 },
         ],
     },
@@ -35,7 +35,7 @@ const initialCategories = [
         id: 4,
         name: "Spesa",
         transactions: [
-            { id: 401, date: "2026-04-06", description: "Supermercato", current: 96.3, target: 160 },
+            { id: 401, date: "2029-04-06", description: "Supermercato", current: 96.3, target: 160 },
             { id: 402, date: "2026-04-13", description: "Frutta e verdura", current: 21.4, target: 50 },
         ],
     },
