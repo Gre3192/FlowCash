@@ -206,7 +206,11 @@ export default function CategoriesTransactionsPage() {
         );
     };
 
-    const { data, loading, error } = useGet(API_ENDPOINTS.budget())
+    const { data, loading, error } = useGet(API_ENDPOINTS.monthlyOverview({
+        month: 2,
+        year:2026
+    }))
+    console.log(data); 
 
 
     return (

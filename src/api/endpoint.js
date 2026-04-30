@@ -11,6 +11,8 @@ export const API_ENDPOINTS = {
   budget: buildEndpoint(base_url, `/api/budget`),
   //GET
   transactionBudget: buildEndpoint(base_url, `/api/transaction-budget`),
+  //GET ? month (da 1 a 12) | year
+  monthlyOverview: buildEndpoint(base_url, `/api/flowcash/monthly-overview/`),
 
 };
 
