@@ -1,16 +1,16 @@
 const MONTHS = [
-  { value: 0, label: "Gen" },
-  { value: 1, label: "Feb" },
-  { value: 2, label: "Mar" },
-  { value: 3, label: "Apr" },
-  { value: 4, label: "Mag" },
-  { value: 5, label: "Giu" },
-  { value: 6, label: "Lug" },
-  { value: 7, label: "Ago" },
-  { value: 8, label: "Set" },
-  { value: 9, label: "Ott" },
-  { value: 10, label: "Nov" },
-  { value: 11, label: "Dic" },
+  { value: 1, label: "Gen" },
+  { value: 2, label: "Feb" },
+  { value: 3, label: "Mar" },
+  { value: 4, label: "Apr" },
+  { value: 5, label: "Mag" },
+  { value: 6, label: "Giu" },
+  { value: 7, label: "Lug" },
+  { value: 8, label: "Ago" },
+  { value: 9, label: "Set" },
+  { value: 10, label: "Ott" },
+  { value: 11, label: "Nov" },
+  { value: 12, label: "Dic" },
 ];
 
 export default function MonthYearPicker({

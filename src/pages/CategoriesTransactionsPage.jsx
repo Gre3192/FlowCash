@@ -207,12 +207,13 @@ export default function CategoriesTransactionsPage() {
     };
 
     const { data, loading, error } = useGet(API_ENDPOINTS.monthlyOverview({
-        month: 2,
-        year:2026
+        month: selectedMonth,
+        year:selectedYear
     }))
-    console.log(data); 
 
-
+    console.log(data);
+    
+    
     return (
         <div className="h-[calc(100vh-80px)] min-h-0 box-border overflow-hidden bg-slate-50 p-2 sm:p-3">
             <div className="flex h-full min-h-0 flex-col">
