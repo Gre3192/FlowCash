@@ -2,7 +2,7 @@ import buildEndpoint from "../utils/buildEndpoint";
 import getBaseUrl from "../utils/getBaseUrl"
 
 
-const base_url = getBaseUrl('mock')  // mock, local, server
+const base_url = getBaseUrl('local')  // mock, local, server
 
 
 export const API_ENDPOINTS = {
@@ -12,8 +12,6 @@ export const API_ENDPOINTS = {
   //GET
   transactionBudget: buildEndpoint(base_url, `/api/transaction-budget`),
 
-
-
-
-
 };
+
+

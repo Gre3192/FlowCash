@@ -3,6 +3,8 @@ import { FolderOpen, Search, Plus, Pencil, Trash2, MoreVertical, } from "lucide-
 import MonthYearPicker from "../components/MonthYearPicker";
 import CategoryCard from "../components/CategoryCard";
 import TransactionCard from "../components/TransactionCard";
+import { useGet } from "../hooks/useGet"
+import { API_ENDPOINTS } from "../api/endpoint";
 
 const initialCategories = [
     {
@@ -63,8 +65,6 @@ function getCategoryTotal(transactions) {
     }, 0);
 }
 
-
-
 function IconButton({ icon: Icon, onClick, title }) {
     return (
         <button
@@ -93,7 +93,6 @@ export default function CategoriesTransactionsPage() {
     const [selectedYear, setSelectedYear] = useState(currentYear);
 
     const [openCategoryMenuId, setOpenCategoryMenuId] = useState(null);
-
 
     const availableYears = useMemo(() => {
         const yearSet = new Set([currentYear]);
@@ -207,6 +206,7 @@ export default function CategoriesTransactionsPage() {
         );
     };
 
+    const { data, loading, error } = useGet(API_ENDPOINTS.budget())
 
 
     return (
