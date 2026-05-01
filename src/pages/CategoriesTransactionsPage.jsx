@@ -51,7 +51,6 @@ export default function CategoriesTransactionsPage() {
     );
 
     console.log(data?.categories);
-    
 
     const categories = useMemo(() => {
         return (data?.categories ?? []).map((category) => ({
@@ -109,9 +108,6 @@ export default function CategoriesTransactionsPage() {
 
     const transactions = selectedCategory?.transactions ?? [];
 
-    console.log(selectedCategory);
-    
-
     const maxCategoryTotal = useMemo(() => {
         if (!filteredCategories.length) return 0;
 
@@ -142,6 +138,14 @@ export default function CategoriesTransactionsPage() {
         });
     };
 
+    function getCategoryById(data, categoryId) {
+        if (!data?.categories || !categoryId) return null;
+
+        return data.categories.find((category) => category.id === categoryId) || null;
+    }
+
+    
+
     return (
         <div className="h-[calc(100vh-80px)] min-h-0 box-border overflow-hidden bg-slate-50 p-2 sm:p-3">
             <div className="flex h-full min-h-0 flex-col">
@@ -171,7 +175,7 @@ export default function CategoriesTransactionsPage() {
                 )}
 
                 <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
-                   
+
                     <CategorySide
                         loading={loading}
                         categories={filteredCategories}
@@ -185,7 +189,7 @@ export default function CategoriesTransactionsPage() {
                         handleAddCategory={handleAddCategory}
                     />
 
-                    <TransactionsSide
+                    {/* <TransactionsSide
                         loading={loading}
                         categories={categories}
                         transactions={transactions}
@@ -193,7 +197,7 @@ export default function CategoriesTransactionsPage() {
                         selectedCategoryId={selectedCategory?.id}
                         handleAddTransaction={handleAddTransaction}
                         setOpenCategoryMenuId={setOpenCategoryMenuId}
-                    />
+                    /> */}
                 </div>
             </div>
         </div>
@@ -349,7 +353,7 @@ function TransactionsSide({
                                 const current = transaction.entriesTotal;
                                 const target = transaction.target;
 
-                                const progress =   target > 0 ? (current / target) * 100 : 0;
+                                const progress = target > 0 ? (current / target) * 100 : 0;
 
                                 const remaining = Math.max(target - current, 0);
 

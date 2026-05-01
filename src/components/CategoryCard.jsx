@@ -18,36 +18,13 @@ export default function CategoryCard({
 }) {
 
     const [categoryMenuAnchor, setCategoryMenuAnchor] = useState("button");
-    const [categoryContextPosition, setCategoryContextPosition] = useState({
-        x: 0,
-        y: 0,
-    });
+    const [categoryContextPosition, setCategoryContextPosition] = useState({ x: 0, y: 0 });
 
     const isDisabled = category.transactions.length === 0;
-
-    const cardClassName = isDisabled
-        ? "border-slate-200 bg-slate-100 text-slate-400"
-        : isSelected
-            ? "border-slate-900 bg-slate-900 text-white"
-            : "border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50";
-
-    const iconClassName = isDisabled
-        ? "bg-slate-200 text-slate-400"
-        : isSelected
-            ? "bg-white/10 text-white"
-            : "bg-slate-100 text-slate-700";
-
-    const subTextClassName = isDisabled
-        ? "text-slate-400"
-        : isSelected
-            ? "text-slate-300"
-            : "text-slate-500";
-
-    const amountClassName = isDisabled
-        ? "bg-slate-200 text-slate-400"
-        : isSelected
-            ? "bg-white/10 text-white"
-            : "bg-slate-100 text-slate-700";
+    const cardClassName = isDisabled ? "border-slate-200 bg-slate-100 text-slate-400" : isSelected ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50";
+    const iconClassName = isDisabled ? "bg-slate-200 text-slate-400" : isSelected ? "bg-white/10 text-white" : "bg-slate-100 text-slate-700";
+    const subTextClassName = isDisabled ? "text-slate-400" : isSelected ? "text-slate-300" : "text-slate-500";
+    const amountClassName = isDisabled ? "bg-slate-200 text-slate-400" : isSelected ? "bg-white/10 text-white" : "bg-slate-100 text-slate-700";
 
     return (
         <div
@@ -84,7 +61,6 @@ export default function CategoryCard({
                 </div>
 
                 <div className="flex shrink-0 items-start gap-1">
-
 
                     {!isDisabled && (
                         <div className="flex items-center gap-2">
