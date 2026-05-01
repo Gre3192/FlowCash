@@ -176,12 +176,11 @@ export default function CategoriesTransactionsPage() {
 
             <ModalWrapper
                 isOpen={isCreateCategoryModalOpen}
-                onClose={() => setIsCreateCategoryModalOpen(false)}
+                onClose={() => {setIsCreateCategoryModalOpen(false)}}
                 title="Nuova categoria"
             >
                 <CreateCategoryModal
-                    month={selectedMonth}
-                    year={selectedYear}
+                    reload={reload}
                     onClose={() => setIsCreateCategoryModalOpen(false)}
                 />
             </ModalWrapper>
@@ -364,7 +363,6 @@ function SearchBar({ search, setSearch }) {
                 size={14}
                 className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
             />
-
             <input
                 type="text"
                 placeholder="Cerca..."
@@ -372,7 +370,6 @@ function SearchBar({ search, setSearch }) {
                 onChange={(e) => setSearch(e.target.value)}
                 className="h-8 w-full rounded-lg border border-slate-200 bg-white py-1 pl-8 pr-8 text-xs outline-none transition focus:border-slate-400"
             />
-
             {search && (
                 <button
                     type="button"
@@ -397,6 +394,7 @@ function HeadOfSide({
     setSearch,
     onCTAClick,
     valuePill
+
 }) {
 
     return (

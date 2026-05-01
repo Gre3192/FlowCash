@@ -3,12 +3,11 @@ import { FolderPlus, LoaderCircle } from "lucide-react";
 import { usePost } from "../hooks/usePost";
 import { API_ENDPOINTS } from "../api/endpoint";
 
-export default function CreateCategoryModal({ onClose, onCreated }) {
+export default function CreateCategoryModal({ onClose, reload }) {
 
     const { postData, loading, error } = usePost();
 
     const [categoryName, setCategoryName] = useState("");
-
     const [errors, setErrors] = useState({});
 
     function handleChange(e) {
@@ -30,23 +29,20 @@ export default function CreateCategoryModal({ onClose, onCreated }) {
 
     async function handleSubmit(e) {
         e.preventDefault();
-
         if (!validateForm()) return;
-
         const payload = {
             name: categoryName.trim(),
         };
-
         try {
             const createdCategory = await postData(
                 API_ENDPOINTS.categories(),
                 payload
             );
-
-            onCreated?.(createdCategory);
             onClose?.();
         } catch (err) {
             console.error(err);
+        } finally {
+            reload()
         }
     }
 
@@ -78,11 +74,10 @@ export default function CreateCategoryModal({ onClose, onCreated }) {
                     value={categoryName}
                     onChange={handleChange}
                     placeholder="Es. Abbonamenti"
-                    className={`w-full rounded-xl border px-3 py-2.5 text-sm outline-none transition ${
-                        errors.name
-                            ? "border-red-400 bg-red-50"
-                            : "border-slate-300 bg-white focus:border-slate-900"
-                    }`}
+                    className={`w-full rounded-xl border px-3 py-2.5 text-sm outline-none transition ${errors.name
+                        ? "border-red-400 bg-red-50"
+                        : "border-slate-300 bg-white focus:border-slate-900"
+                        }`}
                 />
 
                 {errors.name && (
@@ -107,18 +102,17 @@ export default function CreateCategoryModal({ onClose, onCreated }) {
                 >
                     Annulla
                 </button>
-
-<button
-    type="submit"
-    disabled={loading}
-    className="inline-flex min-w-[130px] cursor-pointer items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
->
-    {loading ? (
-        <LoaderCircle size={16} className="animate-spin" />
-    ) : (
-        "Crea categoria"
-    )}
-</button>
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="inline-flex min-w-32.5 cursor-pointer items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                    {loading ? (
+                        <LoaderCircle size={16} className="animate-spin" />
+                    ) : (
+                        "Crea categoria"
+                    )}
+                </button>
             </div>
         </form>
     );
