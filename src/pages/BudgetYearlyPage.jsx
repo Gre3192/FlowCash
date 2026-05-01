@@ -48,13 +48,49 @@ const MONTHS = [
 ];
 
 export default function BudgetYearlyPage() {
-  
-  const { data, loading } = useGet(API_ENDPOINTS.transactionBudget());
+
+  // const { data, loading } = useGet(API_ENDPOINTS.transactionBudget());
   const [isYearsModalOpen, setIsYearsModalOpen] = useState(false);
   const [startYear, setStartYear] = useState("");
   const [endYear, setEndYear] = useState("");
   const [rows, setRows] = useState([]);
   const [isInitialized, setIsInitialized] = useState(false);
+  
+  const loading = false
+  const [data, setData] = useState({
+    "title": "Amazon prime",
+    "icon": "",
+    "rows": [
+      {
+        "year": 2025,
+        "values": ["100", "120", "150", "", "180", "", "", "210", "", "", "250", "300"]
+      },
+      {
+        "year": 2026,
+        "values": ["90", "", "130", "160", "", "", "400", "", "220", "", "", "280"]
+      },
+      {
+        "year": 2027,
+        "values": ["110", "", "", "170", "200", "", "", "", "260", "", "290", ""]
+      },
+      {
+        "year": 2028,
+        "values": ["", "140", "", "", "190", "", "230", "", "", "270", "", "310"]
+      },
+      {
+        "year": 2029,
+        "values": ["125", "", "155", "", "", "205", "", "", "245", "", "", "295"]
+      },
+      {
+        "year": 2030,
+        "values": ["", "135", "", "175", "", "", "225", "", "255", "", "285", ""]
+      },
+      {
+        "year": 2031,
+        "values": ["150", "", "", "", "210", "", "", "240", "", "275", "", "320"]
+      }
+    ]
+  })
 
   useEffect(() => {
     if (!data?.rows || !Array.isArray(data.rows) || isInitialized) return;

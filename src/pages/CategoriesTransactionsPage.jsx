@@ -42,15 +42,15 @@ export default function CategoriesTransactionsPage() {
 
     const { data, loading, error } = useGet(
         API_ENDPOINTS.monthlyOverview({
-            month: selectedMonth + 1,
+            month: selectedMonth,
             year: selectedYear,
         }),
         {
-            delayMs: 1000,
+            delayMs: 0,
         }
     );
 
-    console.log(data?.categories);
+    console.log(selectedMonth)
 
     const categories = useMemo(() => {
         return (data?.categories ?? []).map((category) => ({
@@ -144,6 +144,7 @@ export default function CategoriesTransactionsPage() {
         return data.categories.find((category) => category.id === categoryId) || null;
     }
 
+    ;
 
 
     return (
@@ -222,10 +223,10 @@ function CategorySide({
 }) {
     return (
         <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm max-lg:max-h-[38vh] lg:h-full">
-        
-        
-        
-        
+
+
+
+
             <div className="border-b border-slate-200 p-2.5 sm:p-3">
                 <div className="mb-2 flex items-start justify-between gap-2">
                     <div className="min-w-0">
@@ -398,7 +399,7 @@ function EmptyState({ text = "Nessun dato disponibile" }) {
     );
 }
 
-function SearchBar({ search, setSearch}) {
+function SearchBar({ search, setSearch }) {
 
     return (
         <>
