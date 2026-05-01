@@ -138,16 +138,16 @@ export default function TransactionCard({
                                 {transaction.description}
                             </div>
 
-                            <div className="shrink-0 text-[11px] font-semibold text-emerald-700">
-                                {formatCurrency(current)} / {formatCurrency(target)}
+                            <div className="truncate text-[11px] text-slate-500">
+                                Rimanenti: {formatCurrency(remaining)}
                             </div>
                         </div>
 
                         <div className="mt-1 flex items-center justify-between gap-2">
-                            <div className="truncate text-[11px] text-slate-500">
-                                Rimanenti: {formatCurrency(remaining)}
-                            </div>
 
+                            <div className="shrink-0 text-[11px] font-semibold text-emerald-700">
+                                {formatCurrency(current)} / {formatCurrency(target)}
+                            </div>
                             <div className="shrink-0 text-[11px] text-slate-500">
                                 {progress.toFixed(0)}%
                             </div>

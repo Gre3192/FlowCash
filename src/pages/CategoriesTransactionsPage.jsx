@@ -7,7 +7,6 @@ import TransactionCard from "../components/TransactionCard";
 
 import { useGet } from "../hooks/useGet";
 import { API_ENDPOINTS } from "../api/endpoint";
-import { delay } from "framer-motion";
 
 function formatCurrency(value) {
     return new Intl.NumberFormat("it-IT", {
@@ -46,12 +45,9 @@ export default function CategoriesTransactionsPage() {
             year: selectedYear,
         }),
         {
-            delayMs: 0
+            delayMs: 1000,
         }
     );
-
-    console.log(loading);
-    
 
     const categories = useMemo(() => {
         return (data?.categories ?? []).map((category) => ({
@@ -162,12 +158,6 @@ export default function CategoriesTransactionsPage() {
                     />
                 </div>
 
-                {loading && (
-                    <div className="mb-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-500">
-                        Caricamento dati...
-                    </div>
-                )}
-
                 {error && (
                     <div className="mb-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600">
                         Errore durante il caricamento dei dati
@@ -176,6 +166,7 @@ export default function CategoriesTransactionsPage() {
 
                 <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
                     <CategorySide
+                        loading={loading}
                         categories={filteredCategories}
                         search={searchedCategory}
                         setSearch={setSearchedCategory}
@@ -188,6 +179,7 @@ export default function CategoriesTransactionsPage() {
                     />
 
                     <TransactionsSide
+                        loading={loading}
                         categories={categories}
                         transactions={transactions}
                         selectedCategory={selectedCategory}
@@ -202,6 +194,7 @@ export default function CategoriesTransactionsPage() {
 }
 
 function CategorySide({
+    loading,
     categories,
     handleAddCategory,
     search,
@@ -221,7 +214,7 @@ function CategorySide({
                             Categorie
                         </h2>
                         <p className="text-[11px] text-slate-500">
-                            {categories.length} categorie
+                            {loading ? "Caricamento..." : `${categories.length} categorie`}
                         </p>
                     </div>
 
@@ -249,40 +242,47 @@ function CategorySide({
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto p-2">
-                <div className="space-y-2">
-                    {categories.length > 0 ? (
-                        categories.map((category) => {
-                            const isSelected = category.id === selectedCategory?.id;
-                            const total = category.entriesTotal;
+                {loading ? (
+                    <LoadingState />
+                ) : (
+                    <div className="space-y-2">
+                        {categories.length > 0 ? (
+                            categories.map((category) => {
+                                const isSelected =
+                                    category.id === selectedCategory?.id;
 
-                            const progress =
-                                maxCategoryTotal > 0
-                                    ? (total / maxCategoryTotal) * 100
-                                    : 0;
+                                const total = category.entriesTotal;
 
-                            return (
-                                <CategoryCard
-                                    key={category.id}
-                                    isSelected={isSelected}
-                                    progress={progress}
-                                    category={category}
-                                    openCategoryMenuId={openCategoryMenuId}
-                                    setOpenCategoryMenuId={setOpenCategoryMenuId}
-                                    setSelectedCategoryId={setSelectedCategoryId}
-                                    total={total}
-                                />
-                            );
-                        })
-                    ) : (
-                        <EmptyState text="Nessuna categoria trovata" />
-                    )}
-                </div>
+                                const progress =
+                                    maxCategoryTotal > 0
+                                        ? (total / maxCategoryTotal) * 100
+                                        : 0;
+
+                                return (
+                                    <CategoryCard
+                                        key={category.id}
+                                        isSelected={isSelected}
+                                        progress={progress}
+                                        category={category}
+                                        openCategoryMenuId={openCategoryMenuId}
+                                        setOpenCategoryMenuId={setOpenCategoryMenuId}
+                                        setSelectedCategoryId={setSelectedCategoryId}
+                                        total={total}
+                                    />
+                                );
+                            })
+                        ) : (
+                            <EmptyState text="Nessuna categoria trovata" />
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );
 }
 
 function TransactionsSide({
+    loading,
     selectedCategory,
     transactions,
     handleAddTransaction,
@@ -332,7 +332,9 @@ function TransactionsSide({
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto p-2">
-                {selectedCategory ? (
+                {loading ? (
+                    <LoadingState />
+                ) : selectedCategory ? (
                     transactions.length > 0 ? (
                         <div className="space-y-2">
                             {transactions.map((transaction) => {
@@ -365,6 +367,17 @@ function TransactionsSide({
                 ) : (
                     <EmptyState text="Seleziona una categoria" />
                 )}
+            </div>
+        </div>
+    );
+}
+
+function LoadingState() {
+    return (
+        <div className="flex h-full min-h-[180px] items-center justify-center">
+            <div className="flex flex-col items-center gap-2">
+                <div className="h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-slate-700" />
+                <span className="text-xs text-slate-500">Caricamento...</span>
             </div>
         </div>
     );
