@@ -1,50 +1,75 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-export function useGet(url, options) {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(!!url);
-  const [error, setError] = useState(null);
+function wait(ms, signal) {
+    return new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(resolve, ms);
 
-  const fetchData = useCallback(async (signal) => {
-    
-    if (!url) return;
+        signal?.addEventListener("abort", () => {
+            clearTimeout(timeoutId);
+            reject(new DOMException("Aborted", "AbortError"));
+        });
+    });
+}
 
-    try {
-      setLoading(true);
-      setError(null);
+export function useGet(url, config = {}) {
+    const delayMs = config.delayMs ?? 0;
 
-      const response = await fetch(url, {
-        method: "GET",
-        ...options,
-        signal,
-      });
+    const options = useMemo(() => {
+        return config.options ?? {};
+    }, [config.options]);
 
-      if (!response.ok) {
-        throw new Error(`Errore HTTP: ${response.status}`);
-      }
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(!!url);
+    const [error, setError] = useState(null);
 
-      const text = await response.text();
-      console.log("RISPOSTA RAW:", text);
+    useEffect(() => {
+        if (!url) {
+            setLoading(false);
+            return;
+        }
 
-      const result = JSON.parse(text);
-      setData(result);
-    } catch (err) {
-      if (err.name !== "AbortError") {
-        console.error("fetch error:", err);
-        setError(err.message || "Errore sconosciuto");
-      }
-    } finally {
-      if (!signal?.aborted) {
-        setLoading(false);
-      }
-    }
-  }, [url, options]);
+        const controller = new AbortController();
 
-  useEffect(() => {
-    const controller = new AbortController();
-    fetchData(controller.signal);
-    return () => controller.abort();
-  }, [fetchData]);
+        async function fetchData() {
+            try {
+                setLoading(true);
+                setError(null);
 
-  return { data, loading, error };
+                if (delayMs > 0) {
+                    await wait(delayMs, controller.signal);
+                }
+
+                const response = await fetch(url, {
+                    method: "GET",
+                    ...options,
+                    signal: controller.signal,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Errore HTTP: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (!controller.signal.aborted) {
+                    setData(result);
+                }
+            } catch (err) {
+                if (err.name !== "AbortError") {
+                    console.error("fetch error:", err);
+                    setError(err.message || "Errore sconosciuto");
+                }
+            } finally {
+                if (!controller.signal.aborted) {
+                    setLoading(false);
+                }
+            }
+        }
+
+        fetchData();
+
+        return () => controller.abort();
+    }, [url, delayMs, options]);
+
+    return { data, loading, error };
 }

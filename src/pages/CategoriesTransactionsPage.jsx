@@ -1,48 +1,13 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { FolderOpen, Search, Plus, Pencil, Trash2, MoreVertical, } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { Search, Plus } from "lucide-react";
+
 import MonthYearPicker from "../components/MonthYearPicker";
 import CategoryCard from "../components/CategoryCard";
 import TransactionCard from "../components/TransactionCard";
-import { useGet } from "../hooks/useGet"
+
+import { useGet } from "../hooks/useGet";
 import { API_ENDPOINTS } from "../api/endpoint";
-
-
-const initialCategories = [
-    {
-        id: 1,
-        name: "Casa",
-        transactions: [
-            { id: 101, date: "2026-04-02", description: "Affitto", current: 400, target: 800 },
-            { id: 102, date: "2026-04-08", description: "Bollette luce", current: 180, target: 300 },
-            { id: 103, date: "2026-03-12", description: "Condominio", current: 250, target: 500 },
-        ],
-    },
-    {
-        id: 2,
-        name: "Abbonamenti",
-        transactions: [
-            { id: 201, date: "2026-04-01", description: "Netflix", current: 13, target: 20 },
-            { id: 202, date: "2026-04-03", description: "Spotify", current: 11, target: 15 },
-            { id: 203, date: "2027-05-05", description: "Amazon Prime", current: 5, target: 10 },
-        ],
-    },
-    {
-        id: 3,
-        name: "Trasporti",
-        transactions: [
-            { id: 301, date: "2028-04-04", description: "Benzina", current: 50, target: 120 },
-            { id: 302, date: "2026-04-10", description: "Parcheggio", current: 8, target: 30 },
-        ],
-    },
-    {
-        id: 4,
-        name: "Spesa",
-        transactions: [
-            { id: 401, date: "2029-04-06", description: "Supermercato", current: 96.3, target: 160 },
-            { id: 402, date: "2026-04-13", description: "Frutta e verdura", current: 21.4, target: 50 },
-        ],
-    },
-];
+import { delay } from "framer-motion";
 
 function formatCurrency(value) {
     return new Intl.NumberFormat("it-IT", {
@@ -50,20 +15,6 @@ function formatCurrency(value) {
         currency: "EUR",
         maximumFractionDigits: 2,
     }).format(Number(value) || 0);
-}
-
-function getMonthFromDate(dateString) {
-    return new Date(dateString).getMonth();
-}
-
-function getYearFromDate(dateString) {
-    return new Date(dateString).getFullYear();
-}
-
-function getCategoryTotal(transactions) {
-    return transactions.reduce((sum, transaction) => {
-        return sum + Number(transaction.current || 0);
-    }, 0);
 }
 
 function IconButton({ icon: Icon, onClick, title }) {
@@ -80,143 +31,119 @@ function IconButton({ icon: Icon, onClick, title }) {
 }
 
 export default function CategoriesTransactionsPage() {
-
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth();
 
-    const [search, setSearch] = useState("");
-    const [categories, setCategories] = useState(initialCategories);
-    const [selectedCategoryId, setSelectedCategoryId] = useState(initialCategories[0]?.id ?? null);
+    const [searchedCategory, setSearchedCategory] = useState("");
+    const [selectedCategoryId, setSelectedCategoryId] = useState(null);
     const [selectedMonth, setSelectedMonth] = useState(currentMonth);
     const [selectedYear, setSelectedYear] = useState(currentYear);
-
     const [openCategoryMenuId, setOpenCategoryMenuId] = useState(null);
 
-    const availableYears = useMemo(() => {
-        const yearSet = new Set([currentYear]);
+    const { data, loading, error } = useGet(
+        API_ENDPOINTS.monthlyOverview({
+            month: selectedMonth + 1,
+            year: selectedYear,
+        }),
+        {
+            delayMs: 0
+        }
+    );
 
-        categories.forEach((category) => {
-            category.transactions.forEach((transaction) => {
-                yearSet.add(getYearFromDate(transaction.date));
-            });
-        });
+    console.log(loading);
+    
 
-        return Array.from(yearSet).sort((a, b) => a - b);
-    }, [categories, currentYear]);
+    const categories = useMemo(() => {
+        return (data?.categories ?? []).map((category) => ({
+            id: category.id,
+            name: category.name,
+
+            budgetTotal: Number(category.category_budget_total || 0),
+            entriesTotal: Number(category.category_entries_total || 0),
+
+            transactions: (category.transactions ?? []).map((transaction) => {
+                const current = Number(transaction.entries_total || 0);
+                const target = Number(transaction.budget?.month_value || 0);
+
+                return {
+                    id: transaction.id,
+                    name: transaction.name,
+                    description: transaction.name,
+                    type: transaction.type,
+
+                    current,
+                    target,
+
+                    budget: transaction.budget,
+                    entries: transaction.entries ?? [],
+                    entriesTotal: Number(transaction.entries_total || 0),
+
+                    date:
+                        transaction.entries?.[0]?.entry_date ??
+                        `${selectedYear}-${String(selectedMonth + 1).padStart(2, "0")}-01`,
+
+                    raw: transaction,
+                };
+            }),
+        }));
+    }, [data, selectedMonth, selectedYear]);
 
     const filteredCategories = useMemo(() => {
-        const query = search.trim().toLowerCase();
+        const query = searchedCategory.trim().toLowerCase();
+
         if (!query) return categories;
 
         return categories.filter((category) =>
             category.name.toLowerCase().includes(query)
         );
-    }, [categories, search]);
-
-    const categoriesWithFilteredTransactions = useMemo(() => {
-        return filteredCategories.map((category) => ({
-            ...category,
-            transactions: category.transactions.filter((transaction) => {
-                const month = getMonthFromDate(transaction.date);
-                const year = getYearFromDate(transaction.date);
-                return month === selectedMonth && year === selectedYear;
-            }),
-        }));
-    }, [filteredCategories, selectedMonth, selectedYear]);
+    }, [categories, searchedCategory]);
 
     const selectedCategory = useMemo(() => {
+        if (!filteredCategories.length) return null;
+
         return (
-            categoriesWithFilteredTransactions.find(
+            filteredCategories.find(
                 (category) => category.id === selectedCategoryId
-            ) ||
-            categoriesWithFilteredTransactions[0] ||
-            null
+            ) ?? filteredCategories[0]
         );
-    }, [categoriesWithFilteredTransactions, selectedCategoryId]);
+    }, [filteredCategories, selectedCategoryId]);
 
     const transactions = selectedCategory?.transactions ?? [];
 
     const maxCategoryTotal = useMemo(() => {
-        if (!categoriesWithFilteredTransactions.length) return 0;
+        if (!filteredCategories.length) return 0;
 
         return Math.max(
-            ...categoriesWithFilteredTransactions.map((category) =>
-                getCategoryTotal(category.transactions)
-            )
+            ...filteredCategories.map((category) => category.entriesTotal)
         );
-    }, [categoriesWithFilteredTransactions]);
+    }, [filteredCategories]);
+
+    const availableYears = useMemo(() => {
+        const years = [];
+
+        for (let year = currentYear - 2; year <= currentYear + 5; year++) {
+            years.push(year);
+        }
+
+        return years;
+    }, [currentYear]);
 
     const handleAddCategory = () => {
-        const name = prompt("Nome nuova categoria:");
-        if (!name?.trim()) return;
-
-        const newCategory = {
-            id: Date.now(),
-            name: name.trim(),
-            transactions: [],
-        };
-
-        setCategories((prev) => [...prev, newCategory]);
-        setSelectedCategoryId(newCategory.id);
+        console.log("Apri modale creazione categoria");
     };
 
     const handleAddTransaction = () => {
-        const baseCategory =
-            categories.find((category) => category.id === selectedCategoryId) || null;
-
-        if (!baseCategory) return;
-
-        const description = prompt("Descrizione transazione:");
-        if (!description?.trim()) return;
-
-        const currentRaw = prompt("Valore corrente:");
-        if (currentRaw === null) return;
-
-        const targetRaw = prompt("Valore target:");
-        if (targetRaw === null) return;
-
-        const current = Number(String(currentRaw).replace(",", "."));
-        const target = Number(String(targetRaw).replace(",", "."));
-
-        if (Number.isNaN(current) || Number.isNaN(target)) return;
-
-        const defaultDate = `${selectedYear}-${String(selectedMonth + 1).padStart(2, "0")}-01`;
-        const date = prompt("Data (YYYY-MM-DD):", defaultDate);
-        if (!date?.trim()) return;
-
-        const newTransaction = {
-            id: Date.now(),
-            description: description.trim(),
-            current,
-            target,
-            date: date.trim(),
-        };
-
-        setCategories((prev) =>
-            prev.map((category) =>
-                category.id === baseCategory.id
-                    ? {
-                        ...category,
-                        transactions: [newTransaction, ...category.transactions],
-                    }
-                    : category
-            )
-        );
+        console.log("Apri modale creazione transazione", {
+            categoryId: selectedCategory?.id,
+            month: selectedMonth + 1,
+            year: selectedYear,
+        });
     };
-
-    const { data, loading, error } = useGet(API_ENDPOINTS.monthlyOverview({
-        month: selectedMonth,
-        year: selectedYear
-    }))
-
-    console.log(data);
-
 
     return (
         <div className="h-[calc(100vh-80px)] min-h-0 box-border overflow-hidden bg-slate-50 p-2 sm:p-3">
             <div className="flex h-full min-h-0 flex-col">
-
-                <div className="mb-3 flex items-center justify-between shrink-0">
+                <div className="mb-3 flex shrink-0 items-center justify-between">
                     <div>
                         <h1 className="text-base font-semibold text-slate-900 sm:text-lg">
                             Categorie e transazioni
@@ -225,6 +152,7 @@ export default function CategoriesTransactionsPage() {
                             Gestione categorie con relative transazioni
                         </p>
                     </div>
+
                     <MonthYearPicker
                         selectedMonth={selectedMonth}
                         selectedYear={selectedYear}
@@ -234,39 +162,47 @@ export default function CategoriesTransactionsPage() {
                     />
                 </div>
 
-                <div className="grid min-h-0 flex-1 overflow-hidden grid-cols-1 gap-3 lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
+                {loading && (
+                    <div className="mb-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-500">
+                        Caricamento dati...
+                    </div>
+                )}
 
+                {error && (
+                    <div className="mb-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600">
+                        Errore durante il caricamento dei dati
+                    </div>
+                )}
+
+                <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
                     <CategorySide
-                        categoriesWithFilteredTransactions={categoriesWithFilteredTransactions}
-                        handleAddCategory={handleAddCategory}
-                        search={search}
-                        setSearch={setSearch}
+                        categories={filteredCategories}
+                        search={searchedCategory}
+                        setSearch={setSearchedCategory}
                         selectedCategory={selectedCategory}
                         maxCategoryTotal={maxCategoryTotal}
                         openCategoryMenuId={openCategoryMenuId}
                         setOpenCategoryMenuId={setOpenCategoryMenuId}
                         setSelectedCategoryId={setSelectedCategoryId}
+                        handleAddCategory={handleAddCategory}
                     />
 
                     <TransactionsSide
-                        selectedCategory={selectedCategory}
-                        transactions={transactions}
-                        handleAddTransaction={handleAddTransaction}
-                        selectedCategoryId={selectedCategoryId}
-                        setCategories={setCategories}
-                        setOpenCategoryMenuId={setOpenCategoryMenuId}
                         categories={categories}
+                        transactions={transactions}
+                        selectedCategory={selectedCategory}
+                        selectedCategoryId={selectedCategory?.id}
+                        handleAddTransaction={handleAddTransaction}
+                        setOpenCategoryMenuId={setOpenCategoryMenuId}
                     />
-
                 </div>
             </div>
         </div>
     );
 }
 
-
 function CategorySide({
-    categoriesWithFilteredTransactions,
+    categories,
     handleAddCategory,
     search,
     selectedCategory,
@@ -274,17 +210,18 @@ function CategorySide({
     openCategoryMenuId,
     setOpenCategoryMenuId,
     setSelectedCategoryId,
-    setSearch
+    setSearch,
 }) {
-
     return (
         <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm max-lg:max-h-[38vh] lg:h-full">
             <div className="border-b border-slate-200 p-2.5 sm:p-3">
                 <div className="mb-2 flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                        <h2 className="text-sm font-semibold text-slate-900">Categorie</h2>
+                        <h2 className="text-sm font-semibold text-slate-900">
+                            Categorie
+                        </h2>
                         <p className="text-[11px] text-slate-500">
-                            {categoriesWithFilteredTransactions.length} categorie
+                            {categories.length} categorie
                         </p>
                     </div>
 
@@ -300,6 +237,7 @@ function CategorySide({
                         size={14}
                         className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
                     />
+
                     <input
                         type="text"
                         placeholder="Cerca..."
@@ -312,16 +250,19 @@ function CategorySide({
 
             <div className="min-h-0 flex-1 overflow-y-auto p-2">
                 <div className="space-y-2">
-                    {categoriesWithFilteredTransactions.length > 0 ? (
-
-                        categoriesWithFilteredTransactions.map((category) => {
+                    {categories.length > 0 ? (
+                        categories.map((category) => {
                             const isSelected = category.id === selectedCategory?.id;
-                            const total = getCategoryTotal(category.transactions);
+                            const total = category.entriesTotal;
+
                             const progress =
-                                maxCategoryTotal > 0 ? (total / maxCategoryTotal) * 100 : 0;
+                                maxCategoryTotal > 0
+                                    ? (total / maxCategoryTotal) * 100
+                                    : 0;
 
                             return (
                                 <CategoryCard
+                                    key={category.id}
                                     isSelected={isSelected}
                                     progress={progress}
                                     category={category}
@@ -333,26 +274,23 @@ function CategorySide({
                             );
                         })
                     ) : (
-                        <div className="rounded-lg border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500">
-                            Nessuna categoria trovata
-                        </div>
+                        <EmptyState text="Nessuna categoria trovata" />
                     )}
                 </div>
             </div>
         </div>
-    )
+    );
 }
-
 
 function TransactionsSide({
     selectedCategory,
     transactions,
     handleAddTransaction,
     selectedCategoryId,
-    setCategories,
     setOpenCategoryMenuId,
     categories,
 }) {
+    const total = selectedCategory?.entriesTotal ?? 0;
 
     return (
         <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:h-full">
@@ -370,7 +308,7 @@ function TransactionsSide({
 
                         <div className="flex shrink-0 items-center gap-2">
                             <div className="hidden rounded-md bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-700 sm:block">
-                                {formatCurrency(getCategoryTotal(transactions))}
+                                {formatCurrency(total)}
                             </div>
 
                             <IconButton
@@ -381,14 +319,14 @@ function TransactionsSide({
                         </div>
                     </div>
                 ) : (
-                    <div>
-                        <h2 className="text-sm font-semibold text-slate-900">Transazioni</h2>
-                    </div>
+                    <h2 className="text-sm font-semibold text-slate-900">
+                        Transazioni
+                    </h2>
                 )}
 
                 {selectedCategory && (
                     <div className="mt-2 text-[11px] text-slate-500 sm:hidden">
-                        Totale: {formatCurrency(getCategoryTotal(transactions))}
+                        Totale: {formatCurrency(total)}
                     </div>
                 )}
             </div>
@@ -398,38 +336,44 @@ function TransactionsSide({
                     transactions.length > 0 ? (
                         <div className="space-y-2">
                             {transactions.map((transaction) => {
+                                const current = transaction.entriesTotal;
+                                const target = transaction.target;
 
-                                const current = Number(transaction.current || 0);
-                                const target = Number(transaction.target || 0);
-                                const progress = target > 0 ? (current / target) * 100 : 0;
+                                const progress =
+                                    target > 0 ? (current / target) * 100 : 0;
+
                                 const remaining = Math.max(target - current, 0);
 
                                 return (
                                     <TransactionCard
+                                        key={transaction.id}
                                         progress={progress}
                                         remaining={remaining}
                                         target={target}
                                         current={current}
-                                        setOpenCategoryMenuId={setOpenCategoryMenuId}
                                         transaction={transaction}
                                         categories={categories}
                                         selectedCategoryId={selectedCategoryId}
-                                        setCategories={setCategories}
+                                        setOpenCategoryMenuId={setOpenCategoryMenuId}
                                     />
                                 );
                             })}
                         </div>
                     ) : (
-                        <div className="rounded-lg border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500">
-                            Nessuna transazione disponibile per il periodo selezionato
-                        </div>
+                        <EmptyState text="Nessuna transazione disponibile per il periodo selezionato" />
                     )
                 ) : (
-                    <div className="rounded-lg border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500">
-                        Seleziona una categoria
-                    </div>
+                    <EmptyState text="Seleziona una categoria" />
                 )}
             </div>
         </div>
-    )
+    );
+}
+
+function EmptyState({ text = "Nessun dato disponibile" }) {
+    return (
+        <div className="rounded-lg border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500">
+            {text}
+        </div>
+    );
 }
