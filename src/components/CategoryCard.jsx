@@ -16,6 +16,7 @@ export default function CategoryCard({
     handleDeleteCategory,
     setOpenTransactionMenuId,
 }) {
+
     const [categoryMenuAnchor, setCategoryMenuAnchor] = useState("button");
     const [categoryContextPosition, setCategoryContextPosition] = useState({
         x: 0,
@@ -50,13 +51,9 @@ export default function CategoryCard({
 
     return (
         <div
-            onClick={() => {
-                if (isDisabled) return;
-                setSelectedCategoryId(category.id);
-            }}
+            onClick={() => { if (isDisabled) return; setSelectedCategoryId(category.id); }}
             onContextMenu={(e) => {
                 if (isDisabled) return;
-
                 e.preventDefault();
                 setSelectedCategoryId(category.id);
                 setOpenTransactionMenuId?.(null);
@@ -64,16 +61,10 @@ export default function CategoryCard({
                 setCategoryContextPosition({ x: e.clientX, y: e.clientY });
                 setOpenCategoryMenuId(category.id);
             }}
-            className={`relative overflow-visible rounded-lg border px-2.5 py-2 pb-3 transition sm:px-3 ${isDisabled ? "cursor-not-allowed" : "cursor-pointer"
-                } ${cardClassName}`}
-        >
-            {!isDisabled && (
-                <EdgeProgressBar value={progress} selected={isSelected} />
-            )}
+            className={`relative overflow-visible rounded-lg border px-2.5 py-2 pb-3 transition sm:px-3 ${isDisabled ? "cursor-not-allowed" : "cursor-pointer"} ${cardClassName}`} >
 
-            {isDisabled && (
-                <div className="absolute inset-x-0 bottom-0 h-1 rounded-b-lg bg-slate-200" />
-            )}
+            {!isDisabled && <EdgeProgressBar value={progress} selected={isSelected} />}
+            {isDisabled && <div className="absolute inset-x-0 bottom-0 h-1 rounded-b-lg bg-slate-200" />}
 
             <div className="flex items-start justify-between gap-2">
                 <div className="flex min-w-0 flex-1 items-start gap-2 text-left">
@@ -93,42 +84,45 @@ export default function CategoryCard({
                 </div>
 
                 <div className="flex shrink-0 items-start gap-1">
-                    <div
-                        className={`hidden rounded-md px-2 py-1 text-[11px] font-medium sm:block ${amountClassName}`}
-                    >
-                        {formatCurrency(total)}
-                    </div>
+
 
                     {!isDisabled && (
-                        <CardMenu
-                            dark={isSelected}
-                            isOpen={openCategoryMenuId === category.id}
-                            anchor={categoryMenuAnchor}
-                            contextPosition={categoryContextPosition}
-                            onToggle={(next, options = {}) => {
-                                if (!next) {
-                                    setOpenCategoryMenuId(null);
-                                    return;
-                                }
+                        <div className="flex items-center gap-2">
+                            <div
+                                className={`hidden rounded-md px-2 py-1 text-[11px] font-medium sm:block ${amountClassName}`}
+                            >
+                                {formatCurrency(total)}
+                            </div>
+                            <CardMenu
+                                dark={isSelected}
+                                isOpen={openCategoryMenuId === category.id}
+                                anchor={categoryMenuAnchor}
+                                contextPosition={categoryContextPosition}
+                                onToggle={(next, options = {}) => {
+                                    if (!next) {
+                                        setOpenCategoryMenuId(null);
+                                        return;
+                                    }
 
-                                setOpenTransactionMenuId?.(null);
-                                setCategoryMenuAnchor(options.anchor || "button");
-                                setOpenCategoryMenuId(category.id);
-                            }}
-                            items={[
-                                {
-                                    label: "Modifica",
-                                    icon: Pencil,
-                                    onClick: () => handleEditCategory?.(category.id),
-                                },
-                                {
-                                    label: "Elimina",
-                                    icon: Trash2,
-                                    danger: true,
-                                    onClick: () => handleDeleteCategory?.(category.id),
-                                },
-                            ]}
-                        />
+                                    setOpenTransactionMenuId?.(null);
+                                    setCategoryMenuAnchor(options.anchor || "button");
+                                    setOpenCategoryMenuId(category.id);
+                                }}
+                                items={[
+                                    {
+                                        label: "Modifica",
+                                        icon: Pencil,
+                                        onClick: () => handleEditCategory?.(category.id),
+                                    },
+                                    {
+                                        label: "Elimina",
+                                        icon: Trash2,
+                                        danger: true,
+                                        onClick: () => handleDeleteCategory?.(category.id),
+                                    },
+                                ]}
+                            />
+                        </div>
                     )}
                 </div>
             </div>
@@ -136,6 +130,6 @@ export default function CategoryCard({
             <div className={`mt-1 text-[11px] sm:hidden ${subTextClassName}`}>
                 {formatCurrency(total)}
             </div>
-        </div>
+        </div >
     );
 }
