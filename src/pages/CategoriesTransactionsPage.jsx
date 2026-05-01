@@ -6,6 +6,7 @@ import TransactionCard from "../components/TransactionCard";
 import { useGet } from "../hooks/useGet"
 import { API_ENDPOINTS } from "../api/endpoint";
 
+
 const initialCategories = [
     {
         id: 1,
@@ -77,9 +78,6 @@ function IconButton({ icon: Icon, onClick, title }) {
         </button>
     );
 }
-
-
-
 
 export default function CategoriesTransactionsPage() {
 
@@ -208,15 +206,16 @@ export default function CategoriesTransactionsPage() {
 
     const { data, loading, error } = useGet(API_ENDPOINTS.monthlyOverview({
         month: selectedMonth,
-        year:selectedYear
+        year: selectedYear
     }))
 
     console.log(data);
-    
-    
+
+
     return (
         <div className="h-[calc(100vh-80px)] min-h-0 box-border overflow-hidden bg-slate-50 p-2 sm:p-3">
             <div className="flex h-full min-h-0 flex-col">
+
                 <div className="mb-3 flex items-center justify-between shrink-0">
                     <div>
                         <h1 className="text-base font-semibold text-slate-900 sm:text-lg">
@@ -236,147 +235,201 @@ export default function CategoriesTransactionsPage() {
                 </div>
 
                 <div className="grid min-h-0 flex-1 overflow-hidden grid-cols-1 gap-3 lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
-                    <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm max-lg:max-h-[38vh] lg:h-full">
-                        <div className="border-b border-slate-200 p-2.5 sm:p-3">
-                            <div className="mb-2 flex items-start justify-between gap-2">
-                                <div className="min-w-0">
-                                    <h2 className="text-sm font-semibold text-slate-900">Categorie</h2>
-                                    <p className="text-[11px] text-slate-500">
-                                        {categoriesWithFilteredTransactions.length} categorie
-                                    </p>
-                                </div>
 
-                                <IconButton
-                                    icon={Plus}
-                                    title="Aggiungi categoria"
-                                    onClick={handleAddCategory}
-                                />
-                            </div>
+                    <CategorySide
+                        categoriesWithFilteredTransactions={categoriesWithFilteredTransactions}
+                        handleAddCategory={handleAddCategory}
+                        search={search}
+                        setSearch={setSearch}
+                        selectedCategory={selectedCategory}
+                        maxCategoryTotal={maxCategoryTotal}
+                        openCategoryMenuId={openCategoryMenuId}
+                        setOpenCategoryMenuId={setOpenCategoryMenuId}
+                        setSelectedCategoryId={setSelectedCategoryId}
+                    />
 
-                            <div className="relative">
-                                <Search
-                                    size={14}
-                                    className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="Cerca..."
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    className="h-8 w-full rounded-lg border border-slate-200 bg-white py-1 pl-8 pr-2 text-xs outline-none transition focus:border-slate-400"
-                                />
-                            </div>
-                        </div>
+                    <TransactionsSide
+                        selectedCategory={selectedCategory}
+                        transactions={transactions}
+                        handleAddTransaction={handleAddTransaction}
+                        selectedCategoryId={selectedCategoryId}
+                        setCategories={setCategories}
+                        setOpenCategoryMenuId={setOpenCategoryMenuId}
+                        categories={categories}
+                    />
 
-                        <div className="min-h-0 flex-1 overflow-y-auto p-2">
-                            <div className="space-y-2">
-                                {categoriesWithFilteredTransactions.length > 0 ? (
-
-                                    categoriesWithFilteredTransactions.map((category) => {
-                                        const isSelected = category.id === selectedCategory?.id;
-                                        const total = getCategoryTotal(category.transactions);
-                                        const progress =
-                                            maxCategoryTotal > 0 ? (total / maxCategoryTotal) * 100 : 0;
-
-                                        return (
-                                            <CategoryCard
-                                                isSelected={isSelected}
-                                                progress={progress}
-                                                category={category}
-                                                openCategoryMenuId={openCategoryMenuId}
-                                                setOpenCategoryMenuId={setOpenCategoryMenuId}
-                                                setSelectedCategoryId={setSelectedCategoryId}
-                                                total={total}
-                                            />
-                                        );
-                                    })
-                                ) : (
-                                    <div className="rounded-lg border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500">
-                                        Nessuna categoria trovata
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:h-full">
-                        <div className="border-b border-slate-200 p-2.5 sm:p-3">
-                            {selectedCategory ? (
-                                <div className="flex items-start justify-between gap-3">
-                                    <div className="min-w-0">
-                                        <h2 className="truncate text-sm font-semibold text-slate-900">
-                                            {selectedCategory.name}
-                                        </h2>
-                                        <p className="text-[11px] text-slate-500">
-                                            Transazioni della categoria
-                                        </p>
-                                    </div>
-
-                                    <div className="flex shrink-0 items-center gap-2">
-                                        <div className="hidden rounded-md bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-700 sm:block">
-                                            {formatCurrency(getCategoryTotal(transactions))}
-                                        </div>
-
-                                        <IconButton
-                                            icon={Plus}
-                                            title="Aggiungi transazione"
-                                            onClick={handleAddTransaction}
-                                        />
-                                    </div>
-                                </div>
-                            ) : (
-                                <div>
-                                    <h2 className="text-sm font-semibold text-slate-900">Transazioni</h2>
-                                </div>
-                            )}
-
-                            {selectedCategory && (
-                                <div className="mt-2 text-[11px] text-slate-500 sm:hidden">
-                                    Totale: {formatCurrency(getCategoryTotal(transactions))}
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="min-h-0 flex-1 overflow-y-auto p-2">
-                            {selectedCategory ? (
-                                transactions.length > 0 ? (
-                                    <div className="space-y-2">
-                                        {transactions.map((transaction) => {
-
-                                            const current = Number(transaction.current || 0);
-                                            const target = Number(transaction.target || 0);
-                                            const progress = target > 0 ? (current / target) * 100 : 0;
-                                            const remaining = Math.max(target - current, 0);
-
-                                            return (
-                                                <TransactionCard
-                                                    progress={progress}
-                                                    remaining={remaining}
-                                                    target={target}
-                                                    current={current}
-                                                    setOpenCategoryMenuId={setOpenCategoryMenuId}
-                                                    transaction={transaction}
-                                                    categories={categories}
-                                                    selectedCategoryId={selectedCategoryId}
-                                                    setCategories={setCategories}
-                                                />
-                                            );
-                                        })}
-                                    </div>
-                                ) : (
-                                    <div className="rounded-lg border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500">
-                                        Nessuna transazione disponibile per il periodo selezionato
-                                    </div>
-                                )
-                            ) : (
-                                <div className="rounded-lg border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500">
-                                    Seleziona una categoria
-                                </div>
-                            )}
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
     );
+}
+
+
+function CategorySide({
+    categoriesWithFilteredTransactions,
+    handleAddCategory,
+    search,
+    selectedCategory,
+    maxCategoryTotal,
+    openCategoryMenuId,
+    setOpenCategoryMenuId,
+    setSelectedCategoryId,
+    setSearch
+}) {
+
+    return (
+        <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm max-lg:max-h-[38vh] lg:h-full">
+            <div className="border-b border-slate-200 p-2.5 sm:p-3">
+                <div className="mb-2 flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                        <h2 className="text-sm font-semibold text-slate-900">Categorie</h2>
+                        <p className="text-[11px] text-slate-500">
+                            {categoriesWithFilteredTransactions.length} categorie
+                        </p>
+                    </div>
+
+                    <IconButton
+                        icon={Plus}
+                        title="Aggiungi categoria"
+                        onClick={handleAddCategory}
+                    />
+                </div>
+
+                <div className="relative">
+                    <Search
+                        size={14}
+                        className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
+                    />
+                    <input
+                        type="text"
+                        placeholder="Cerca..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="h-8 w-full rounded-lg border border-slate-200 bg-white py-1 pl-8 pr-2 text-xs outline-none transition focus:border-slate-400"
+                    />
+                </div>
+            </div>
+
+            <div className="min-h-0 flex-1 overflow-y-auto p-2">
+                <div className="space-y-2">
+                    {categoriesWithFilteredTransactions.length > 0 ? (
+
+                        categoriesWithFilteredTransactions.map((category) => {
+                            const isSelected = category.id === selectedCategory?.id;
+                            const total = getCategoryTotal(category.transactions);
+                            const progress =
+                                maxCategoryTotal > 0 ? (total / maxCategoryTotal) * 100 : 0;
+
+                            return (
+                                <CategoryCard
+                                    isSelected={isSelected}
+                                    progress={progress}
+                                    category={category}
+                                    openCategoryMenuId={openCategoryMenuId}
+                                    setOpenCategoryMenuId={setOpenCategoryMenuId}
+                                    setSelectedCategoryId={setSelectedCategoryId}
+                                    total={total}
+                                />
+                            );
+                        })
+                    ) : (
+                        <div className="rounded-lg border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500">
+                            Nessuna categoria trovata
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function TransactionsSide({
+    selectedCategory,
+    transactions,
+    handleAddTransaction,
+    selectedCategoryId,
+    setCategories,
+    setOpenCategoryMenuId,
+    categories,
+}) {
+
+    return (
+        <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:h-full">
+            <div className="border-b border-slate-200 p-2.5 sm:p-3">
+                {selectedCategory ? (
+                    <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                            <h2 className="truncate text-sm font-semibold text-slate-900">
+                                {selectedCategory.name}
+                            </h2>
+                            <p className="text-[11px] text-slate-500">
+                                Transazioni della categoria
+                            </p>
+                        </div>
+
+                        <div className="flex shrink-0 items-center gap-2">
+                            <div className="hidden rounded-md bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-700 sm:block">
+                                {formatCurrency(getCategoryTotal(transactions))}
+                            </div>
+
+                            <IconButton
+                                icon={Plus}
+                                title="Aggiungi transazione"
+                                onClick={handleAddTransaction}
+                            />
+                        </div>
+                    </div>
+                ) : (
+                    <div>
+                        <h2 className="text-sm font-semibold text-slate-900">Transazioni</h2>
+                    </div>
+                )}
+
+                {selectedCategory && (
+                    <div className="mt-2 text-[11px] text-slate-500 sm:hidden">
+                        Totale: {formatCurrency(getCategoryTotal(transactions))}
+                    </div>
+                )}
+            </div>
+
+            <div className="min-h-0 flex-1 overflow-y-auto p-2">
+                {selectedCategory ? (
+                    transactions.length > 0 ? (
+                        <div className="space-y-2">
+                            {transactions.map((transaction) => {
+
+                                const current = Number(transaction.current || 0);
+                                const target = Number(transaction.target || 0);
+                                const progress = target > 0 ? (current / target) * 100 : 0;
+                                const remaining = Math.max(target - current, 0);
+
+                                return (
+                                    <TransactionCard
+                                        progress={progress}
+                                        remaining={remaining}
+                                        target={target}
+                                        current={current}
+                                        setOpenCategoryMenuId={setOpenCategoryMenuId}
+                                        transaction={transaction}
+                                        categories={categories}
+                                        selectedCategoryId={selectedCategoryId}
+                                        setCategories={setCategories}
+                                    />
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className="rounded-lg border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500">
+                            Nessuna transazione disponibile per il periodo selezionato
+                        </div>
+                    )
+                ) : (
+                    <div className="rounded-lg border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500">
+                        Seleziona una categoria
+                    </div>
+                )}
+            </div>
+        </div>
+    )
 }

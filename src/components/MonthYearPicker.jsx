@@ -27,14 +27,14 @@ export default function MonthYearPicker({
   const minYear = Math.min(...years);
   const maxYear = Math.max(...years);
 
-  const isPrevDisabled = selectedYear === minYear && selectedMonth === 0;
-  const isNextDisabled = selectedYear === maxYear && selectedMonth === 11;
+  const isPrevDisabled = selectedYear === minYear && selectedMonth === 1;
+  const isNextDisabled = selectedYear === maxYear && selectedMonth === 12;
 
   const goToPreviousMonth = () => {
     if (isPrevDisabled) return;
 
-    if (selectedMonth === 0) {
-      onMonthChange(11);
+    if (selectedMonth === 1) {
+      onMonthChange(12);
       onYearChange(selectedYear - 1);
     } else {
       onMonthChange(selectedMonth - 1);
@@ -44,8 +44,8 @@ export default function MonthYearPicker({
   const goToNextMonth = () => {
     if (isNextDisabled) return;
 
-    if (selectedMonth === 11) {
-      onMonthChange(0);
+    if (selectedMonth === 12) {
+      onMonthChange(1);
       onYearChange(selectedYear + 1);
     } else {
       onMonthChange(selectedMonth + 1);
