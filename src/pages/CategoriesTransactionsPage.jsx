@@ -15,7 +15,7 @@ export default function CategoriesTransactionsPage() {
 
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth();
-    
+
     const [selectedMonth, setSelectedMonth] = useState(currentMonth);
     const [selectedYear, setSelectedYear] = useState(currentYear);
 

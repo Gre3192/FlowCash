@@ -11,7 +11,12 @@ function wait(ms, signal) {
     });
 }
 
+{}
+
+
+
 export function useGet(url, config = {}) {
+
     const delayMs = config.delayMs ?? 0;
 
     const options = useMemo(() => {
