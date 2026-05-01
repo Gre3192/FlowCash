@@ -144,7 +144,7 @@ export default function CategoriesTransactionsPage() {
         return data.categories.find((category) => category.id === categoryId) || null;
     }
 
-    
+
 
     return (
         <div className="h-[calc(100vh-80px)] min-h-0 box-border overflow-hidden bg-slate-50 p-2 sm:p-3">
@@ -174,22 +174,25 @@ export default function CategoriesTransactionsPage() {
                     </div>
                 )}
 
-                <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
+                {/* <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]"> */}
+                <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden lg:grid-cols-4">
 
-                    <CategorySide
-                        loading={loading}
-                        categories={filteredCategories}
-                        search={searchedCategory}
-                        setSearch={setSearchedCategory}
-                        selectedCategory={selectedCategory}
-                        maxCategoryTotal={maxCategoryTotal}
-                        openCategoryMenuId={openCategoryMenuId}
-                        setOpenCategoryMenuId={setOpenCategoryMenuId}
-                        setSelectedCategoryId={setSelectedCategoryId}
-                        handleAddCategory={handleAddCategory}
-                    />
-
-                    {/* <TransactionsSide
+                    <div className="col-span-1">
+                        <CategorySide
+                            loading={loading}
+                            categories={filteredCategories}
+                            search={searchedCategory}
+                            setSearch={setSearchedCategory}
+                            selectedCategory={selectedCategory}
+                            maxCategoryTotal={maxCategoryTotal}
+                            openCategoryMenuId={openCategoryMenuId}
+                            setOpenCategoryMenuId={setOpenCategoryMenuId}
+                            setSelectedCategoryId={setSelectedCategoryId}
+                            handleAddCategory={handleAddCategory}
+                        />
+                    </div>
+                    <div className="col-span-3">
+                        <TransactionsSide
                         loading={loading}
                         categories={categories}
                         transactions={transactions}
@@ -197,7 +200,8 @@ export default function CategoriesTransactionsPage() {
                         selectedCategoryId={selectedCategory?.id}
                         handleAddTransaction={handleAddTransaction}
                         setOpenCategoryMenuId={setOpenCategoryMenuId}
-                    /> */}
+                        />
+                    </div>
                 </div>
             </div>
         </div>
