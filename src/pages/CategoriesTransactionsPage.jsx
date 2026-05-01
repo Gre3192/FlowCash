@@ -193,13 +193,13 @@ export default function CategoriesTransactionsPage() {
                     </div>
                     <div className="col-span-3">
                         <TransactionsSide
-                        loading={loading}
-                        categories={categories}
-                        transactions={transactions}
-                        selectedCategory={selectedCategory}
-                        selectedCategoryId={selectedCategory?.id}
-                        handleAddTransaction={handleAddTransaction}
-                        setOpenCategoryMenuId={setOpenCategoryMenuId}
+                            loading={loading}
+                            categories={categories}
+                            transactions={transactions}
+                            selectedCategory={selectedCategory}
+                            selectedCategoryId={selectedCategory?.id}
+                            handleAddTransaction={handleAddTransaction}
+                            setOpenCategoryMenuId={setOpenCategoryMenuId}
                         />
                     </div>
                 </div>
@@ -222,6 +222,10 @@ function CategorySide({
 }) {
     return (
         <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm max-lg:max-h-[38vh] lg:h-full">
+        
+        
+        
+        
             <div className="border-b border-slate-200 p-2.5 sm:p-3">
                 <div className="mb-2 flex items-start justify-between gap-2">
                     <div className="min-w-0">
@@ -229,7 +233,7 @@ function CategorySide({
                             Categorie
                         </h2>
                         <p className="text-[11px] text-slate-500">
-                            {loading ? "Caricamento..." : `${categories.length} categorie`}
+                            {`${categories.length} categorie`}
                         </p>
                     </div>
 
@@ -241,20 +245,13 @@ function CategorySide({
                 </div>
 
                 <div className="relative">
-                    <Search
-                        size={14}
-                        className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
-                    />
-
-                    <input
-                        type="text"
-                        placeholder="Cerca..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="h-8 w-full rounded-lg border border-slate-200 bg-white py-1 pl-8 pr-2 text-xs outline-none transition focus:border-slate-400"
-                    />
+                    <SearchBar search={search} setSearch={setSearch} />
                 </div>
             </div>
+
+
+
+
 
             <div className="min-h-0 flex-1 overflow-y-auto p-2">
                 {loading ? (
@@ -263,15 +260,10 @@ function CategorySide({
                     <div className="space-y-2">
                         {categories.length > 0 ? (
                             categories.map((category) => {
-                                const isSelected =
-                                    category.id === selectedCategory?.id;
 
+                                const isSelected = category.id === selectedCategory?.id;
                                 const total = category.entriesTotal;
-
-                                const progress =
-                                    maxCategoryTotal > 0
-                                        ? (total / maxCategoryTotal) * 100
-                                        : 0;
+                                const progress = maxCategoryTotal > 0 ? (total / maxCategoryTotal) * 100 : 0;
 
                                 return (
                                     <CategoryCard
@@ -404,4 +396,24 @@ function EmptyState({ text = "Nessun dato disponibile" }) {
             {text}
         </div>
     );
+}
+
+function SearchBar({ search, setSearch}) {
+
+    return (
+        <>
+            <Search
+                size={14}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
+            />
+
+            <input
+                type="text"
+                placeholder="Cerca..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="h-8 w-full rounded-lg border border-slate-200 bg-white py-1 pl-8 pr-2 text-xs outline-none transition focus:border-slate-400"
+            />
+        </>
+    )
 }
