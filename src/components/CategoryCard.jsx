@@ -1,7 +1,7 @@
 import EdgeProgressBar from "../components/EdgeProgressBar";
 import { FolderOpen, Pencil, Trash2 } from "lucide-react";
 import CardMenu from "./CardMenu";
-import formatCurrency from "../utils/formatCurrenct";
+import formatCurrency from "../utils/formatCurrency";
 import { useState } from "react";
 
 export default function CategoryCard({
@@ -45,6 +45,7 @@ export default function CategoryCard({
 
             <div className="flex items-start justify-between gap-2">
                 <div className="flex min-w-0 flex-1 items-start gap-2 text-left">
+
                     <div className={`shrink-0 rounded-md p-1.5 ${iconClassName}`}>
                         <FolderOpen size={14} />
                     </div>
@@ -106,6 +107,6 @@ export default function CategoryCard({
             <div className={`mt-1 text-[11px] sm:hidden ${subTextClassName}`}>
                 {formatCurrency(total)}
             </div>
-        </div >
+        </div>
     );
 }

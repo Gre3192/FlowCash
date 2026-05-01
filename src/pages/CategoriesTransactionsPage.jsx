@@ -1,38 +1,21 @@
+import { useGet } from "../hooks/useGet";
+import { Search, Plus, X} from "lucide-react";
+import ItemCard from "../components/ItemCard";
+import { API_ENDPOINTS } from "../api/endpoint";
 import React, { useMemo, useState } from "react";
-import { Search, Plus } from "lucide-react";
-
-import MonthYearPicker from "../components/MonthYearPicker";
+import formatCurrency from "../utils/formatCurrency";
 import CategoryCard from "../components/CategoryCard";
 import TransactionCard from "../components/TransactionCard";
+import MonthYearPicker from "../components/MonthYearPicker";
+import ModalWrapper from "../components/ModalWrapper";
+import CreateCategoryModal from "../components/CreateCategoryModal";
 
-import { useGet } from "../hooks/useGet";
-import { API_ENDPOINTS } from "../api/endpoint";
-
-function formatCurrency(value) {
-    return new Intl.NumberFormat("it-IT", {
-        style: "currency",
-        currency: "EUR",
-        maximumFractionDigits: 2,
-    }).format(Number(value) || 0);
-}
-
-function IconButton({ icon: Icon, onClick, title }) {
-    return (
-        <button
-            type="button"
-            title={title}
-            onClick={onClick}
-            className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"
-        >
-            <Icon size={14} />
-        </button>
-    );
-}
 
 export default function CategoriesTransactionsPage() {
 
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth();
+    
     const [selectedMonth, setSelectedMonth] = useState(currentMonth);
     const [selectedYear, setSelectedYear] = useState(currentYear);
 
@@ -40,7 +23,9 @@ export default function CategoriesTransactionsPage() {
     const [selectedCategoryId, setSelectedCategoryId] = useState(null);
     const [openCategoryMenuId, setOpenCategoryMenuId] = useState(null);
 
-    const { data, loading, error } = useGet(
+    const [isCreateCategoryModalOpen, setIsCreateCategoryModalOpen] = useState(false);
+
+    const { data, loading, error, reload } = useGet(
         API_ENDPOINTS.monthlyOverview({
             month: selectedMonth,
             year: selectedYear,
@@ -50,16 +35,13 @@ export default function CategoriesTransactionsPage() {
         }
     );
 
-    console.log(selectedMonth)
 
     const categories = useMemo(() => {
         return (data?.categories ?? []).map((category) => ({
             id: category.id,
             name: category.name,
-
             budgetTotal: Number(category.category_budget_total || 0),
             entriesTotal: Number(category.category_entries_total || 0),
-
             transactions: (category.transactions ?? []).map((transaction) => {
                 const current = Number(transaction.entries_total || 0);
                 const target = Number(transaction.budget?.month_value || 0);
@@ -69,14 +51,11 @@ export default function CategoriesTransactionsPage() {
                     name: transaction.name,
                     description: transaction.name,
                     type: transaction.type,
-
                     current,
                     target,
-
                     budget: transaction.budget,
                     entries: transaction.entries ?? [],
                     entriesTotal: Number(transaction.entries_total || 0),
-
                     date:
                         transaction.entries?.[0]?.entry_date ??
                         `${selectedYear}-${String(selectedMonth + 1).padStart(2, "0")}-01`,
@@ -89,9 +68,7 @@ export default function CategoriesTransactionsPage() {
 
     const filteredCategories = useMemo(() => {
         const query = searchedCategory.trim().toLowerCase();
-
         if (!query) return categories;
-
         return categories.filter((category) =>
             category.name.toLowerCase().includes(query)
         );
@@ -110,25 +87,16 @@ export default function CategoriesTransactionsPage() {
 
     const maxCategoryTotal = useMemo(() => {
         if (!filteredCategories.length) return 0;
-
-        return Math.max(
-            ...filteredCategories.map((category) => category.entriesTotal)
-        );
+        return Math.max(...filteredCategories.map((category) => category.entriesTotal));
     }, [filteredCategories]);
 
     const availableYears = useMemo(() => {
         const years = [];
-
         for (let year = currentYear - 2; year <= currentYear + 5; year++) {
             years.push(year);
         }
-
         return years;
     }, [currentYear]);
-
-    const handleAddCategory = () => {
-        console.log("Apri modale creazione categoria");
-    };
 
     const handleAddTransaction = () => {
         console.log("Apri modale creazione transazione", {
@@ -140,11 +108,11 @@ export default function CategoriesTransactionsPage() {
 
     function getCategoryById(data, categoryId) {
         if (!data?.categories || !categoryId) return null;
-
         return data.categories.find((category) => category.id === categoryId) || null;
     }
 
-    ;
+
+
 
 
     return (
@@ -182,14 +150,14 @@ export default function CategoriesTransactionsPage() {
                         <CategorySide
                             loading={loading}
                             categories={filteredCategories}
-                            search={searchedCategory}
-                            setSearch={setSearchedCategory}
+                            searchedCategory={searchedCategory}
+                            setSearchedCategory={setSearchedCategory}
                             selectedCategory={selectedCategory}
                             maxCategoryTotal={maxCategoryTotal}
                             openCategoryMenuId={openCategoryMenuId}
                             setOpenCategoryMenuId={setOpenCategoryMenuId}
                             setSelectedCategoryId={setSelectedCategoryId}
-                            handleAddCategory={handleAddCategory}
+                            setIsCreateCategoryModalOpen={setIsCreateCategoryModalOpen}
                         />
                     </div>
                     <div className="col-span-3">
@@ -205,53 +173,53 @@ export default function CategoriesTransactionsPage() {
                     </div>
                 </div>
             </div>
+
+            <ModalWrapper
+                isOpen={isCreateCategoryModalOpen}
+                onClose={() => setIsCreateCategoryModalOpen(false)}
+                title="Nuova categoria"
+            >
+                <CreateCategoryModal
+                    month={selectedMonth}
+                    year={selectedYear}
+                    onClose={() => setIsCreateCategoryModalOpen(false)}
+                />
+            </ModalWrapper>
+
         </div>
     );
 }
 
+
+
+
+
 function CategorySide({
+
     loading,
     categories,
-    handleAddCategory,
-    search,
+    setIsCreateCategoryModalOpen,
+    searchedCategory,
+    setSearchedCategory,
     selectedCategory,
     maxCategoryTotal,
     openCategoryMenuId,
     setOpenCategoryMenuId,
-    setSelectedCategoryId,
-    setSearch,
+    setSelectedCategoryId
+
 }) {
     return (
         <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm max-lg:max-h-[38vh] lg:h-full">
 
-
-
-
-            <div className="border-b border-slate-200 p-2.5 sm:p-3">
-                <div className="mb-2 flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                        <h2 className="text-sm font-semibold text-slate-900">
-                            Categorie
-                        </h2>
-                        <p className="text-[11px] text-slate-500">
-                            {`${categories.length} categorie`}
-                        </p>
-                    </div>
-
-                    <IconButton
-                        icon={Plus}
-                        title="Aggiungi categoria"
-                        onClick={handleAddCategory}
-                    />
-                </div>
-
-                <div className="relative">
-                    <SearchBar search={search} setSearch={setSearch} />
-                </div>
-            </div>
-
-
-
+            <HeadOfSide
+                title={'Categorie'}
+                subtitle={`${categories.length} categorie`}
+                iconCTA={Plus}
+                hoverTitle={"Aggiungi categoria"}
+                search={searchedCategory}
+                setSearch={setSearchedCategory}
+                onCTAClick={() => setIsCreateCategoryModalOpen(true)}
+            />
 
 
             <div className="min-h-0 flex-1 overflow-y-auto p-2">
@@ -280,7 +248,7 @@ function CategorySide({
                                 );
                             })
                         ) : (
-                            <EmptyState text="Nessuna categoria trovata" />
+                            <ItemEmpty text="Nessuna categoria trovata" />
                         )}
                     </div>
                 )}
@@ -290,6 +258,7 @@ function CategorySide({
 }
 
 function TransactionsSide({
+
     loading,
     selectedCategory,
     transactions,
@@ -297,47 +266,26 @@ function TransactionsSide({
     selectedCategoryId,
     setOpenCategoryMenuId,
     categories,
+    searchedCategory,
+    setSearchedCategory
+
 }) {
+
     const total = selectedCategory?.entriesTotal ?? 0;
 
     return (
         <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:h-full">
-            <div className="border-b border-slate-200 p-2.5 sm:p-3">
-                {selectedCategory ? (
-                    <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                            <h2 className="truncate text-sm font-semibold text-slate-900">
-                                {selectedCategory.name}
-                            </h2>
-                            <p className="text-[11px] text-slate-500">
-                                Transazioni della categoria
-                            </p>
-                        </div>
 
-                        <div className="flex shrink-0 items-center gap-2">
-                            <div className="hidden rounded-md bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-700 sm:block">
-                                {formatCurrency(total)}
-                            </div>
-
-                            <IconButton
-                                icon={Plus}
-                                title="Aggiungi transazione"
-                                onClick={handleAddTransaction}
-                            />
-                        </div>
-                    </div>
-                ) : (
-                    <h2 className="text-sm font-semibold text-slate-900">
-                        Transazioni
-                    </h2>
-                )}
-
-                {selectedCategory && (
-                    <div className="mt-2 text-[11px] text-slate-500 sm:hidden">
-                        Totale: {formatCurrency(total)}
-                    </div>
-                )}
-            </div>
+            <HeadOfSide
+                title={selectedCategory ? selectedCategory.name : 'Transazioni'}
+                subtitle={'Transazioni della categoria'}
+                iconCTA={Plus}
+                hoverTitle={"Aggiungi transazione"}
+                search={searchedCategory}
+                setSearch={setSearchedCategory}
+                onCTAClick={handleAddTransaction}
+                valuePill={formatCurrency(total)}
+            />
 
             <div className="min-h-0 flex-1 overflow-y-auto p-2">
                 {loading ? (
@@ -350,16 +298,10 @@ function TransactionsSide({
                                 const current = transaction.entriesTotal;
                                 const target = transaction.target;
 
-                                const progress = target > 0 ? (current / target) * 100 : 0;
-
-                                const remaining = Math.max(target - current, 0);
-
                                 return (
-                                    <TransactionCard
+                                    <ItemCard
                                         key={transaction.id}
-                                        progress={progress}
-                                        remaining={remaining}
-                                        target={target}
+                                        budget={target}
                                         current={current}
                                         transaction={transaction}
                                         categories={categories}
@@ -369,20 +311,36 @@ function TransactionsSide({
                                 );
                             })}
                         </div>
-                    ) : (
-                        <EmptyState text="Nessuna transazione disponibile per il periodo selezionato" />
-                    )
-                ) : (
-                    <EmptyState text="Seleziona una categoria" />
-                )}
+                    ) :
+                        <ItemEmpty text="Nessuna transazione disponibile per il periodo selezionato" />
+                ) :
+                    <ItemEmpty text="Seleziona una categoria" />
+                }
             </div>
         </div>
     );
 }
 
+
+
+
+
+function IconButton({ icon: Icon, onClick, hoverTitle }) {
+    return (
+        <button
+            type="button"
+            title={hoverTitle ? hoverTitle : null}
+            onClick={onClick}
+            className="inline-flex cursor-pointer h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"
+        >
+            <Icon size={14} />
+        </button>
+    );
+}
+
 function LoadingState() {
     return (
-        <div className="flex h-full min-h-[180px] items-center justify-center">
+        <div className="flex h-full min-h-45 items-center justify-center">
             <div className="flex flex-col items-center gap-2">
                 <div className="h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-slate-700" />
                 <span className="text-xs text-slate-500">Caricamento...</span>
@@ -391,7 +349,7 @@ function LoadingState() {
     );
 }
 
-function EmptyState({ text = "Nessun dato disponibile" }) {
+function ItemEmpty({ text = "Nessun dato disponibile" }) {
     return (
         <div className="rounded-lg border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500">
             {text}
@@ -400,9 +358,8 @@ function EmptyState({ text = "Nessun dato disponibile" }) {
 }
 
 function SearchBar({ search, setSearch }) {
-
     return (
-        <>
+        <div className="relative">
             <Search
                 size={14}
                 className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
@@ -413,8 +370,74 @@ function SearchBar({ search, setSearch }) {
                 placeholder="Cerca..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="h-8 w-full rounded-lg border border-slate-200 bg-white py-1 pl-8 pr-2 text-xs outline-none transition focus:border-slate-400"
+                className="h-8 w-full rounded-lg border border-slate-200 bg-white py-1 pl-8 pr-8 text-xs outline-none transition focus:border-slate-400"
             />
-        </>
+
+            {search && (
+                <button
+                    type="button"
+                    onClick={() => setSearch("")}
+                    className="absolute cursor-pointer right-2 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                    aria-label="Cancella ricerca"
+                >
+                    <X size={13} />
+                </button>
+            )}
+        </div>
+    );
+}
+
+function HeadOfSide({
+
+    title,
+    subtitle,
+    iconCTA,
+    hoverTitle,
+    search,
+    setSearch,
+    onCTAClick,
+    valuePill
+}) {
+
+    return (
+        <div className="flex flex-col border-b border-slate-200 p-2.5 sm:p-3">
+            <div className="mb-2 flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                    <h2 className="text-sm font-semibold text-slate-900">
+                        {title}
+                    </h2>
+                    <p className="text-[11px] text-slate-500">
+                        {subtitle}
+                    </p>
+                </div>
+
+
+                <div className="flex shrink-0 items-center gap-2">
+                    {valuePill ? <ValuePill value={valuePill} /> : null}
+                    {iconCTA ?
+                        <IconButton
+                            icon={iconCTA}
+                            hoverTitle={hoverTitle}
+                            onClick={onCTAClick}
+                        />
+                        :
+                        null
+                    }
+                </div>
+            </div>
+            <SearchBar search={search} setSearch={setSearch} />
+        </div>
     )
+}
+
+function ValuePill({
+    value
+}) {
+
+    return (
+        <div className="hidden rounded-md bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-700 sm:block">
+            {value}
+        </div>
+    )
+
 }

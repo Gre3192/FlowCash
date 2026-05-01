@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 
 function wait(ms, signal) {
     return new Promise((resolve, reject) => {
@@ -21,6 +21,12 @@ export function useGet(url, config = {}) {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(!!url);
     const [error, setError] = useState(null);
+
+    const [reloadKey, setReloadKey] = useState(0);
+
+    const reload = useCallback(() => {
+        setReloadKey((prev) => prev + 1);
+    }, []);
 
     useEffect(() => {
         if (!url) {
@@ -69,7 +75,12 @@ export function useGet(url, config = {}) {
         fetchData();
 
         return () => controller.abort();
-    }, [url, delayMs, options]);
+    }, [url, delayMs, options, reloadKey]);
 
-    return { data, loading, error };
+    return {
+        data,
+        loading,
+        error,
+        reload,
+    };
 }

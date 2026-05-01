@@ -40,42 +40,32 @@ export default function CardMenu({
         : "absolute right-0 top-8 z-30 min-w-[140px] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg";
 
     return (
-        <div ref={rootRef} className="relative shrink-0">
-            <button
+        <div ref={rootRef}>
+            <div
                 type="button"
                 onClick={(e) => {
                     e.stopPropagation();
                     onToggle?.(!isOpen, { anchor: "button" });
                 }}
-                className={`inline-flex h-7 w-7 items-center justify-center rounded-md transition ${dark
+                className={`rounded-md transition cursor-pointer ${dark
                     ? "bg-white/10 text-white hover:bg-white/15"
                     : "bg-transparent text-slate-600 hover:bg-slate-100"
                     }`}
             >
                 <MoreVertical size={14} />
-            </button>
+            </div>
 
             {isOpen && (
                 <div
                     className={menuClassName}
-                    style={
-                        anchor === "context"
-                            ? {
-                                left: contextPosition.x,
-                                top: contextPosition.y,
-                            }
-                            : undefined
-                    }
+                    style={anchor === "context" ? { left: contextPosition.x, top: contextPosition.y, } : undefined}
                 >
                     {items.map((item) => (
                         <button
                             key={item.label}
                             type="button"
-                            onClick={() => {
-                                onToggle?.(false);
-                                item.onClick?.();
-                            }}
-                            className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs transition ${item.danger
+                            onClick={() => { onToggle?.(false); item.onClick?.() }}
+                            className={`flex w-full items-center cursor-pointer gap-2 px-3 py-2 text-left text-xs transition ${item.danger
                                 ? "text-red-600 hover:bg-red-50"
                                 : "text-slate-700 hover:bg-slate-50"
                                 }`}

@@ -1,6 +1,6 @@
 
 import EdgeProgressBar from "./EdgeProgressBar";
-import formatCurrency from "../utils/formatCurrenct";
+import formatCurrency from "../utils/formatCurrency";
 import { useState } from "react";
 import CardMenu from "./CardMenu";
 import { FolderOpen, Search, Plus, Pencil, Trash2, MoreVertical, } from "lucide-react";
@@ -12,7 +12,7 @@ export default function TransactionCard({
     remaining,
     progress,
     current,
-    target,
+    budget,
     categories,
     selectedCategoryId,
     setCategories
@@ -133,6 +133,8 @@ export default function TransactionCard({
             <div className="min-w-0">
                 <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
+
+                        
                         <div className="flex items-start justify-between gap-2">
                             <div className="truncate text-sm font-medium text-slate-900">
                                 {transaction.description}
@@ -146,7 +148,7 @@ export default function TransactionCard({
                         <div className="mt-1 flex items-center justify-between gap-2">
 
                             <div className="shrink-0 text-[11px] font-semibold text-emerald-700">
-                                {formatCurrency(current)} / {formatCurrency(target)}
+                                {formatCurrency(current)} / {formatCurrency(budget)}
                             </div>
                             <div className="shrink-0 text-[11px] text-slate-500">
                                 {progress.toFixed(0)}%
