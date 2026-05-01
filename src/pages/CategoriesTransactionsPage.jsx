@@ -30,13 +30,14 @@ function IconButton({ icon: Icon, onClick, title }) {
 }
 
 export default function CategoriesTransactionsPage() {
+
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth();
+    const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+    const [selectedYear, setSelectedYear] = useState(currentYear);
 
     const [searchedCategory, setSearchedCategory] = useState("");
     const [selectedCategoryId, setSelectedCategoryId] = useState(null);
-    const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-    const [selectedYear, setSelectedYear] = useState(currentYear);
     const [openCategoryMenuId, setOpenCategoryMenuId] = useState(null);
 
     const { data, loading, error } = useGet(
@@ -48,6 +49,9 @@ export default function CategoriesTransactionsPage() {
             delayMs: 1000,
         }
     );
+
+    console.log(data?.categories);
+    
 
     const categories = useMemo(() => {
         return (data?.categories ?? []).map((category) => ({
@@ -96,7 +100,6 @@ export default function CategoriesTransactionsPage() {
 
     const selectedCategory = useMemo(() => {
         if (!filteredCategories.length) return null;
-
         return (
             filteredCategories.find(
                 (category) => category.id === selectedCategoryId
@@ -165,6 +168,7 @@ export default function CategoriesTransactionsPage() {
                 )}
 
                 <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
+                   
                     <CategorySide
                         loading={loading}
                         categories={filteredCategories}
@@ -338,11 +342,11 @@ function TransactionsSide({
                     transactions.length > 0 ? (
                         <div className="space-y-2">
                             {transactions.map((transaction) => {
+
                                 const current = transaction.entriesTotal;
                                 const target = transaction.target;
 
-                                const progress =
-                                    target > 0 ? (current / target) * 100 : 0;
+                                const progress =   target > 0 ? (current / target) * 100 : 0;
 
                                 const remaining = Math.max(target - current, 0);
 
