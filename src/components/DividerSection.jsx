@@ -2,20 +2,24 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 
 export default function CategoryDividerSection({
+
     label,
     numItems,
     show,
     onClick,
     children,
+
 }) {
     return (
-        <div>
-            <DividerButton
-                onClick={onClick}
-                label={label}
-                numItems={numItems}
-                show={show}
-            />
+        <div className="w-full">
+            <div className="w-full">
+                <DividerButton
+                    onClick={onClick}
+                    label={label}
+                    numItems={numItems}
+                    show={show}
+                />
+            </div>
 
             <AnimatePresence initial={false}>
                 {show && (
@@ -62,7 +66,7 @@ function DividerButton({
                     {label}
                 </span>
                 {
-                    numItems ?
+                    numItems !== undefined && numItems !== null ?
                         <span className="rounded-full bg-white px-1.5 py-0.5 text-[10px] text-slate-400">
                             {numItems}
                         </span>

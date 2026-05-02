@@ -10,6 +10,7 @@ import ModalWrapper from "../components/ModalWrapper";
 import CreateCategoryModal from "../components/CreateCategoryModal";
 import CreateTransactionModal from "../components/CreateTransactionModal";
 import DividerSection from "../components/DividerSection";
+import getMonthByNum from "../utils/getMonthByNum";
 
 export default function CategoriesTransactionsPage() {
     const currentYear = new Date().getFullYear();
@@ -183,6 +184,8 @@ export default function CategoriesTransactionsPage() {
                             setOpenCategoryMenuId={setOpenCategoryMenuId}
                             setSelectedCategoryId={setSelectedCategoryId}
                             setIsCreateCategoryModalOpen={setIsCreateCategoryModalOpen}
+                            selectedYear={selectedYear}
+                            selectedMonth={selectedMonth}
                         />
                     </div>
 
@@ -241,6 +244,8 @@ function CategorySide({
     openCategoryMenuId,
     setOpenCategoryMenuId,
     setSelectedCategoryId,
+    selectedYear,
+    selectedMonth,
 }) {
 
     const [showCategoriesWithTransactions, setShowCategoriesWithTransactions] = useState(true);
@@ -285,7 +290,7 @@ function CategorySide({
                     <div className="space-y-2">
 
                         <DividerSection
-                            label="Con transazioni"
+                            label={`Categorie ${getMonthByNum(selectedMonth, 3)} ${selectedYear}`}
                             numItems={categoriesWithTransactions.length}
                             show={showCategoriesWithTransactions}
                             onClick={() =>
@@ -318,7 +323,7 @@ function CategorySide({
                         </DividerSection>
 
                         <DividerSection
-                            label="Vuote nel periodo"
+                            label={`Senza movimenti  •  ${getMonthByNum(selectedMonth, 3)} ${selectedYear}`}
                             numItems={categoriesEmptyInSelectedPeriod.length}
                             show={showCategoriesEmptyInSelectedPeriod}
                             onClick={() => setShowCategoriesEmptyInSelectedPeriod((prev) => !prev)}
