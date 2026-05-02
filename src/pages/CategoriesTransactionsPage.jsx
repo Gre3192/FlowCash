@@ -1,5 +1,5 @@
 import { useGet } from "../hooks/useGet";
-import { Search, Plus, X} from "lucide-react";
+import { Search, Plus, X } from "lucide-react";
 import ItemCard from "../components/ItemCard";
 import { API_ENDPOINTS } from "../api/endpoint";
 import React, { useMemo, useState } from "react";
@@ -9,6 +9,7 @@ import TransactionCard from "../components/TransactionCard";
 import MonthYearPicker from "../components/MonthYearPicker";
 import ModalWrapper from "../components/ModalWrapper";
 import CreateCategoryModal from "../components/CreateCategoryModal";
+import CreateTransactionModal from "../components/CreateTransactionModal";
 
 
 export default function CategoriesTransactionsPage() {
@@ -24,6 +25,7 @@ export default function CategoriesTransactionsPage() {
     const [openCategoryMenuId, setOpenCategoryMenuId] = useState(null);
 
     const [isCreateCategoryModalOpen, setIsCreateCategoryModalOpen] = useState(false);
+    const [isCreateTransactionModalOpen, setIsCreateTransactionModalOpen] = useState(false);
 
     const { data, loading, error, reload } = useGet(
         API_ENDPOINTS.monthlyOverview({
@@ -98,25 +100,9 @@ export default function CategoriesTransactionsPage() {
         return years;
     }, [currentYear]);
 
-    const handleAddTransaction = () => {
-        console.log("Apri modale creazione transazione", {
-            categoryId: selectedCategory?.id,
-            month: selectedMonth + 1,
-            year: selectedYear,
-        });
-    };
-
-    function getCategoryById(data, categoryId) {
-        if (!data?.categories || !categoryId) return null;
-        return data.categories.find((category) => category.id === categoryId) || null;
-    }
-
-
-
-
 
     return (
-        <div className="h-[calc(100vh-80px)] min-h-0 box-border overflow-hidden bg-slate-50 p-2 sm:p-3">
+        <div className="h-[calc(100vh-88px)] min-h-0 box-border overflow-hidden bg-slate-50 p-2 sm:p-3">
             <div className="flex h-full min-h-0 flex-col">
                 <div className="mb-3 flex shrink-0 items-center justify-between">
                     <div>
@@ -146,7 +132,7 @@ export default function CategoriesTransactionsPage() {
                 {/* <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]"> */}
                 <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden lg:grid-cols-4">
 
-                    <div className="col-span-1">
+                    <div className="col-span-1 min-h-0 overflow-hidden">
                         <CategorySide
                             loading={loading}
                             categories={filteredCategories}
@@ -160,15 +146,15 @@ export default function CategoriesTransactionsPage() {
                             setIsCreateCategoryModalOpen={setIsCreateCategoryModalOpen}
                         />
                     </div>
-                    <div className="col-span-3">
+                    <div className="col-span-3 min-h-0 overflow-hidden">
                         <TransactionsSide
                             loading={loading}
                             categories={categories}
                             transactions={transactions}
                             selectedCategory={selectedCategory}
                             selectedCategoryId={selectedCategory?.id}
-                            handleAddTransaction={handleAddTransaction}
                             setOpenCategoryMenuId={setOpenCategoryMenuId}
+                            setIsCreateTransactionModalOpen={setIsCreateTransactionModalOpen}
                         />
                     </div>
                 </div>
@@ -176,12 +162,23 @@ export default function CategoriesTransactionsPage() {
 
             <ModalWrapper
                 isOpen={isCreateCategoryModalOpen}
-                onClose={() => {setIsCreateCategoryModalOpen(false)}}
+                onClose={() => { setIsCreateCategoryModalOpen(false) }}
                 title="Nuova categoria"
             >
                 <CreateCategoryModal
                     reload={reload}
                     onClose={() => setIsCreateCategoryModalOpen(false)}
+                />
+            </ModalWrapper>
+
+            <ModalWrapper
+                isOpen={isCreateTransactionModalOpen}
+                onClose={() => { setIsCreateTransactionModalOpen(false) }}
+                title="Nuova transazione"
+            >
+                <CreateTransactionModal
+                    reload={reload}
+                    onClose={() => setIsCreateTransactionModalOpen(false)}
                 />
             </ModalWrapper>
 
@@ -221,11 +218,11 @@ function CategorySide({
             />
 
 
-            <div className="min-h-0 flex-1 overflow-y-auto p-2">
+            <div className="min-h-0 flex-1 overflow-y-scroll p-2">
                 {loading ? (
                     <LoadingState />
                 ) : (
-                    <div className="space-y-2">
+                    <div className="space-y-2 ">
                         {categories.length > 0 ? (
                             categories.map((category) => {
 
@@ -261,12 +258,12 @@ function TransactionsSide({
     loading,
     selectedCategory,
     transactions,
-    handleAddTransaction,
     selectedCategoryId,
     setOpenCategoryMenuId,
     categories,
     searchedCategory,
-    setSearchedCategory
+    setSearchedCategory,
+    setIsCreateTransactionModalOpen
 
 }) {
 
@@ -282,7 +279,7 @@ function TransactionsSide({
                 hoverTitle={"Aggiungi transazione"}
                 search={searchedCategory}
                 setSearch={setSearchedCategory}
-                onCTAClick={handleAddTransaction}
+                onCTAClick={() => setIsCreateTransactionModalOpen(true)}
                 valuePill={formatCurrency(total)}
             />
 
