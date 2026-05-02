@@ -182,11 +182,11 @@ export default function Layout() {
                 </header>
 
                 {/* CONTENUTO DELLA PAGINA */}
-                <main className="flex-1 min-h-0 overflow-y-scroll px-4 pb-4 md:px-6 md:pb-6">
-                    <div className="flex min-h-0 flex-1 flex-col">
-                        <Outlet />
-                    </div>
-                </main>
+<main className="min-h-0 flex-1 overflow-auto px-4 pb-4 md:px-6 md:pb-1">
+    <div className="h-full min-h-0 min-w-0">
+        <Outlet />
+    </div>
+</main>
             </div>
         </div>
     );
