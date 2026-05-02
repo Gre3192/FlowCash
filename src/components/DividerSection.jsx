@@ -1,14 +1,19 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 
-export default function CategoryDividerSection({
+const DOT_COLORS = {
+    green: "bg-emerald-400",
+    red: "bg-red-400",
+    gray: "bg-slate-400",
+};
 
+export default function CategoryDividerSection({
     label,
     numItems,
     show,
     onClick,
     children,
-
+    dotColor,
 }) {
     return (
         <div className="w-full">
@@ -18,6 +23,7 @@ export default function CategoryDividerSection({
                     label={label}
                     numItems={numItems}
                     show={show}
+                    dotColor={dotColor}
                 />
             </div>
 
@@ -50,8 +56,11 @@ function DividerButton({
     onClick,
     label,
     numItems,
-    show
+    show,
+    dotColor,
 }) {
+    const dotClassName = DOT_COLORS[dotColor];
+
     return (
         <button
             type="button"
@@ -61,20 +70,27 @@ function DividerButton({
             <div className="h-px flex-1 bg-slate-200" />
 
             <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-[11px] font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-700">
-                <ChevronDown size={13} className={`transition-transform duration-200 ${show ? "rotate-0" : "-rotate-90"}`} />
-                <span>
-                    {label}
-                </span>
-                {
-                    numItems !== undefined && numItems !== null ?
-                        <span className="rounded-full bg-white px-1.5 py-0.5 text-[10px] text-slate-400">
-                            {numItems}
-                        </span>
-                        :
-                        null
-                }
+                <ChevronDown
+                    size={13}
+                    className={`transition-transform duration-200 ${    show ? "rotate-0" : "-rotate-90"          }`}
+                />
+
+                {dotClassName ? (
+                    <span
+                        className={`h-2 w-2 shrink-0 rounded-full ${dotClassName}`}
+                    />
+                ) : null}
+
+                <span>{label}</span>
+
+                {numItems !== undefined && numItems !== null ? (
+                    <span className="rounded-full bg-white px-1.5 py-0.5 text-[10px] text-slate-400">
+                        {numItems}
+                    </span>
+                ) : null}
             </div>
+
             <div className="h-px flex-1 bg-slate-200" />
         </button>
-    )
+    );
 }

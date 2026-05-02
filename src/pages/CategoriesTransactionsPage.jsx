@@ -2,7 +2,7 @@ import { useGet } from "../hooks/useGet";
 import { Search, Plus, X } from "lucide-react";
 import ItemCard from "../components/ItemCard";
 import { API_ENDPOINTS } from "../api/endpoint";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import formatCurrency from "../utils/formatCurrency";
 import CategoryCard from "../components/CategoryCard";
 import MonthYearPicker from "../components/MonthYearPicker";
@@ -74,20 +74,20 @@ export default function CategoriesTransactionsPage() {
                     hasTransactionsInSelectedPeriod: transactions.length > 0,
                 };
             })
-            .sort((a, b) => {
-                if (a.hasTransactions !== b.hasTransactions) {
-                    return a.hasTransactions ? -1 : 1;
-                }
+        // .sort((a, b) => {
+        //     if (a.hasTransactions !== b.hasTransactions) {
+        //         return a.hasTransactions ? -1 : 1;
+        //     }
 
-                if (
-                    a.hasTransactionsInSelectedPeriod !==
-                    b.hasTransactionsInSelectedPeriod
-                ) {
-                    return a.hasTransactionsInSelectedPeriod ? -1 : 1;
-                }
+        //     if (
+        //         a.hasTransactionsInSelectedPeriod !==
+        //         b.hasTransactionsInSelectedPeriod
+        //     ) {
+        //         return a.hasTransactionsInSelectedPeriod ? -1 : 1;
+        //     }
 
-                return a.name.localeCompare(b.name);
-            });
+        //     return a.name.localeCompare(b.name);
+        // });
     }, [data, selectedMonth, selectedYear]);
 
     const filteredCategories = useMemo(() => {
@@ -269,7 +269,28 @@ function CategorySide({
     const categoriesWithoutTransactions = useMemo(() => {
         return categories.filter((category) => !category.hasTransactions);
     }, [categories]);
+    useEffect(() => {
+        const hasSearch = searchedCategory.trim().length > 0;
 
+        if (!hasSearch) return;
+
+        setShowCategoriesWithTransactions(
+            categoriesWithTransactions.length > 0
+        );
+
+        setShowCategoriesEmptyInSelectedPeriod(
+            categoriesEmptyInSelectedPeriod.length > 0
+        );
+
+        setShowCategoriesWithoutTransactions(
+            categoriesWithoutTransactions.length > 0
+        );
+    }, [
+        searchedCategory,
+        categoriesWithTransactions.length,
+        categoriesEmptyInSelectedPeriod.length,
+        categoriesWithoutTransactions.length,
+    ]);
 
     return (
         <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm max-lg:h-[38vh] lg:h-full">
@@ -290,9 +311,10 @@ function CategorySide({
                     <div className="space-y-2">
 
                         <DividerSection
-                            label={`Categorie ${getMonthByNum(selectedMonth, 3)} ${selectedYear}`}
+                            label={`Categorie attive • ${getMonthByNum(selectedMonth, 3)} ${selectedYear}`}
                             numItems={categoriesWithTransactions.length}
                             show={showCategoriesWithTransactions}
+                            dotColor="green"
                             onClick={() =>
                                 setShowCategoriesWithTransactions((prev) => !prev)
                             }
@@ -323,9 +345,10 @@ function CategorySide({
                         </DividerSection>
 
                         <DividerSection
-                            label={`Senza movimenti  •  ${getMonthByNum(selectedMonth, 3)} ${selectedYear}`}
+                            label={`Categorie inattive • ${getMonthByNum(selectedMonth, 3)} ${selectedYear}`}
                             numItems={categoriesEmptyInSelectedPeriod.length}
                             show={showCategoriesEmptyInSelectedPeriod}
+                            dotColor="red"
                             onClick={() => setShowCategoriesEmptyInSelectedPeriod((prev) => !prev)}
                         >
                             {categoriesEmptyInSelectedPeriod.length > 0 ? (
@@ -352,9 +375,10 @@ function CategorySide({
                         </DividerSection>
 
                         <DividerSection
-                            label="Senza transazioni"
+                            label="Categorie vuote "
                             numItems={categoriesWithoutTransactions.length}
                             show={showCategoriesWithoutTransactions}
+                            dotColor="gray"
                             onClick={() => setShowCategoriesWithoutTransactions((prev) => !prev)}
                         >
                             {categoriesWithoutTransactions.length > 0 ? (
