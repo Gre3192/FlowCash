@@ -72,7 +72,7 @@ function DividerButton({
             onClick={onClick}
             className="flex w-full cursor-pointer items-center gap-2 py-1.5 text-left"
         >
-            <div className="h-px flex-1 bg-slate-200" />
+            {/* <div className="h-px flex-1 bg-slate-200" /> */}
 
             <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-[11px] font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-700">
                 <ChevronDown
@@ -88,14 +88,20 @@ function DividerButton({
 
                 <span>{label}</span>
 
-                {numItems !== undefined && numItems !== null ? (
+                {/* {numItems !== undefined && numItems !== null ? (
                     <span className="rounded-full bg-white px-1.5 py-0.5 text-[10px] text-slate-400">
                         {numItems}
                     </span>
-                ) : null}
+                ) : null} */}
             </div>
 
             <div className="h-px flex-1 bg-slate-200" />
+
+            {numItems !== undefined && numItems !== null ? (
+                <span className="rounded-full bg-slate-50 border border-slate-200 px-1.5 py-0.5 text-[10px] text-slate-400">
+                    {numItems}
+                </span>
+            ) : null}
         </button>
     );
 }
