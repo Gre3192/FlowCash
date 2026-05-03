@@ -7,14 +7,16 @@ const base_url = getBaseUrl('local')  // mock, local, server
 
 export const API_ENDPOINTS = {
 
-  //GET
-  budget: buildEndpoint(base_url, `/api/budget`),
-  //GET
-  transactionBudget: buildEndpoint(base_url, `/api/transaction-budget`),
-  //GET ? month (da 1 a 12) | year
+
+  transactionBudgets: buildEndpoint(base_url, `/api/transaction-budgets`),
+
+  transactionMovements: buildEndpoint(base_url, `/api/transaction-movements`),
+
   monthlyOverview: buildEndpoint(base_url, `/api/flowcash/monthly-overview/`),
-  //POST 
+
   categories: buildEndpoint(base_url, `/api/categories/`),
+
+  transactions: buildEndpoint(base_url, `/api/transactions/`),
 
 
 };

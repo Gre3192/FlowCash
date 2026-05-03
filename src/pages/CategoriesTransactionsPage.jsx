@@ -14,6 +14,7 @@ import getMonthByNum from "../utils/getMonthByNum";
 import MonthDaysCarousel from "../components/MonthDayCarousel";
 
 export default function CategoriesTransactionsPage() {
+    
     const currentDay = new Date().getDate();
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
@@ -97,22 +98,19 @@ export default function CategoriesTransactionsPage() {
     }, [filteredCategories, selectedCategoryId]);
 
     const transactions = selectedCategory?.transactions ?? [];
-
+  
     const filteredTransactions = useMemo(() => {
         const query = searchedTransaction.trim().toLowerCase();
-
         return transactions.filter((transaction) => {
             const matchesSearch = !query
                 ? true
                 : transaction.name?.toLowerCase().includes(query);
-
             return matchesSearch;
         });
     }, [transactions, searchedTransaction]);
 
     const maxCategoryTotal = useMemo(() => {
         if (!filteredCategories.length) return 0;
-
         return Math.max(
             ...filteredCategories.map((category) => category.entriesTotal)
         );
@@ -133,11 +131,11 @@ export default function CategoriesTransactionsPage() {
             <div className="flex h-full min-h-0 flex-col">
                 <div className="mb-3 flex shrink-0 items-center justify-between gap-3">
                     <div className="min-w-0">
-                        <h1 className="truncate text-base font-semibold text-slate-900 sm:text-lg">
-                            Categorie e transazioni
+                        <h1 className="truncate text-xl font-semibold text-slate-900 sm:text-xl">
+                            {getMonthByNum(selectedMonth)} {selectedYear}
                         </h1>
                         <p className="truncate text-[11px] text-slate-500 sm:text-xs">
-                            Gestione categorie con relative transazioni
+                            Categorie e transazioni
                         </p>
                     </div>
 
@@ -220,6 +218,8 @@ export default function CategoriesTransactionsPage() {
         </div>
     );
 }
+
+
 
 function CategorySide({
     loading,
@@ -489,6 +489,9 @@ function TransactionsSide({
         </div>
     );
 }
+
+
+
 
 function IconButton({ icon: Icon, onClick, hoverTitle }) {
     return (

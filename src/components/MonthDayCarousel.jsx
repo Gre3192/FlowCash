@@ -1,12 +1,14 @@
 import { useMemo, useRef, useState } from "react";
 import getDaysOfMonth from "../utils/getDaysOfMonth";
-
+import getEasterHolidays from "../utils/getEasterHolidays";
 
 export default function MonthDaysCarousel({
+
     selectedMonth,
     selectedYear,
     selectedDay,
     onDayChange,
+
 }) {
     const scrollRef = useRef(null);
 
@@ -26,6 +28,30 @@ export default function MonthDaysCarousel({
     const pointerDownTargetRef = useRef(null);
 
     const [isDragging, setIsDragging] = useState(false);
+
+    const calendarColorConfig = {
+        weekend: {
+            saturday: true,
+            sunday: true,
+        },
+        holidays: [
+            { month: 1, day: 1, label: "Capodanno" },
+            { month: 1, day: 6, label: "Epifania" },
+            { ...getEasterHolidays(selectedYear).easter, label: "Pasqua" },
+            { ...getEasterHolidays(selectedYear).easterMonday, label: "Pasquetta" },
+            { month: 4, day: 25, label: "Liberazione" },
+            { month: 5, day: 1, label: "Festa dei lavoratori" },
+            { month: 6, day: 2, label: "Festa della Repubblica" },
+            { month: 8, day: 15, label: "Ferragosto" },
+            { month: 11, day: 1, label: "Ognissanti" },
+            { month: 12, day: 8, label: "Immacolata" },
+            { month: 12, day: 25, label: "Natale" },
+            { month: 12, day: 26, label: "Santo Stefano" },
+        ],
+    };
+
+
+
 
     const days = useMemo(() => {
         return getDaysOfMonth(selectedMonth, selectedYear);
@@ -80,6 +106,34 @@ export default function MonthDaysCarousel({
         inertiaFrameRef.current = requestAnimationFrame(animate);
     }
 
+    function getDateInfo(dayNumber) {
+        const date = new Date(selectedYear, selectedMonth - 1, dayNumber);
+
+        const dayOfWeek = date.getDay();
+
+        const isSunday = dayOfWeek === 0;
+        const isSaturday = dayOfWeek === 6;
+
+        const isWeekend =
+            (calendarColorConfig.weekend.saturday && isSaturday) ||
+            (calendarColorConfig.weekend.sunday && isSunday);
+
+        const holiday = calendarColorConfig.holidays.find(
+            (item) =>
+                Number(item.month) === Number(selectedMonth) &&
+                Number(item.day) === Number(dayNumber)
+        );
+
+        const isHoliday = Boolean(holiday);
+
+        return {
+            isWeekend,
+            isHoliday,
+            isRedDay: isWeekend || isHoliday,
+            holidayLabel: holiday?.label,
+        };
+    }
+
     function handlePointerDown(e) {
         const element = scrollRef.current;
         if (!element) return;
@@ -129,7 +183,7 @@ export default function MonthDaysCarousel({
         }
     }
 
-    function handlePointerUp(e) {
+    function handlePointerUp() {
         if (!isPointerDownRef.current) return;
 
         isPointerDownRef.current = false;
@@ -185,27 +239,37 @@ export default function MonthDaysCarousel({
                 {days.map((day) => {
                     const isSelected = Number(selectedDay) === day.dayNumber;
 
+                    const { isRedDay, isHoliday, holidayLabel } = getDateInfo(
+                        day.dayNumber
+                    );
+
                     return (
                         <button
                             key={day.id}
                             type="button"
                             data-day={day.dayNumber}
+                            title={holidayLabel || undefined}
                             draggable={false}
                             className={`
                                 flex min-w-[42px] flex-col items-center justify-center rounded-md border px-2 py-1 transition
-                                ${
-                                    isSelected
-                                        ? "border-slate-900 bg-slate-900 text-white"
+                                ${isSelected
+                                    ? "border-slate-900 bg-slate-900 text-white"
+                                    : isRedDay
+                                        ? "border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
                                         : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
                                 }
                             `}
                         >
                             <span
-                                className={`text-[9px] font-medium ${
-                                    isSelected
+                                className={`
+                                    text-[9px] font-medium
+                                    ${isSelected
                                         ? "text-slate-200"
-                                        : "text-slate-500"
-                                }`}
+                                        : isRedDay
+                                            ? "text-red-500"
+                                            : "text-slate-500"
+                                    }
+                                `}
                             >
                                 {day.dayName}
                             </span>
@@ -213,6 +277,10 @@ export default function MonthDaysCarousel({
                             <span className="text-xs font-semibold leading-tight">
                                 {day.dayNumber}
                             </span>
+
+                            {isHoliday && !isSelected && (
+                                <span className="mt-0.5 h-1 w-1 rounded-full bg-red-500" />
+                            )}
                         </button>
                     );
                 })}
