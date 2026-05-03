@@ -11,11 +11,14 @@ import CreateCategoryModal from "../components/CreateCategoryModal";
 import CreateTransactionModal from "../components/CreateTransactionModal";
 import DividerSection from "../components/DividerSection";
 import getMonthByNum from "../utils/getMonthByNum";
+import MonthDaysCarousel from "../components/MonthDayCarousel";
 
 export default function CategoriesTransactionsPage() {
-    const currentYear = new Date().getFullYear();
+    const currentDay = new Date().getDate();
     const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
 
+    const [selectedDay, setSelectedDay] = useState(currentDay);
     const [selectedMonth, setSelectedMonth] = useState(currentMonth);
     const [selectedYear, setSelectedYear] = useState(currentYear);
 
@@ -28,7 +31,6 @@ export default function CategoriesTransactionsPage() {
     const [isCreateCategoryModalOpen, setIsCreateCategoryModalOpen] = useState(false);
     const [isCreateTransactionModalOpen, setIsCreateTransactionModalOpen] = useState(false);
 
-
     const { data, loading, error, reload } = useGet(
         API_ENDPOINTS.monthlyOverview({
             month: selectedMonth,
@@ -39,55 +41,39 @@ export default function CategoriesTransactionsPage() {
         }
     );
 
-
     const categories = useMemo(() => {
-        return (data?.categories ?? [])
-            .map((category) => {
-                const transactions = (category.transactions ?? []).map((transaction) => {
-                    const current = Number(transaction.entries_total || 0);
-                    const target = Number(transaction.budget?.month_value || 0);
-
-                    return {
-                        id: transaction.id,
-                        name: transaction.name,
-                        description: transaction.name,
-                        type: transaction.type,
-                        current,
-                        target,
-                        budget: transaction.budget,
-                        entries: transaction.entries ?? [],
-                        entriesTotal: Number(transaction.entries_total || 0),
-                        date:
-                            transaction.entries?.[0]?.entry_date ??
-                            `${selectedYear}-${String(selectedMonth + 1).padStart(2, "0")}-01`,
-                        raw: transaction,
-                    };
-                });
+        return (data?.categories ?? []).map((category) => {
+            const transactions = (category.transactions ?? []).map((transaction) => {
+                const current = Number(transaction.entries_total || 0);
+                const target = Number(transaction.budget?.month_value || 0);
 
                 return {
-                    id: category.id,
-                    name: category.name,
-                    budgetTotal: Number(category.category_budget_total || 0),
-                    entriesTotal: Number(category.category_entries_total || 0),
-                    transactions,
-                    hasTransactions: Boolean(category.has_transactions),
-                    hasTransactionsInSelectedPeriod: transactions.length > 0,
+                    id: transaction.id,
+                    name: transaction.name,
+                    description: transaction.name,
+                    type: transaction.type,
+                    current,
+                    target,
+                    budget: transaction.budget,
+                    entries: transaction.entries ?? [],
+                    entriesTotal: Number(transaction.entries_total || 0),
+                    date:
+                        transaction.entries?.[0]?.entry_date ??
+                        `${selectedYear}-${String(selectedMonth + 1).padStart(2, "0")}-01`,
+                    raw: transaction,
                 };
-            })
-        // .sort((a, b) => {
-        //     if (a.hasTransactions !== b.hasTransactions) {
-        //         return a.hasTransactions ? -1 : 1;
-        //     }
+            });
 
-        //     if (
-        //         a.hasTransactionsInSelectedPeriod !==
-        //         b.hasTransactionsInSelectedPeriod
-        //     ) {
-        //         return a.hasTransactionsInSelectedPeriod ? -1 : 1;
-        //     }
-
-        //     return a.name.localeCompare(b.name);
-        // });
+            return {
+                id: category.id,
+                name: category.name,
+                budgetTotal: Number(category.category_budget_total || 0),
+                entriesTotal: Number(category.category_entries_total || 0),
+                transactions,
+                hasTransactions: Boolean(category.has_transactions),
+                hasTransactionsInSelectedPeriod: transactions.length > 0,
+            };
+        });
     }, [data, selectedMonth, selectedYear]);
 
     const filteredCategories = useMemo(() => {
@@ -115,11 +101,13 @@ export default function CategoriesTransactionsPage() {
     const filteredTransactions = useMemo(() => {
         const query = searchedTransaction.trim().toLowerCase();
 
-        if (!query) return transactions;
+        return transactions.filter((transaction) => {
+            const matchesSearch = !query
+                ? true
+                : transaction.name?.toLowerCase().includes(query);
 
-        return transactions.filter((transaction) =>
-            transaction.name?.toLowerCase().includes(query)
-        );
+            return matchesSearch;
+        });
     }, [transactions, searchedTransaction]);
 
     const maxCategoryTotal = useMemo(() => {
@@ -139,7 +127,6 @@ export default function CategoriesTransactionsPage() {
 
         return years;
     }, [currentYear]);
-
 
     return (
         <div className="h-full min-h-0 box-border overflow-hidden bg-slate-50 p-2 sm:p-3">
@@ -200,6 +187,10 @@ export default function CategoriesTransactionsPage() {
                             searchedTransaction={searchedTransaction}
                             setSearchedTransaction={setSearchedTransaction}
                             setIsCreateTransactionModalOpen={setIsCreateTransactionModalOpen}
+                            selectedDay={selectedDay}
+                            setSelectedDay={setSelectedDay}
+                            selectedMonth={selectedMonth}
+                            selectedYear={selectedYear}
                         />
                     </div>
                 </div>
@@ -230,9 +221,6 @@ export default function CategoriesTransactionsPage() {
     );
 }
 
-
-
-
 function CategorySide({
     loading,
     categories,
@@ -247,9 +235,8 @@ function CategorySide({
     selectedYear,
     selectedMonth,
 }) {
-
     const [showCategoriesWithTransactions, setShowCategoriesWithTransactions] = useState(true);
-    const [showCategoriesEmptyInSelectedPeriod, setShowCategoriesEmptyInSelectedPeriod,] = useState(true);
+    const [showCategoriesEmptyInSelectedPeriod, setShowCategoriesEmptyInSelectedPeriod] = useState(true);
     const [showCategoriesWithoutTransactions, setShowCategoriesWithoutTransactions] = useState(true);
 
     const categoriesWithTransactions = useMemo(() => {
@@ -259,6 +246,7 @@ function CategorySide({
                 category.hasTransactionsInSelectedPeriod
         );
     }, [categories]);
+
     const categoriesEmptyInSelectedPeriod = useMemo(() => {
         return categories.filter(
             (category) =>
@@ -266,9 +254,11 @@ function CategorySide({
                 !category.hasTransactionsInSelectedPeriod
         );
     }, [categories]);
+
     const categoriesWithoutTransactions = useMemo(() => {
         return categories.filter((category) => !category.hasTransactions);
     }, [categories]);
+
     useEffect(() => {
         const hasSearch = searchedCategory.trim().length > 0;
 
@@ -309,7 +299,6 @@ function CategorySide({
                     <LoadingState />
                 ) : categories.length > 0 ? (
                     <div className="space-y-2">
-
                         <DividerSection
                             label={`Categorie attive • ${getMonthByNum(selectedMonth, 3)} ${selectedYear}`}
                             numItems={categoriesWithTransactions.length}
@@ -321,10 +310,12 @@ function CategorySide({
                         >
                             {categoriesWithTransactions.length > 0 ? (
                                 categoriesWithTransactions.map((category) => {
-
                                     const isSelected = category.id === selectedCategory?.id;
                                     const total = category.entriesTotal;
-                                    const progress = maxCategoryTotal > 0 ? (total / maxCategoryTotal) * 100 : 0;
+                                    const progress =
+                                        maxCategoryTotal > 0
+                                            ? (total / maxCategoryTotal) * 100
+                                            : 0;
 
                                     return (
                                         <CategoryCard
@@ -349,12 +340,13 @@ function CategorySide({
                             numItems={categoriesEmptyInSelectedPeriod.length}
                             show={showCategoriesEmptyInSelectedPeriod}
                             dotColor="red"
-                            onClick={() => setShowCategoriesEmptyInSelectedPeriod((prev) => !prev)}
+                            onClick={() =>
+                                setShowCategoriesEmptyInSelectedPeriod((prev) => !prev)
+                            }
                         >
                             {categoriesEmptyInSelectedPeriod.length > 0 ? (
                                 categoriesEmptyInSelectedPeriod.map((category) => {
-                                    const isSelected =
-                                        category.id === selectedCategory?.id;
+                                    const isSelected = category.id === selectedCategory?.id;
 
                                     return (
                                         <CategoryCard
@@ -375,15 +367,16 @@ function CategorySide({
                         </DividerSection>
 
                         <DividerSection
-                            label="Categorie vuote "
+                            label="Categorie vuote"
                             numItems={categoriesWithoutTransactions.length}
                             show={showCategoriesWithoutTransactions}
                             dotColor="gray"
-                            onClick={() => setShowCategoriesWithoutTransactions((prev) => !prev)}
+                            onClick={() =>
+                                setShowCategoriesWithoutTransactions((prev) => !prev)
+                            }
                         >
                             {categoriesWithoutTransactions.length > 0 ? (
                                 categoriesWithoutTransactions.map((category) => {
-
                                     const isSelected = category.id === selectedCategory?.id;
 
                                     return (
@@ -403,7 +396,6 @@ function CategorySide({
                                 <ItemEmpty text="Nessuna categoria vuota" />
                             )}
                         </DividerSection>
-
                     </div>
                 ) : (
                     <ItemEmpty text="Nessuna categoria trovata" />
@@ -423,6 +415,10 @@ function TransactionsSide({
     searchedTransaction,
     setSearchedTransaction,
     setIsCreateTransactionModalOpen,
+    selectedDay,
+    setSelectedDay,
+    selectedMonth,
+    selectedYear,
 }) {
     const total = selectedCategory?.entriesTotal ?? 0;
 
@@ -442,6 +438,17 @@ function TransactionsSide({
                 onCTAClick={() => setIsCreateTransactionModalOpen(true)}
                 valuePill={formatCurrency(total)}
             />
+
+            <div className="shrink-0 border-b border-slate-200 bg-slate-50 p-2">
+                <MonthDaysCarousel
+                    selectedMonth={selectedMonth}
+                    selectedYear={selectedYear}
+                    selectedDay={selectedDay}
+                    onDayChange={(value) => {
+                        setSelectedDay(value?.day ?? value);
+                    }}
+                />
+            </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto p-2">
                 {loading ? (
@@ -482,10 +489,6 @@ function TransactionsSide({
         </div>
     );
 }
-
-
-
-
 
 function IconButton({ icon: Icon, onClick, hoverTitle }) {
     return (
@@ -566,6 +569,7 @@ function HeadOfSide({
                     <h2 className="truncate text-sm font-semibold text-slate-900">
                         {title}
                     </h2>
+
                     <p className="truncate text-[11px] text-slate-500">
                         {subtitle}
                     </p>
@@ -596,4 +600,3 @@ function ValuePill({ value }) {
         </div>
     );
 }
-

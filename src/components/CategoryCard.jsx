@@ -13,6 +13,7 @@ export default function CategoryCard({
     setOpenCategoryMenuId,
     setSelectedCategoryId,
 }) {
+    
     const [categoryMenuAnchor, setCategoryMenuAnchor] = useState("button");
     const [ctxMenuPosition, setCtxMenuPosition] = useState({ x: 0, y: 0 });
 
