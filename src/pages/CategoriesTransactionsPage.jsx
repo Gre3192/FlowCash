@@ -340,7 +340,7 @@ function CategorySide({
                                     );
                                 })
                             ) : (
-                                <ItemEmpty text="Nessuna categoria con transazioni nel periodo" />
+                                <ItemEmpty text="Nessuna categoria attiva" />
                             )}
                         </DividerSection>
 
@@ -370,7 +370,7 @@ function CategorySide({
                                     );
                                 })
                             ) : (
-                                <ItemEmpty text="Nessuna categoria vuota nel periodo" />
+                                <ItemEmpty text="Nessuna categoria inattiva" />
                             )}
                         </DividerSection>
 
@@ -400,7 +400,7 @@ function CategorySide({
                                     );
                                 })
                             ) : (
-                                <ItemEmpty text="Nessuna categoria senza transazioni" />
+                                <ItemEmpty text="Nessuna categoria vuota" />
                             )}
                         </DividerSection>
 

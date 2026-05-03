@@ -1,5 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import { useState } from "react";
+
 
 const DOT_COLORS = {
     green: "bg-emerald-400",
@@ -15,6 +17,9 @@ export default function CategoryDividerSection({
     children,
     dotColor,
 }) {
+
+    const [defaultShow, setDefaultShow] = useState(!Number(numItems));
+
     return (
         <div className="w-full">
             <div className="w-full">
@@ -72,7 +77,7 @@ function DividerButton({
             <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-[11px] font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-700">
                 <ChevronDown
                     size={13}
-                    className={`transition-transform duration-200 ${    show ? "rotate-0" : "-rotate-90"          }`}
+                    className={`transition-transform duration-200 ${show ? "rotate-0" : "-rotate-90"}`}
                 />
 
                 {dotClassName ? (
