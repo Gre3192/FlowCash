@@ -339,6 +339,9 @@ export default function MonthDaysCarousel({
                             {isHoliday && !isSelected && (
                                 <span className="pointer-events-none absolute bottom-0.5 h-0.5 w-0.5 rounded-full bg-red-500" />
                             )}
+                            {isHoliday && !isSelected && (
+                                <span className="pointer-events-none absolute top-0.5 h-0.5 w-5 rounded-full bg-red-500" />
+                            )}
                         </button>
                     );
                 })}
