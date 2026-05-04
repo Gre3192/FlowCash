@@ -251,8 +251,8 @@ export default function MonthDaysCarousel({
                             title={holidayLabel || undefined}
                             draggable={false}
                             className={`
-                                flex min-w-[42px] flex-col items-center justify-center rounded-md border px-2 py-1 transition
-                                ${isSelected
+                                    relative flex min-w-[42px] flex-col items-center justify-center rounded-md border px-2 py-1 transition
+                                    ${isSelected
                                     ? "border-slate-900 bg-slate-900 text-white"
                                     : isRedDay
                                         ? "border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
@@ -279,7 +279,7 @@ export default function MonthDaysCarousel({
                             </span>
 
                             {isHoliday && !isSelected && (
-                                <span className="mt-0.5 h-1 w-1 rounded-full bg-red-500" />
+                                <span className="pointer-events-none absolute bottom-0.5 h-0.5 w-0.5 rounded-full bg-red-500" />
                             )}
                         </button>
                     );
