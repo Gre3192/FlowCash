@@ -11,6 +11,8 @@ export default function MonthDaysCarousel({
 
 }) {
     const scrollRef = useRef(null);
+    const wheelFrameRef = useRef(null);
+    const wheelTargetScrollLeftRef = useRef(0);
 
     const isPointerDownRef = useRef(false);
     const hasDraggedRef = useRef(false);
@@ -137,6 +139,7 @@ export default function MonthDaysCarousel({
         if (!element) return;
 
         stopInertia();
+        stopWheelAnimation();
 
         isPointerDownRef.current = true;
         hasDraggedRef.current = false;
@@ -219,10 +222,67 @@ export default function MonthDaysCarousel({
         }
     }
 
+    function stopWheelAnimation() {
+        if (wheelFrameRef.current) {
+            cancelAnimationFrame(wheelFrameRef.current);
+            wheelFrameRef.current = null;
+        }
+    }
+
+    function handleWheel(e) {
+        const element = scrollRef.current;
+        if (!element) return;
+
+        const canScrollHorizontally = element.scrollWidth > element.clientWidth;
+        if (!canScrollHorizontally) return;
+
+        const scrollAmount = e.deltaY || e.deltaX;
+        if (!scrollAmount) return;
+
+        e.preventDefault();
+
+        stopInertia();
+
+        if (!wheelFrameRef.current) {
+            wheelTargetScrollLeftRef.current = element.scrollLeft;
+        }
+
+        wheelTargetScrollLeftRef.current += scrollAmount;
+
+        const maxScrollLeft = element.scrollWidth - element.clientWidth;
+
+        wheelTargetScrollLeftRef.current = Math.max(
+            0,
+            Math.min(wheelTargetScrollLeftRef.current, maxScrollLeft)
+        );
+
+        if (wheelFrameRef.current) return;
+
+        function animateWheelScroll() {
+            const currentElement = scrollRef.current;
+            if (!currentElement) return;
+
+            const distance =
+                wheelTargetScrollLeftRef.current - currentElement.scrollLeft;
+
+            currentElement.scrollLeft += distance * 0.18;
+
+            if (Math.abs(distance) > 0.5) {
+                wheelFrameRef.current = requestAnimationFrame(animateWheelScroll);
+            } else {
+                currentElement.scrollLeft = wheelTargetScrollLeftRef.current;
+                wheelFrameRef.current = null;
+            }
+        }
+
+        wheelFrameRef.current = requestAnimationFrame(animateWheelScroll);
+    }
+
     return (
         <div className="w-full overflow-hidden rounded-lg border border-slate-200 bg-white px-2 py-1">
             <div
                 ref={scrollRef}
+                onWheel={handleWheel}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
@@ -249,7 +309,7 @@ export default function MonthDaysCarousel({
                             title={holidayLabel || undefined}
                             draggable={false}
                             className={`
-                                    relative flex min-w-10.5 flex-col items-center justify-center rounded-md border px-2 py-1 transition
+                                    relative cursor-pointer flex min-w-10.5 flex-col items-center justify-center rounded-md border px-2 py-1 transition
                                     ${isSelected
                                     ? "border-slate-900 bg-slate-900 text-white"
                                     : isRedDay
