@@ -51,8 +51,6 @@ export default function MonthDaysCarousel({
     };
 
 
-
-
     const days = useMemo(() => {
         return getDaysOfMonth(selectedMonth, selectedYear);
     }, [selectedMonth, selectedYear]);
@@ -251,7 +249,7 @@ export default function MonthDaysCarousel({
                             title={holidayLabel || undefined}
                             draggable={false}
                             className={`
-                                    relative flex min-w-[42px] flex-col items-center justify-center rounded-md border px-2 py-1 transition
+                                    relative flex min-w-10.5 flex-col items-center justify-center rounded-md border px-2 py-1 transition
                                     ${isSelected
                                     ? "border-slate-900 bg-slate-900 text-white"
                                     : isRedDay
