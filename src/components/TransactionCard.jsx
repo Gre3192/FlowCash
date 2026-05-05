@@ -2,7 +2,12 @@ import { useState } from "react";
 import EdgeProgressBar from "./EdgeProgressBar";
 import formatCurrency from "../utils/formatCurrency";
 import CardMenu from "./CardMenu";
-import { Pencil, Trash2 } from "lucide-react";
+import {
+    Pencil,
+    Trash2,
+    ArrowDownLeft,
+    ArrowUpRight,
+} from "lucide-react";
 
 import amazon from "../assets/logos/PrimeVideo.png";
 
@@ -11,11 +16,17 @@ export default function TransactionCard({
     transaction,
     current,
     budget,
-    onClick = () => {},
+    onClick = () => { },
 }) {
     const [openTransactionMenuId, setOpenTransactionMenuId] = useState(null);
     const [transactionMenuAnchor, setTransactionMenuAnchor] = useState("button");
     const [ctxMenuPosition, setCtxMenuPosition] = useState({ x: 0, y: 0 });
+
+    const isIncome = transaction.type === "Income";
+    const isExpense = transaction.type === "Expense";
+
+    const typeLabel = isIncome ? "Entrata" : "Uscita";
+    const TypeIcon = isIncome ? ArrowDownLeft : ArrowUpRight;
 
     const progress = budget > 0 ? (current / budget) * 100 : 0;
     const remaining = budget - current;
@@ -85,10 +96,29 @@ export default function TransactionCard({
                         {transaction.name}
                     </div>
 
-                    <div className="truncate text-xs leading-4 text-slate-500">
-                        Rimanenti:{" "}
-                        <span className="font-medium text-slate-600">
-                            {formatCurrency(remaining)}
+                    <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                        <span
+                            className={`
+                                inline-flex shrink-0 items-center gap-1 rounded-full border px-1.5 py-0.5
+                                text-[10px] font-medium leading-none
+                                ${isIncome
+                                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                    : "border-red-200 bg-red-50 text-red-700"
+                                }
+                            `}
+                        >
+                            <TypeIcon size={11} />
+                            {typeLabel}
+                        </span>
+
+                        <span
+                            className="
+                                inline-flex shrink-0 items-center rounded-full border border-slate-200 bg-slate-50
+                                px-1.5 py-0.5 text-[10px] font-medium leading-none text-slate-600
+                                transition-colors duration-200 group-hover:bg-white
+                            "
+                        >
+                            {progress.toFixed(0)}%
                         </span>
                     </div>
                 </div>
@@ -96,24 +126,11 @@ export default function TransactionCard({
 
             <div className="ml-4 flex shrink-0 items-center gap-2">
                 <div className="text-right">
-                    <div className="mb-1 flex justify-end">
-                        <span
-                            className="
-                                rounded-md bg-slate-100 px-1.5 py-0.5
-                                text-[10px] font-medium leading-none text-slate-600
-                                transition-colors duration-200
-                                group-hover:bg-white
-                            "
-                        >
-                            {progress.toFixed(0)}%
-                        </span>
-                    </div>
-
-                    <div className="whitespace-nowrap text-sm font-semibold leading-4 text-emerald-600">
-                        {formatCurrency(current)}
-                        <span className="font-normal text-slate-400">
-                            {" "}
-                            / {formatCurrency(budget)}
+                    <AmountRatio firstNum={formatCurrency(current)} secondNum={formatCurrency(budget)} />
+                    <div className="truncate text-sm font-semibold leading-5 text-slate-500">
+                        Rimanenti:{" "}
+                        <span className="text-slate-900">
+                            {formatCurrency(remaining)}
                         </span>
                     </div>
                 </div>
@@ -128,13 +145,13 @@ export default function TransactionCard({
                             {
                                 label: "Modifica",
                                 icon: Pencil,
-                                onClick: () => {},
+                                onClick: () => { },
                             },
                             {
                                 label: "Elimina",
                                 icon: Trash2,
                                 danger: true,
-                                onClick: () => {},
+                                onClick: () => { },
                             },
                         ]}
                     />
@@ -142,4 +159,22 @@ export default function TransactionCard({
             </div>
         </div>
     );
+}
+
+
+
+
+function AmountRatio({
+    firstNum,
+    secondNum
+}) {
+    return (
+        <div className={`mb-1 whitespace-nowrap text-xs font-medium leading-4 text-red-600`}  >
+            {firstNum}
+            <span className="font-normal text-slate-500">
+                {" "}
+                / {secondNum}
+            </span>
+        </div>
+    )
 }

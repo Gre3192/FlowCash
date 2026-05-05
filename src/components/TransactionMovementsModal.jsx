@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import { Plus, Pencil, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import MonthDaysCarousel from "./MonthDayCarousel";
 import formatCurrency from "../utils/formatCurrency";
 import getMonthByNum from "../utils/getMonthByNum";
+import MonthNavigator from "./MonthNavigator";
 
 export default function TransactionMovementsModal({
     selectedMonth,
@@ -16,6 +17,7 @@ export default function TransactionMovementsModal({
     onEditMovement,
     onDeleteMovement,
 }) {
+
     const [localSelectedMonth, setLocalSelectedMonth] = useState(selectedMonth);
     const [localSelectedYear, setLocalSelectedYear] = useState(selectedYear);
 
@@ -183,33 +185,13 @@ export default function TransactionMovementsModal({
     return (
         <div className="flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden">
             <div className="grid shrink-0 grid-cols-1 gap-4 border-b border-slate-200 px-0 pb-3 md:grid-cols-[300px_minmax(0,1fr)]">
-                <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                    <button
-                        type="button"
-                        onClick={handlePreviousMonth}
-                        className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition hover:bg-white hover:text-slate-900"
-                    >
-                        <ChevronLeft size={17} />
-                    </button>
 
-                    <div className="min-w-0 text-center">
-                        <p className="truncate text-sm font-semibold text-slate-900">
-                            {getMonthByNum(localSelectedMonth)}{" "}
-                            {localSelectedYear}
-                        </p>
-                        {/*               <p className="truncate text-[11px] text-slate-500">
-                            Giorno {localSelectedDay}
-                        </p> */}
-                    </div>
-
-                    <button
-                        type="button"
-                        onClick={handleNextMonth}
-                        className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition hover:bg-white hover:text-slate-900"
-                    >
-                        <ChevronRight size={17} />
-                    </button>
-                </div>
+                <MonthNavigator
+                    month={getMonthByNum(localSelectedMonth)}
+                    year={localSelectedYear}
+                    handleNextMonth={handleNextMonth}
+                    handlePreviousMonth={handlePreviousMonth}
+                />
 
                 <div className="min-w-0">
                     <MonthDaysCarousel
@@ -417,3 +399,5 @@ export default function TransactionMovementsModal({
         </div>
     );
 }
+
+

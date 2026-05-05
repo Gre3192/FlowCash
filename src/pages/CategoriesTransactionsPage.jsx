@@ -484,6 +484,7 @@ function TransactionsSide({
 
     return (
         <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:h-full">
+            
             <HeadOfSide
                 title={selectedCategory ? selectedCategory.name : "Transazioni"}
                 subtitle={selectedCategory ? `${transactions.length} transazioni` : "Transazioni della categoria"}
@@ -494,18 +495,6 @@ function TransactionsSide({
                 onCTAClick={() => setIsCreateTransactionModalOpen(true)}
                 valuePill={formatCurrency(total)}
             />
-
-            {/* <div className="shrink-0 border-b border-slate-200 bg-slate-50 p-2">
-                <MonthDaysCarousel
-                    selectedMonth={selectedMonth}
-                    selectedYear={selectedYear}
-                    selectedDay={selectedDay}
-                    onDayChange={(value) => {
-                        setSelectedDay(value?.day ?? value);
-                    }}
-                />
-            </div> */}
-
             <div className="min-h-0 flex-1 overflow-y-auto p-2">
                 {loading ? (
                     <LoadingState />
