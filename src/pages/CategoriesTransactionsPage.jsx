@@ -57,7 +57,7 @@ export default function CategoriesTransactionsPage() {
     const [isCreateCategoryModalOpen, setIsCreateCategoryModalOpen] = useState(false);
     const [isCreateTransactionModalOpen, setIsCreateTransactionModalOpen] = useState(false);
 
-    const [showMovementsModal, setShowMovementsModal] = useState(true)
+    const [showMovementsModal, setShowMovementsModal] = useState(false)
     const [selectedTransaction, setSelectedTransaction] = useState(null);
 
     const { data, loading, error, reload } = useGet(
@@ -217,6 +217,7 @@ export default function CategoriesTransactionsPage() {
                             setSelectedDay={setSelectedDay}
                             selectedMonth={selectedMonth}
                             selectedYear={selectedYear}
+                            onTransactionCardClick={() => setShowMovementsModal(true)}
                         />
                     </div>
                 </div>
@@ -247,7 +248,13 @@ export default function CategoriesTransactionsPage() {
             </ModalWrapper>
 
 
-            <ModalWrapper isOpen={showMovementsModal} onClose={() => setShowMovementsModal(false)}>
+            <ModalWrapper
+                title={`${getMonthByNum(selectedMonth)} ${selectedYear}`}
+                height={"h-fit"}
+                width={"w-[80%]"}
+                isOpen={showMovementsModal}
+                onClose={() => setShowMovementsModal(false)}
+            >
                 <TransactionMovementsModal
                     selectedMonth={selectedMonth}
                     selectedYear={selectedYear}
@@ -466,6 +473,7 @@ function TransactionsSide({
     setSelectedDay,
     selectedMonth,
     selectedYear,
+    onTransactionCardClick
 }) {
     const total = selectedCategory?.entriesTotal ?? 0;
 
@@ -516,6 +524,7 @@ function TransactionsSide({
                                         categories={categories}
                                         selectedCategoryId={selectedCategoryId}
                                         setOpenCategoryMenuId={setOpenCategoryMenuId}
+                                        onClick={onTransactionCardClick}
                                     />
                                 );
                             })}
