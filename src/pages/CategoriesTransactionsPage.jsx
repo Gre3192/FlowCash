@@ -12,9 +12,34 @@ import CreateTransactionModal from "../components/CreateTransactionModal";
 import DividerSection from "../components/DividerSection";
 import getMonthByNum from "../utils/getMonthByNum";
 import MonthDaysCarousel from "../components/MonthDayCarousel";
+import TransactionMovementsModal from "../components/TransactionMovementsModal";
+
+const transactionMovements = [
+    {
+        id: "1",
+        transactionId: "abc",
+        name: "Spesa supermercato",
+        amount: 35.5,
+        type: "Expense",
+        day: 5,
+        month: 4,
+        year: 2026,
+        note: "Esselunga",
+    },
+    {
+        id: "2",
+        transactionId: "abc",
+        name: "Rimborso",
+        amount: 20,
+        type: "Income",
+        day: 5,
+        month: 4,
+        year: 2026,
+    },
+];
 
 export default function CategoriesTransactionsPage() {
-    
+
     const currentDay = new Date().getDate();
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
@@ -31,6 +56,10 @@ export default function CategoriesTransactionsPage() {
 
     const [isCreateCategoryModalOpen, setIsCreateCategoryModalOpen] = useState(false);
     const [isCreateTransactionModalOpen, setIsCreateTransactionModalOpen] = useState(false);
+
+    const [showMovementsModal, setShowMovementsModal] = useState(true)
+    const [selectedTransaction, setSelectedTransaction] =
+    useState(null);
 
     const { data, loading, error, reload } = useGet(
         API_ENDPOINTS.monthlyOverview({
@@ -98,7 +127,7 @@ export default function CategoriesTransactionsPage() {
     }, [filteredCategories, selectedCategoryId]);
 
     const transactions = selectedCategory?.transactions ?? [];
-  
+
     const filteredTransactions = useMemo(() => {
         const query = searchedTransaction.trim().toLowerCase();
         return transactions.filter((transaction) => {
@@ -215,6 +244,29 @@ export default function CategoriesTransactionsPage() {
                     onClose={() => setIsCreateTransactionModalOpen(false)}
                 />
             </ModalWrapper>
+
+           
+                <ModalWrapper isOpen={showMovementsModal} onClose={() => setShowMovementsModal(false)}>
+                    <TransactionMovementsModal
+                        selectedMonth={selectedMonth}
+                        selectedYear={selectedYear}
+                        selectedDay={selectedDay}
+                        transaction={selectedTransaction}
+                        movements={transactionMovements}
+                        onClose={() => setShowMovementsModal(false)}
+                        onDayChange={setSelectedDay}
+                        onCreateMovement={(payload) => {
+                            console.log("create movement", payload);
+                        }}
+                        onEditMovement={(movement) => {
+                            console.log("edit movement", movement);
+                        }}
+                        onDeleteMovement={(movement) => {
+                            console.log("delete movement", movement);
+                        }}
+                    />
+                </ModalWrapper>
+          
         </div>
     );
 }
@@ -439,7 +491,7 @@ function TransactionsSide({
                 valuePill={formatCurrency(total)}
             />
 
-            <div className="shrink-0 border-b border-slate-200 bg-slate-50 p-2">
+            {/* <div className="shrink-0 border-b border-slate-200 bg-slate-50 p-2">
                 <MonthDaysCarousel
                     selectedMonth={selectedMonth}
                     selectedYear={selectedYear}
@@ -448,7 +500,7 @@ function TransactionsSide({
                         setSelectedDay(value?.day ?? value);
                     }}
                 />
-            </div>
+            </div> */}
 
             <div className="min-h-0 flex-1 overflow-y-auto p-2">
                 {loading ? (
