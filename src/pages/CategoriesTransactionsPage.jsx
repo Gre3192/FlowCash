@@ -58,8 +58,7 @@ export default function CategoriesTransactionsPage() {
     const [isCreateTransactionModalOpen, setIsCreateTransactionModalOpen] = useState(false);
 
     const [showMovementsModal, setShowMovementsModal] = useState(true)
-    const [selectedTransaction, setSelectedTransaction] =
-    useState(null);
+    const [selectedTransaction, setSelectedTransaction] = useState(null);
 
     const { data, loading, error, reload } = useGet(
         API_ENDPOINTS.monthlyOverview({
@@ -224,6 +223,7 @@ export default function CategoriesTransactionsPage() {
             </div>
 
             <ModalWrapper
+                height={"h-fit"}
                 isOpen={isCreateCategoryModalOpen}
                 onClose={() => setIsCreateCategoryModalOpen(false)}
                 title="Nuova categoria"
@@ -235,6 +235,7 @@ export default function CategoriesTransactionsPage() {
             </ModalWrapper>
 
             <ModalWrapper
+                height={"h-fit"}
                 isOpen={isCreateTransactionModalOpen}
                 onClose={() => setIsCreateTransactionModalOpen(false)}
                 title="Nuova transazione"
@@ -245,28 +246,28 @@ export default function CategoriesTransactionsPage() {
                 />
             </ModalWrapper>
 
-           
-                <ModalWrapper isOpen={showMovementsModal} onClose={() => setShowMovementsModal(false)}>
-                    <TransactionMovementsModal
-                        selectedMonth={selectedMonth}
-                        selectedYear={selectedYear}
-                        selectedDay={selectedDay}
-                        transaction={selectedTransaction}
-                        movements={transactionMovements}
-                        onClose={() => setShowMovementsModal(false)}
-                        onDayChange={setSelectedDay}
-                        onCreateMovement={(payload) => {
-                            console.log("create movement", payload);
-                        }}
-                        onEditMovement={(movement) => {
-                            console.log("edit movement", movement);
-                        }}
-                        onDeleteMovement={(movement) => {
-                            console.log("delete movement", movement);
-                        }}
-                    />
-                </ModalWrapper>
-          
+
+            <ModalWrapper isOpen={showMovementsModal} onClose={() => setShowMovementsModal(false)}>
+                <TransactionMovementsModal
+                    selectedMonth={selectedMonth}
+                    selectedYear={selectedYear}
+                    selectedDay={selectedDay}
+                    transaction={selectedTransaction}
+                    movements={transactionMovements}
+                    onClose={() => setShowMovementsModal(false)}
+                    onDayChange={setSelectedDay}
+                    onCreateMovement={(payload) => {
+                        console.log("create movement", payload);
+                    }}
+                    onEditMovement={(movement) => {
+                        console.log("edit movement", movement);
+                    }}
+                    onDeleteMovement={(movement) => {
+                        console.log("delete movement", movement);
+                    }}
+                />
+            </ModalWrapper>
+
         </div>
     );
 }
