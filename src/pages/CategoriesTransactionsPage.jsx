@@ -256,15 +256,9 @@ export default function CategoriesTransactionsPage() {
                     movements={transactionMovements}
                     onClose={() => setShowMovementsModal(false)}
                     onDayChange={setSelectedDay}
-                    onCreateMovement={(payload) => {
-                        console.log("create movement", payload);
-                    }}
-                    onEditMovement={(movement) => {
-                        console.log("edit movement", movement);
-                    }}
-                    onDeleteMovement={(movement) => {
-                        console.log("delete movement", movement);
-                    }}
+                    onCreateMovement={(payload) => { console.log("create movement", payload); }}
+                    onEditMovement={(movement) => { console.log("edit movement", movement); }}
+                    onDeleteMovement={(movement) => { console.log("delete movement", movement); }}
                 />
             </ModalWrapper>
 

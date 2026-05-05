@@ -13,6 +13,7 @@ export default function TransactionCard({
     transaction,
     current,
     budget,
+    onclick = () => { }
 
 }) {
 
@@ -36,9 +37,10 @@ export default function TransactionCard({
     return (
 
         <div
+            onclick={onclick}
             key={transaction.id}
             onContextMenu={onCtxMenuClick}
-            className="group relative flex items-center justify-between overflow-hidden rounded-xl border border-slate-200 bg-white px-4 py-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-150 hover:border-slate-300 hover:bg-white hover:shadow-[0_4px_14px_rgba(15,23,42,0.08)]"
+            className="group relative flex items-center justify-between cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-white px-4 py-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-150 hover:border-slate-300 hover:bg-white hover:shadow-[0_4px_14px_rgba(15,23,42,0.08)]"
         >
             <EdgeProgressBar value={progress} />
 
@@ -105,7 +107,7 @@ export default function TransactionCard({
                             label: "Elimina",
                             icon: Trash2,
                             danger: true,
-                            onClick: () => {},
+                            onClick: () => { },
                         },
                     ]}
                 />
