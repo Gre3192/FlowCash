@@ -55,7 +55,7 @@ export default function MonthYearPicker({
   const goToToday = () => {
     if (!years.includes(currentYear)) return;
 
-    onMonthChange(currentMonth);
+    onMonthChange(currentMonth + 1);
     onYearChange(currentYear);
   };
 

@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import MonthDaysCarousel from "./MonthDayCarousel";
 import formatCurrency from "../utils/formatCurrency";
+import getMonthByNum from "../utils/getMonthByNum";
 
 export default function TransactionMovementsModal({
     selectedMonth,
@@ -15,7 +16,9 @@ export default function TransactionMovementsModal({
     onEditMovement,
     onDeleteMovement,
 }) {
-    
+    const [localSelectedMonth, setLocalSelectedMonth] = useState(selectedMonth);
+    const [localSelectedYear, setLocalSelectedYear] = useState(selectedYear);
+
     const [localSelectedDay, setLocalSelectedDay] = useState(
         selectedDay || new Date().getDate()
     );
@@ -25,6 +28,83 @@ export default function TransactionMovementsModal({
         amount: "",
         note: "",
     });
+
+    function getMaxDayOfMonth(month, year) {
+        return new Date(year, month, 0).getDate();
+    }
+
+    function normalizeSelectedDay(month, year, day) {
+        const maxDay = getMaxDayOfMonth(month, year);
+        return Math.min(day, maxDay);
+    }
+
+    function handlePreviousMonth() {
+        setLocalSelectedMonth((prevMonth) => {
+            let newMonth = prevMonth - 1;
+            let newYear = localSelectedYear;
+
+            if (newMonth < 1) {
+                newMonth = 12;
+                newYear = localSelectedYear - 1;
+                setLocalSelectedYear(newYear);
+            }
+
+            setLocalSelectedDay((prevDay) => {
+                const nextDay = normalizeSelectedDay(
+                    newMonth,
+                    newYear,
+                    prevDay
+                );
+
+                onDayChange?.(nextDay);
+
+                return nextDay;
+            });
+
+            return newMonth;
+        });
+    }
+
+    function handleNextMonth() {
+        setLocalSelectedMonth((prevMonth) => {
+            let newMonth = prevMonth + 1;
+            let newYear = localSelectedYear;
+
+            if (newMonth > 12) {
+                newMonth = 1;
+                newYear = localSelectedYear + 1;
+                setLocalSelectedYear(newYear);
+            }
+
+            setLocalSelectedDay((prevDay) => {
+                const nextDay = normalizeSelectedDay(
+                    newMonth,
+                    newYear,
+                    prevDay
+                );
+
+                onDayChange?.(nextDay);
+
+                return nextDay;
+            });
+
+            return newMonth;
+        });
+    }
+
+    function handleTodayClick() {
+        const today = new Date();
+
+        const todayDay = today.getDate();
+        const todayMonth = today.getMonth() + 1;
+        const todayYear = today.getFullYear();
+
+        setLocalSelectedDay(todayDay);
+        setLocalSelectedMonth(todayMonth);
+        setLocalSelectedYear(todayYear);
+
+        onDayChange?.(todayDay);
+    }
 
     function handleDayChange(day) {
         setLocalSelectedDay(day);
@@ -53,8 +133,8 @@ export default function TransactionMovementsModal({
             amount,
             note: formData.note.trim(),
             day: localSelectedDay,
-            month: selectedMonth,
-            year: selectedYear,
+            month: localSelectedMonth,
+            year: localSelectedYear,
             transactionId: transaction?.id,
         });
 
@@ -69,13 +149,30 @@ export default function TransactionMovementsModal({
         return movements.filter((movement) => {
             const movementDay = Number(
                 movement.day ??
-                    movement.dayNumber ??
-                    movement.date?.split("-")?.[2]
+                movement.dayNumber ??
+                movement.date?.split("-")?.[2]
             );
 
-            return movementDay === Number(localSelectedDay);
+            const movementMonth = Number(
+                movement.month ?? movement.date?.split("-")?.[1]
+            );
+
+            const movementYear = Number(
+                movement.year ?? movement.date?.split("-")?.[0]
+            );
+
+            return (
+                movementDay === Number(localSelectedDay) &&
+                movementMonth === Number(localSelectedMonth) &&
+                movementYear === Number(localSelectedYear)
+            );
         });
-    }, [movements, localSelectedDay]);
+    }, [
+        movements,
+        localSelectedDay,
+        localSelectedMonth,
+        localSelectedYear,
+    ]);
 
     const total = useMemo(() => {
         return filteredMovements.reduce((sum, movement) => {
@@ -84,37 +181,45 @@ export default function TransactionMovementsModal({
     }, [filteredMovements]);
 
     return (
-        <div className="flex h-full min-h-0 flex-col overflow-hidden">
-            <div className="shrink-0 border-b border-slate-200 px-4 py-3">
-                <MonthDaysCarousel
-                    selectedMonth={selectedMonth}
-                    selectedYear={selectedYear}
-                    selectedDay={localSelectedDay}
-                    onDayChange={handleDayChange}
-                />
+        <div className="flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden">
+            <div className="grid shrink-0 grid-cols-1 gap-4 border-b border-slate-200 px-4 py-3 md:grid-cols-[300px_minmax(0,1fr)]">
+                <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                    <button
+                        type="button"
+                        onClick={handlePreviousMonth}
+                        className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition hover:bg-white hover:text-slate-900"
+                    >
+                        <ChevronLeft size={17} />
+                    </button>
+
+                    <div className="min-w-0 text-center">
+                        <p className="truncate text-sm font-semibold text-slate-900">
+                            {getMonthByNum(localSelectedMonth)}{" "}
+                            {localSelectedYear}
+                        </p>
+                        {/*               <p className="truncate text-[11px] text-slate-500">
+                            Giorno {localSelectedDay}
+                        </p> */}
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={handleNextMonth}
+                        className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition hover:bg-white hover:text-slate-900"
+                    >
+                        <ChevronRight size={17} />
+                    </button>
+                </div>
+
+                <div className="min-w-0">
+                    <MonthDaysCarousel
+                        selectedMonth={localSelectedMonth}
+                        selectedYear={localSelectedYear}
+                        selectedDay={localSelectedDay}
+                        onDayChange={handleDayChange}
+                    />
+                </div>
             </div>
-
-            {/* <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-4 py-3">
-                <div>
-                    <p className="text-xs text-slate-500">
-                        Giorno selezionato
-                    </p>
-
-                    <p className="text-sm font-semibold text-slate-900">
-                        {localSelectedDay}/{selectedMonth}/{selectedYear}
-                    </p>
-                </div>
-
-                <div className="text-right">
-                    <p className="text-xs text-slate-500">
-                        Totale movimenti
-                    </p>
-
-                    <p className="text-sm font-semibold text-slate-900">
-                        {formatCurrency(total)}
-                    </p>
-                </div>
-            </div> */}
 
             <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden px-4 py-4 md:grid-cols-[300px_minmax(0,1fr)]">
                 <form
@@ -125,7 +230,6 @@ export default function TransactionMovementsModal({
                         <h3 className="text-sm font-semibold text-slate-900">
                             Nuovo movimento
                         </h3>
-
                         <p className="text-xs text-slate-500">
                             Inserisci un movimento per il giorno selezionato.
                         </p>
@@ -191,19 +295,29 @@ export default function TransactionMovementsModal({
 
                 <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white">
                     <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-3 py-2">
-                        <div>
-                            <h3 className="text-sm font-semibold text-slate-900">
+                        <div className="min-w-0">
+                            <h3 className="truncate text-sm font-semibold text-slate-900">
                                 Movimenti
                             </h3>
 
-                            <p className="text-xs text-slate-500">
+                            <p className="truncate text-xs text-slate-500">
                                 {filteredMovements.length} movimenti trovati
                             </p>
                         </div>
 
-                        <p className="text-sm font-semibold text-slate-900">
-                            {formatCurrency(total)}
-                        </p>
+                        <div className="flex shrink-0 items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={handleTodayClick}
+                                className="rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
+                            >
+                                Oggi
+                            </button>
+
+                            <p className="text-sm font-semibold text-slate-900">
+                                {formatCurrency(total)}
+                            </p>
+                        </div>
                     </div>
 
                     <div className="min-h-0 flex-1 overflow-y-auto p-3">
@@ -239,16 +353,15 @@ export default function TransactionMovementsModal({
 
                                             <div className="ml-3 flex shrink-0 items-center gap-2">
                                                 <span
-                                                    className={`text-sm font-semibold ${
-                                                        isExpense
-                                                            ? "text-red-600"
-                                                            : "text-emerald-600"
-                                                    }`}
+                                                    className={`text-sm font-semibold ${isExpense
+                                                        ? "text-red-600"
+                                                        : "text-emerald-600"
+                                                        }`}
                                                 >
                                                     {formatCurrency(amount)}
                                                 </span>
 
-                                                <button
+                                                {/* <button
                                                     type="button"
                                                     onClick={() =>
                                                         onEditMovement?.(
@@ -258,7 +371,7 @@ export default function TransactionMovementsModal({
                                                     className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white hover:text-slate-700"
                                                 >
                                                     <Pencil size={15} />
-                                                </button>
+                                                </button> */}
 
                                                 <button
                                                     type="button"
