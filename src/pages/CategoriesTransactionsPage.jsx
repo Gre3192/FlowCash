@@ -154,6 +154,11 @@ export default function CategoriesTransactionsPage() {
         return years;
     }, [currentYear]);
 
+    const handleTransactionCard = (transaction) => {
+        setSelectedTransaction(transaction);
+        setShowMovementsModal(true);
+    }
+
     return (
         <div className="h-full min-h-0 box-border overflow-hidden bg-slate-50 p-2 sm:p-3">
             <div className="flex h-full min-h-0 flex-col">
@@ -217,7 +222,7 @@ export default function CategoriesTransactionsPage() {
                             setSelectedDay={setSelectedDay}
                             selectedMonth={selectedMonth}
                             selectedYear={selectedYear}
-                            onTransactionCardClick={() => setShowMovementsModal(true)}
+                            onTransactionCardClick={handleTransactionCard}
                         />
                     </div>
                 </div>
@@ -249,7 +254,7 @@ export default function CategoriesTransactionsPage() {
 
 
             <ModalWrapper
-                title={`${getMonthByNum(selectedMonth)} ${selectedYear}`}
+                title={selectedTransaction?.name}
                 height={"h-fit"}
                 width={"w-[80%]"}
                 isOpen={showMovementsModal}
@@ -481,11 +486,7 @@ function TransactionsSide({
         <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:h-full">
             <HeadOfSide
                 title={selectedCategory ? selectedCategory.name : "Transazioni"}
-                subtitle={
-                    selectedCategory
-                        ? `${transactions.length} transazioni`
-                        : "Transazioni della categoria"
-                }
+                subtitle={selectedCategory ? `${transactions.length} transazioni` : "Transazioni della categoria"}
                 iconCTA={Plus}
                 hoverTitle="Aggiungi transazione"
                 search={searchedTransaction}
@@ -524,7 +525,7 @@ function TransactionsSide({
                                         categories={categories}
                                         selectedCategoryId={selectedCategoryId}
                                         setOpenCategoryMenuId={setOpenCategoryMenuId}
-                                        onClick={onTransactionCardClick}
+                                        onClick={() => onTransactionCardClick(transaction)}
                                     />
                                 );
                             })}
