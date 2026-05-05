@@ -1,6 +1,6 @@
 import { useGet } from "../hooks/useGet";
 import { Search, Plus, X } from "lucide-react";
-import ItemCard from "../components/ItemCard";
+import TransactionCard from "../components/TransactionCard";
 import { API_ENDPOINTS } from "../api/endpoint";
 import React, { useMemo, useState, useEffect } from "react";
 import formatCurrency from "../utils/formatCurrency";
@@ -514,7 +514,7 @@ function TransactionsSide({
                                 const target = transaction.target;
 
                                 return (
-                                    <ItemCard
+                                    <TransactionCard
                                         key={transaction.id}
                                         budget={target}
                                         current={current}

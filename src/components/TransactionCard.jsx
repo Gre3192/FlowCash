@@ -4,188 +4,112 @@ import formatCurrency from "../utils/formatCurrency";
 import { useState } from "react";
 import CardMenu from "./CardMenu";
 import { FolderOpen, Search, Plus, Pencil, Trash2, MoreVertical, } from "lucide-react";
+import amazon from "../assets/logos/PrimeVideo.png"
+import netflix from "../assets/logos/Netflix.png"
 
 export default function TransactionCard({
 
     setOpenCategoryMenuId,
     transaction,
-    remaining,
-    progress,
     current,
     budget,
-    categories,
-    selectedCategoryId,
-    setCategories
 
 }) {
 
     const [openTransactionMenuId, setOpenTransactionMenuId] = useState(null);
-
     const [transactionMenuAnchor, setTransactionMenuAnchor] = useState("button");
+    const [ctxMenuPosition, setCtxMenuPosition] = useState({ x: 0, y: 0 });
 
-    const [transactionContextPosition, setTransactionContextPosition] = useState({ x: 0, y: 0 });
+    const progress = budget > 0 ? (current / budget) * 100 : 0;
+    const remaining = budget - current
 
 
-    const handleEditTransaction = (transactionId) => {
-        const baseCategory =
-            categories.find((category) => category.id === selectedCategoryId) || null;
+    function onCtxMenuClick(e) {
+        e.preventDefault();
+        setOpenCategoryMenuId(null);
+        setTransactionMenuAnchor("context");
+        setCtxMenuPosition({ x: e.clientX, y: e.clientY });
+        setOpenTransactionMenuId(transaction.id);
+    }
 
-        if (!baseCategory) return;
-
-        const transaction = baseCategory.transactions.find(
-            (item) => item.id === transactionId
-        );
-        if (!transaction) return;
-
-        const newDescription = prompt("Modifica descrizione:", transaction.description);
-        if (!newDescription?.trim()) return;
-
-        const newCurrentRaw = prompt(
-            "Modifica valore corrente:",
-            String(transaction.current ?? 0)
-        );
-        if (newCurrentRaw === null) return;
-
-        const newTargetRaw = prompt(
-            "Modifica valore target:",
-            String(transaction.target ?? 0)
-        );
-        if (newTargetRaw === null) return;
-
-        const newCurrent = Number(String(newCurrentRaw).replace(",", "."));
-        const newTarget = Number(String(newTargetRaw).replace(",", "."));
-
-        if (Number.isNaN(newCurrent) || Number.isNaN(newTarget)) return;
-
-        const newDate = prompt("Modifica data (YYYY-MM-DD):", transaction.date);
-        if (!newDate?.trim()) return;
-
-        setCategories((prev) =>
-            prev.map((category) =>
-                category.id === baseCategory.id
-                    ? {
-                        ...category,
-                        transactions: category.transactions.map((item) =>
-                            item.id === transactionId
-                                ? {
-                                    ...item,
-                                    description: newDescription.trim(),
-                                    current: newCurrent,
-                                    target: newTarget,
-                                    date: newDate.trim(),
-                                }
-                                : item
-                        ),
-                    }
-                    : category
-            )
-        );
-
-        setOpenTransactionMenuId(null);
-    };
-
-    const handleDeleteTransaction = (transactionId) => {
-        const baseCategory =
-            categories.find((category) => category.id === selectedCategoryId) || null;
-
-        if (!baseCategory) return;
-
-        const transaction = baseCategory.transactions.find(
-            (item) => item.id === transactionId
-        );
-        if (!transaction) return;
-
-        const confirmed = window.confirm(
-            `Vuoi eliminare la transazione "${transaction.description}"?`
-        );
-        if (!confirmed) return;
-
-        setCategories((prev) =>
-            prev.map((category) =>
-                category.id === baseCategory.id
-                    ? {
-                        ...category,
-                        transactions: category.transactions.filter(
-                            (item) => item.id !== transactionId
-                        ),
-                    }
-                    : category
-            )
-        );
-
-        setOpenTransactionMenuId(null);
-    };
 
     return (
+
         <div
             key={transaction.id}
-            onContextMenu={(e) => {
-                e.preventDefault();
-                setOpenCategoryMenuId(null);
-                setTransactionMenuAnchor("context");
-                setTransactionContextPosition({ x: e.clientX, y: e.clientY });
-                setOpenTransactionMenuId(transaction.id);
-            }}
-            className="relative overflow-visible rounded-lg border border-slate-200 bg-white px-2.5 py-2 pb-3 transition hover:bg-slate-50 sm:px-3"
+            onContextMenu={onCtxMenuClick}
+            className="group relative flex items-center justify-between overflow-hidden rounded-xl border border-slate-200 bg-white px-4 py-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-150 hover:border-slate-300 hover:bg-white hover:shadow-[0_4px_14px_rgba(15,23,42,0.08)]"
         >
             <EdgeProgressBar value={progress} />
 
-            <div className="min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-
-                        
-                        <div className="flex items-start justify-between gap-2">
-                            <div className="truncate text-sm font-medium text-slate-900">
-                                {transaction.description}
-                            </div>
-
-                            <div className="truncate text-[11px] text-slate-500">
-                                Rimanenti: {formatCurrency(remaining)}
-                            </div>
-                        </div>
-
-                        <div className="mt-1 flex items-center justify-between gap-2">
-
-                            <div className="shrink-0 text-[11px] font-semibold text-emerald-700">
-                                {formatCurrency(current)} / {formatCurrency(budget)}
-                            </div>
-                            <div className="shrink-0 text-[11px] text-slate-500">
-                                {progress.toFixed(0)}%
-                            </div>
-                        </div>
-                    </div>
-
-                    <CardMenu
-                        isOpen={openTransactionMenuId === transaction.id}
-                        anchor={transactionMenuAnchor}
-                        contextPosition={transactionContextPosition}
-                        onToggle={(next, options = {}) => {
-                            if (!next) {
-                                setOpenTransactionMenuId(null);
-                                return;
-                            }
-
-                            setOpenCategoryMenuId(null);
-                            setTransactionMenuAnchor(options.anchor || "button");
-                            setOpenTransactionMenuId(transaction.id);
-                        }}
-                        items={[
-                            {
-                                label: "Modifica",
-                                icon: Pencil,
-                                onClick: () => handleEditTransaction(transaction.id),
-                            },
-                            {
-                                label: "Elimina",
-                                icon: Trash2,
-                                danger: true,
-                                onClick: () => handleDeleteTransaction(transaction.id),
-                            },
-                        ]}
+            <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-50 shadow-sm">
+                    <img
+                        src={amazon}
+                        className="h-full w-full object-cover"
                     />
                 </div>
+
+                <div className="min-w-0">
+                    <div className="truncate text-sm font-semibold leading-5 text-slate-900">
+                        {transaction.name}
+                    </div>
+
+                    <div className="truncate text-xs leading-4 text-slate-500">
+                        Rimanenti:{" "}
+                        <span className="font-medium text-slate-600">
+                            {formatCurrency(remaining)}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="ml-4 flex shrink-0 items-center gap-2">
+                <div className="text-right">
+                    <div className="mb-1 flex justify-end">
+                        <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium leading-none text-slate-600">
+                            {progress.toFixed(0)}%
+                        </span>
+                    </div>
+
+                    <div className="whitespace-nowrap text-sm font-semibold leading-4 text-emerald-600">
+                        {formatCurrency(current)}
+                        <span className="font-normal text-slate-400">
+                            {" "}
+                            / {formatCurrency(budget)}
+                        </span>
+                    </div>
+                </div>
+
+                <CardMenu
+                    isOpen={openTransactionMenuId === transaction.id}
+                    anchor={transactionMenuAnchor}
+                    contextPosition={ctxMenuPosition}
+                    onToggle={(next, options = {}) => {
+                        if (!next) {
+                            setOpenTransactionMenuId(null);
+                            return;
+                        }
+
+                        setOpenCategoryMenuId(null);
+                        setTransactionMenuAnchor(options.anchor || "button");
+                        setOpenTransactionMenuId(transaction.id);
+                    }}
+                    items={[
+                        {
+                            label: "Modifica",
+                            icon: Pencil,
+                            onClick: () => { },
+                        },
+                        {
+                            label: "Elimina",
+                            icon: Trash2,
+                            danger: true,
+                            onClick: () => {},
+                        },
+                    ]}
+                />
             </div>
         </div>
-    )
+    );
 }
