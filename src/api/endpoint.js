@@ -8,9 +8,9 @@ const base_url = getBaseUrl('local')  // mock, local, server
 export const API_ENDPOINTS = {
 
 
-  transactionBudgets: buildEndpoint(base_url, `/api/transaction-budgets`),
+  transactionBudgets: buildEndpoint(base_url, `/api/transaction-budgets/`),
 
-  transactionMovements: buildEndpoint(base_url, `/api/transaction-movements`),
+  transactionMovements: buildEndpoint(base_url, `/api/transaction-movements/`),
 
   monthlyOverview: buildEndpoint(base_url, `/api/flowcash/monthly-overview/`),
 

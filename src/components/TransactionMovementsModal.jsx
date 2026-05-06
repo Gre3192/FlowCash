@@ -1,36 +1,65 @@
 import { useMemo, useState } from "react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import MonthDaysCarousel from "./MonthDayCarousel";
 import formatCurrency from "../utils/formatCurrency";
 import getMonthByNum from "../utils/getMonthByNum";
 import MonthNavigator from "./MonthNavigator";
 import { Button, Textarea, Input, IconButton } from "../ui";
+import { API_ENDPOINTS } from "../api/endpoint";
+import { useGet } from "../hooks/useGet";
+import { usePost } from "../hooks/usePost";
+import { useDelete } from "../hooks/useDelete";
 
 export default function TransactionMovementsModal({
     selectedMonth,
     selectedYear,
     selectedDay,
     transaction,
-    movements = [],
     onClose,
     onDayChange,
     onCreateMovement,
-    onEditMovement,
     onDeleteMovement,
 }) {
-
     const [localSelectedMonth, setLocalSelectedMonth] = useState(selectedMonth);
     const [localSelectedYear, setLocalSelectedYear] = useState(selectedYear);
-
     const [localSelectedDay, setLocalSelectedDay] = useState(
         selectedDay || new Date().getDate()
     );
+
+    const {
+        data,
+        loading,
+        error,
+        reload,
+    } = useGet(
+        transaction?.id
+            ? API_ENDPOINTS.transactionMovements({
+                transaction_id: transaction.id,
+                year: localSelectedYear,
+                month: localSelectedMonth,
+            })
+            : null
+    );
+
+    const {
+        postData,
+        loading: creatingMovement,
+        error: createError,
+    } = usePost();
+
+    const {
+        deleteData,
+        loading: deletingMovement,
+        error: deleteError,
+    } = useDelete();
 
     const [formData, setFormData] = useState({
         name: "",
         amount: "",
         note: "",
     });
+
+    const movements = Array.isArray(data) ? data : [];
 
     function getMaxDayOfMonth(month, year) {
         return new Date(year, month, 0).getDate();
@@ -123,23 +152,32 @@ export default function TransactionMovementsModal({
         }));
     }
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
 
         const amount = Number(formData.amount);
 
         if (!formData.name.trim()) return;
         if (Number.isNaN(amount) || amount <= 0) return;
+        if (!transaction?.id) return;
 
-        onCreateMovement?.({
+        const movementDate = `${localSelectedYear}-${String(
+            localSelectedMonth
+        ).padStart(2, "0")}-${String(localSelectedDay).padStart(2, "0")}`;
+
+        const payload = {
+            transaction_id: transaction.id,
             name: formData.name.trim(),
             amount,
+            movement_date: movementDate,
             note: formData.note.trim(),
-            day: localSelectedDay,
-            month: localSelectedMonth,
-            year: localSelectedYear,
-            transactionId: transaction?.id,
-        });
+        };
+
+        const createdMovement = await postData(API_ENDPOINTS.transactionMovements(), payload);
+
+        onCreateMovement?.(createdMovement);
+
+        reload?.();
 
         setFormData({
             name: "",
@@ -148,45 +186,38 @@ export default function TransactionMovementsModal({
         });
     }
 
+    async function handleDeleteMovement(movement) {
+        if (!movement?.id) return;
+
+        await deleteData(
+            API_ENDPOINTS.transactionMovements( {id:movement.id}  ),
+        );
+
+        onDeleteMovement?.(movement);
+
+        reload?.();
+    }
+
     const filteredMovements = useMemo(() => {
         return movements.filter((movement) => {
-            const movementDay = Number(
-                movement.day ??
-                movement.dayNumber ??
-                movement.date?.split("-")?.[2]
-            );
+            const [, , day] = movement.movement_date?.split("-") ?? [];
 
-            const movementMonth = Number(
-                movement.month ?? movement.date?.split("-")?.[1]
-            );
-
-            const movementYear = Number(
-                movement.year ?? movement.date?.split("-")?.[0]
-            );
-
-            return (
-                movementDay === Number(localSelectedDay) &&
-                movementMonth === Number(localSelectedMonth) &&
-                movementYear === Number(localSelectedYear)
-            );
+            return Number(day) === Number(localSelectedDay);
         });
-    }, [
-        movements,
-        localSelectedDay,
-        localSelectedMonth,
-        localSelectedYear,
-    ]);
+    }, [movements, localSelectedDay]);
 
     const total = useMemo(() => {
         return filteredMovements.reduce((sum, movement) => {
-            return sum + Number(movement.amount || movement.value || 0);
+            return sum + Number(movement.amount || 0);
         }, 0);
     }, [filteredMovements]);
+
+    const isSubmitting = creatingMovement;
+    const isDeleting = deletingMovement;
 
     return (
         <div className="flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden">
             <div className="grid shrink-0 grid-cols-1 gap-4 border-b border-slate-200 px-0 pb-3 md:grid-cols-[300px_minmax(0,1fr)]">
-
                 <MonthNavigator
                     month={getMonthByNum(localSelectedMonth)}
                     year={localSelectedYear}
@@ -213,6 +244,7 @@ export default function TransactionMovementsModal({
                         <h3 className="text-sm font-semibold text-slate-900">
                             Nuovo movimento
                         </h3>
+
                         <p className="text-xs text-slate-500">
                             Inserisci un movimento per il giorno selezionato.
                         </p>
@@ -227,6 +259,7 @@ export default function TransactionMovementsModal({
                             onChange={handleInputChange}
                             placeholder="Es. Spesa supermercato"
                         />
+
                         <Input
                             label="Quantità"
                             type="number"
@@ -237,6 +270,7 @@ export default function TransactionMovementsModal({
                             min="0"
                             step="0.01"
                         />
+
                         <Textarea
                             label="Note"
                             name="note"
@@ -247,12 +281,28 @@ export default function TransactionMovementsModal({
                         />
                     </div>
 
+                    {createError && (
+                        <p className="mt-3 text-xs font-medium text-red-600">
+                            Errore durante la creazione del movimento.
+                        </p>
+                    )}
+
                     <Button
                         type="submit"
+                        disabled={isSubmitting}
                         className="mt-auto w-full"
                     >
-                        <Plus size={16} />
-                        Inserisci movimento
+                        {isSubmitting ? (
+                            <>
+                                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                                Inserimento...
+                            </>
+                        ) : (
+                            <>
+                                <Plus size={16} />
+                                Inserisci movimento
+                            </>
+                        )}
                     </Button>
                 </form>
 
@@ -264,8 +314,16 @@ export default function TransactionMovementsModal({
                             </h3>
 
                             <p className="truncate text-xs text-slate-500">
-                                {filteredMovements.length} movimenti trovati
+                                {loading
+                                    ? "Caricamento..."
+                                    : `${filteredMovements.length} movimenti trovati`}
                             </p>
+
+                            {(error || deleteError) && (
+                                <p className="truncate text-xs text-red-500">
+                                    Errore nel caricamento o eliminazione dei movimenti
+                                </p>
+                            )}
                         </div>
 
                         <div className="flex shrink-0 items-center gap-2">
@@ -289,9 +347,8 @@ export default function TransactionMovementsModal({
                         {filteredMovements.length > 0 ? (
                             <div className="space-y-2">
                                 {filteredMovements.map((movement) => {
-
-                                    const amount = Number(movement.amount || movement.value || 0);
-                                    const isExpense = movement.type === "Expense" || amount < 0;
+                                    const amount = Number(movement.amount || 0);
+                                    const isExpense = amount < 0;
 
                                     return (
                                         <div
@@ -301,7 +358,6 @@ export default function TransactionMovementsModal({
                                             <div className="min-w-0">
                                                 <p className="truncate text-sm font-medium text-slate-900">
                                                     {movement.name ||
-                                                        movement.description ||
                                                         "Movimento senza nome"}
                                                 </p>
 
@@ -322,24 +378,17 @@ export default function TransactionMovementsModal({
                                                     {formatCurrency(amount)}
                                                 </span>
 
-                                                {/* <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        onEditMovement?.(
-                                                            movement
-                                                        )
-                                                    }
-                                                    className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white hover:text-slate-700"
-                                                >
-                                                    <Pencil size={15} />
-                                                </button> */}
-
                                                 <IconButton
                                                     icon={Trash2}
                                                     variant="danger"
                                                     size="sm"
                                                     title="Elimina movimento"
-                                                    onClick={() => onDeleteMovement?.(movement)}
+                                                    disabled={isDeleting}
+                                                    onClick={() =>
+                                                        handleDeleteMovement(
+                                                            movement
+                                                        )
+                                                    }
                                                     className="border-transparent bg-transparent hover:bg-white"
                                                 />
                                             </div>
@@ -364,16 +413,10 @@ export default function TransactionMovementsModal({
             </div>
 
             <div className="flex shrink-0 items-center justify-end gap-2 border-t border-slate-200 px-0 pt-3">
-                <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={onClose}
-                >
+                <Button type="button" variant="secondary" onClick={onClose}>
                     Chiudi
                 </Button>
             </div>
         </div>
     );
 }
-
-
