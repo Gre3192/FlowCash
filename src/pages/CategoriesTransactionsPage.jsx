@@ -255,7 +255,7 @@ export default function CategoriesTransactionsPage() {
 
             <ModalWrapper
                 title={selectedTransaction?.name}
-                height={"h-fit"}
+                height="h-[800px]"
                 width={"w-[80%]"}
                 isOpen={showMovementsModal}
                 onClose={() => setShowMovementsModal(false)}
@@ -268,9 +268,6 @@ export default function CategoriesTransactionsPage() {
                     movements={transactionMovements}
                     onClose={() => setShowMovementsModal(false)}
                     onDayChange={setSelectedDay}
-                    onCreateMovement={(payload) => { console.log("create movement", payload); }}
-                    onEditMovement={(movement) => { console.log("edit movement", movement); }}
-                    onDeleteMovement={(movement) => { console.log("delete movement", movement); }}
                 />
             </ModalWrapper>
 

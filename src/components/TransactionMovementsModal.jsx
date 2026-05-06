@@ -17,47 +17,24 @@ export default function TransactionMovementsModal({
     transaction,
     onClose,
     onDayChange,
-    onCreateMovement,
-    onDeleteMovement,
 }) {
+    
     const [localSelectedMonth, setLocalSelectedMonth] = useState(selectedMonth);
     const [localSelectedYear, setLocalSelectedYear] = useState(selectedYear);
-    const [localSelectedDay, setLocalSelectedDay] = useState(
-        selectedDay || new Date().getDate()
+    const [localSelectedDay, setLocalSelectedDay] = useState(selectedDay || new Date().getDate());
+
+    const { data, loading, error, reload, } = useGet(API_ENDPOINTS.transactionMovements({
+        transaction_id: transaction.id,
+        year: localSelectedYear,
+        month: localSelectedMonth,
+    })
     );
 
-    const {
-        data,
-        loading,
-        error,
-        reload,
-    } = useGet(
-        transaction?.id
-            ? API_ENDPOINTS.transactionMovements({
-                transaction_id: transaction.id,
-                year: localSelectedYear,
-                month: localSelectedMonth,
-            })
-            : null
-    );
+    const { postData, loading: creatingMovement, error: createError, } = usePost();
 
-    const {
-        postData,
-        loading: creatingMovement,
-        error: createError,
-    } = usePost();
+    const { deleteData, loading: deletingMovement, error: deleteError, } = useDelete();
 
-    const {
-        deleteData,
-        loading: deletingMovement,
-        error: deleteError,
-    } = useDelete();
-
-    const [formData, setFormData] = useState({
-        name: "",
-        amount: "",
-        note: "",
-    });
+    const [formData, setFormData] = useState({ name: "", amount: "", note: "" });
 
     const movements = Array.isArray(data) ? data : [];
 
@@ -154,17 +131,13 @@ export default function TransactionMovementsModal({
 
     async function handleSubmit(e) {
         e.preventDefault();
-
         const amount = Number(formData.amount);
-
         if (!formData.name.trim()) return;
         if (Number.isNaN(amount) || amount <= 0) return;
         if (!transaction?.id) return;
-
         const movementDate = `${localSelectedYear}-${String(
             localSelectedMonth
         ).padStart(2, "0")}-${String(localSelectedDay).padStart(2, "0")}`;
-
         const payload = {
             transaction_id: transaction.id,
             name: formData.name.trim(),
@@ -172,13 +145,8 @@ export default function TransactionMovementsModal({
             movement_date: movementDate,
             note: formData.note.trim(),
         };
-
         const createdMovement = await postData(API_ENDPOINTS.transactionMovements(), payload);
-
-        onCreateMovement?.(createdMovement);
-
         reload?.();
-
         setFormData({
             name: "",
             amount: "",
@@ -188,13 +156,9 @@ export default function TransactionMovementsModal({
 
     async function handleDeleteMovement(movement) {
         if (!movement?.id) return;
-
         await deleteData(
-            API_ENDPOINTS.transactionMovements( {id:movement.id}  ),
+            API_ENDPOINTS.transactionMovements() + movement.id + "/",
         );
-
-        onDeleteMovement?.(movement);
-
         reload?.();
     }
 
@@ -236,6 +200,7 @@ export default function TransactionMovementsModal({
             </div>
 
             <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden px-0 py-4 md:grid-cols-[300px_minmax(0,1fr)]">
+
                 <form
                     onSubmit={handleSubmit}
                     className="flex min-h-0 flex-col rounded-xl border border-slate-200 bg-slate-50 p-3"
@@ -306,7 +271,7 @@ export default function TransactionMovementsModal({
                     </Button>
                 </form>
 
-                <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white">
+                <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white">
                     <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-3 py-2">
                         <div className="min-w-0">
                             <h3 className="truncate text-sm font-semibold text-slate-900">
@@ -343,73 +308,73 @@ export default function TransactionMovementsModal({
                         </div>
                     </div>
 
-                    <div className="min-h-0 flex-1 overflow-y-auto p-3">
-                        {filteredMovements.length > 0 ? (
-                            <div className="space-y-2">
-                                {filteredMovements.map((movement) => {
-                                    const amount = Number(movement.amount || 0);
-                                    const isExpense = amount < 0;
+                    <div className="min-h-0 flex-1 overflow-hidden p-3">
+                        <div className="h-full min-h-0 overflow-y-scroll pr-1">
+                            {filteredMovements.length > 0 ? (
+                                <div className="space-y-2">
+                                    {filteredMovements.map((movement) => {
+                                        const amount = Number(movement.amount || 0);
+                                        const isExpense = amount < 0;
 
-                                    return (
-                                        <div
-                                            key={movement.id}
-                                            className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2"
-                                        >
-                                            <div className="min-w-0">
-                                                <p className="truncate text-sm font-medium text-slate-900">
-                                                    {movement.name ||
-                                                        "Movimento senza nome"}
-                                                </p>
-
-                                                {movement.note && (
-                                                    <p className="truncate text-xs text-slate-500">
-                                                        {movement.note}
+                                        return (
+                                            <div
+                                                key={movement.id}
+                                                className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2"
+                                            >
+                                                <div className="min-w-0">
+                                                    <p className="truncate text-sm font-medium text-slate-900">
+                                                        {movement.name || "Movimento senza nome"}
                                                     </p>
-                                                )}
+
+                                                    {movement.note && (
+                                                        <p className="truncate text-xs text-slate-500">
+                                                            {movement.note}
+                                                        </p>
+                                                    )}
+                                                </div>
+
+                                                <div className="ml-3 flex shrink-0 items-center gap-2">
+                                                    <span
+                                                        className={`text-sm font-semibold ${isExpense
+                                                            ? "text-red-600"
+                                                            : "text-emerald-600"
+                                                            }`}
+                                                    >
+                                                        {formatCurrency(amount)}
+                                                    </span>
+
+                                                    <IconButton
+                                                        icon={Trash2}
+                                                        variant="danger"
+                                                        size="sm"
+                                                        title="Elimina movimento"
+                                                        disabled={isDeleting}
+                                                        onClick={() =>
+                                                            handleDeleteMovement(movement)
+                                                        }
+                                                        className="border-transparent bg-transparent hover:bg-white"
+                                                    />
+                                                </div>
                                             </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="flex h-full min-h-40 flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center">
+                                    <p className="text-sm font-medium text-slate-700">
+                                        Nessun movimento per questo giorno
+                                    </p>
 
-                                            <div className="ml-3 flex shrink-0 items-center gap-2">
-                                                <span
-                                                    className={`text-sm font-semibold ${isExpense
-                                                        ? "text-red-600"
-                                                        : "text-emerald-600"
-                                                        }`}
-                                                >
-                                                    {formatCurrency(amount)}
-                                                </span>
-
-                                                <IconButton
-                                                    icon={Trash2}
-                                                    variant="danger"
-                                                    size="sm"
-                                                    title="Elimina movimento"
-                                                    disabled={isDeleting}
-                                                    onClick={() =>
-                                                        handleDeleteMovement(
-                                                            movement
-                                                        )
-                                                    }
-                                                    className="border-transparent bg-transparent hover:bg-white"
-                                                />
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        ) : (
-                            <div className="flex h-full min-h-40 flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center">
-                                <p className="text-sm font-medium text-slate-700">
-                                    Nessun movimento per questo giorno
-                                </p>
-
-                                <p className="mt-1 text-xs text-slate-500">
-                                    Compila il form a sinistra per aggiungerne
-                                    uno.
-                                </p>
-                            </div>
-                        )}
+                                    <p className="mt-1 text-xs text-slate-500">
+                                        Compila il form a sinistra per aggiungerne uno.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
+
+
             </div>
 
             <div className="flex shrink-0 items-center justify-end gap-2 border-t border-slate-200 px-0 pt-3">
