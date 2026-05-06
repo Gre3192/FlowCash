@@ -4,6 +4,7 @@ import MonthDaysCarousel from "./MonthDayCarousel";
 import formatCurrency from "../utils/formatCurrency";
 import getMonthByNum from "../utils/getMonthByNum";
 import MonthNavigator from "./MonthNavigator";
+import { Button, Textarea, Input, IconButton } from "../ui";
 
 export default function TransactionMovementsModal({
     selectedMonth,
@@ -218,61 +219,41 @@ export default function TransactionMovementsModal({
                     </div>
 
                     <div className="space-y-3">
-                        <div>
-                            <label className="mb-1 block text-xs font-medium text-slate-600">
-                                Nome
-                            </label>
-
-                            <input
-                                type="text"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleInputChange}
-                                placeholder="Es. Spesa supermercato"
-                                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="mb-1 block text-xs font-medium text-slate-600">
-                                Quantità
-                            </label>
-
-                            <input
-                                type="number"
-                                name="amount"
-                                value={formData.amount}
-                                onChange={handleInputChange}
-                                placeholder="0.00"
-                                min="0"
-                                step="0.01"
-                                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="mb-1 block text-xs font-medium text-slate-600">
-                                Note
-                            </label>
-
-                            <textarea
-                                name="note"
-                                value={formData.note}
-                                onChange={handleInputChange}
-                                placeholder="Note opzionali"
-                                rows={5}
-                                className="w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
-                            />
-                        </div>
+                        <Input
+                            label="Nome"
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleInputChange}
+                            placeholder="Es. Spesa supermercato"
+                        />
+                        <Input
+                            label="Quantità"
+                            type="number"
+                            name="amount"
+                            value={formData.amount}
+                            onChange={handleInputChange}
+                            placeholder="0.00"
+                            min="0"
+                            step="0.01"
+                        />
+                        <Textarea
+                            label="Note"
+                            name="note"
+                            value={formData.note}
+                            onChange={handleInputChange}
+                            placeholder="Note opzionali"
+                            rows={5}
+                        />
                     </div>
 
-                    <button
+                    <Button
                         type="submit"
-                        className="mt-auto inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+                        className="mt-auto w-full"
                     >
                         <Plus size={16} />
                         Inserisci movimento
-                    </button>
+                    </Button>
                 </form>
 
                 <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white">
@@ -288,13 +269,15 @@ export default function TransactionMovementsModal({
                         </div>
 
                         <div className="flex shrink-0 items-center gap-2">
-                            <button
+                            <Button
                                 type="button"
+                                variant="secondary"
+                                size="sm"
                                 onClick={handleTodayClick}
-                                className="rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
+                                className="h-7 rounded-md px-2 text-[11px]"
                             >
                                 Oggi
-                            </button>
+                            </Button>
 
                             <p className="text-sm font-semibold text-slate-900">
                                 {formatCurrency(total)}
@@ -306,13 +289,9 @@ export default function TransactionMovementsModal({
                         {filteredMovements.length > 0 ? (
                             <div className="space-y-2">
                                 {filteredMovements.map((movement) => {
-                                    const amount = Number(
-                                        movement.amount || movement.value || 0
-                                    );
 
-                                    const isExpense =
-                                        movement.type === "Expense" ||
-                                        amount < 0;
+                                    const amount = Number(movement.amount || movement.value || 0);
+                                    const isExpense = movement.type === "Expense" || amount < 0;
 
                                     return (
                                         <div
@@ -355,17 +334,14 @@ export default function TransactionMovementsModal({
                                                     <Pencil size={15} />
                                                 </button> */}
 
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        onDeleteMovement?.(
-                                                            movement
-                                                        )
-                                                    }
-                                                    className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white hover:text-red-600"
-                                                >
-                                                    <Trash2 size={15} />
-                                                </button>
+                                                <IconButton
+                                                    icon={Trash2}
+                                                    variant="danger"
+                                                    size="sm"
+                                                    title="Elimina movimento"
+                                                    onClick={() => onDeleteMovement?.(movement)}
+                                                    className="border-transparent bg-transparent hover:bg-white"
+                                                />
                                             </div>
                                         </div>
                                     );
@@ -388,13 +364,13 @@ export default function TransactionMovementsModal({
             </div>
 
             <div className="flex shrink-0 items-center justify-end gap-2 border-t border-slate-200 px-0 pt-3">
-                <button
+                <Button
                     type="button"
+                    variant="secondary"
                     onClick={onClose}
-                    className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
                 >
                     Chiudi
-                </button>
+                </Button>
             </div>
         </div>
     );
