@@ -11,14 +11,16 @@ import { usePost } from "../hooks/usePost";
 import { useDelete } from "../hooks/useDelete";
 
 export default function TransactionMovementsModal({
+
     selectedMonth,
     selectedYear,
     selectedDay,
     transaction,
     onClose,
     onDayChange,
+
 }) {
-    
+
     const [localSelectedMonth, setLocalSelectedMonth] = useState(selectedMonth);
     const [localSelectedYear, setLocalSelectedYear] = useState(selectedYear);
     const [localSelectedDay, setLocalSelectedDay] = useState(selectedDay || new Date().getDate());
@@ -29,14 +31,14 @@ export default function TransactionMovementsModal({
         month: localSelectedMonth,
     })
     );
+    const { postData, loading: isSubmitting, error: createError, } = usePost();
+    const { deleteData, loading: isDeleting, error: deleteError, } = useDelete();
 
-    const { postData, loading: creatingMovement, error: createError, } = usePost();
 
-    const { deleteData, loading: deletingMovement, error: deleteError, } = useDelete();
 
     const [formData, setFormData] = useState({ name: "", amount: "", note: "" });
-
     const movements = Array.isArray(data) ? data : [];
+
 
     function getMaxDayOfMonth(month, year) {
         return new Date(year, month, 0).getDate();
@@ -122,7 +124,6 @@ export default function TransactionMovementsModal({
 
     function handleInputChange(e) {
         const { name, value } = e.target;
-
         setFormData((prev) => ({
             ...prev,
             [name]: value,
@@ -176,8 +177,6 @@ export default function TransactionMovementsModal({
         }, 0);
     }, [filteredMovements]);
 
-    const isSubmitting = creatingMovement;
-    const isDeleting = deletingMovement;
 
     return (
         <div className="flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden">
