@@ -34,8 +34,6 @@ export default function TransactionMovementsModal({
     const { postData, loading: isSubmitting, error: createError, } = usePost();
     const { deleteData, loading: isDeleting, error: deleteError, } = useDelete();
 
-
-
     const [formData, setFormData] = useState({ name: "", amount: "", note: "" });
     const movements = Array.isArray(data) ? data : [];
 
