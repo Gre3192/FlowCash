@@ -1,4 +1,3 @@
-import { useState } from "react";
 import EdgeProgressBar from "./EdgeProgressBar";
 import formatCurrency from "../utils/formatCurrency";
 import CardMenu from "./CardMenu";
@@ -10,21 +9,27 @@ import {
 } from "lucide-react";
 
 import amazon from "../assets/logos/PrimeVideo.png";
+import AmountRatio from "./AmountRatio";
+
 
 export default function TransactionCard({
+
     setOpenCategoryMenuId,
     transaction,
     current,
     budget,
-    onClick = () => { },
+    onClick = () => {},
+    openTransactionMenuId,
+    setOpenTransactionMenuId,
+    transactionMenuAnchor,
+    setTransactionMenuAnchor,
+    transactionContextPosition,
+    setTransactionContextPosition,
+
 }) {
-    const [openTransactionMenuId, setOpenTransactionMenuId] = useState(null);
-    const [transactionMenuAnchor, setTransactionMenuAnchor] = useState("button");
-    const [ctxMenuPosition, setCtxMenuPosition] = useState({ x: 0, y: 0 });
-
+    
+    const isMenuOpen = openTransactionMenuId === transaction.id;
     const isIncome = transaction.type === "Income";
-    const isExpense = transaction.type === "Expense";
-
     const typeLabel = isIncome ? "Entrata" : "Uscita";
     const TypeIcon = isIncome ? ArrowDownLeft : ArrowUpRight;
 
@@ -36,8 +41,13 @@ export default function TransactionCard({
         e.stopPropagation();
 
         setOpenCategoryMenuId?.(null);
+
         setTransactionMenuAnchor("context");
-        setCtxMenuPosition({ x: e.clientX, y: e.clientY });
+        setTransactionContextPosition({
+            x: e.clientX,
+            y: e.clientY,
+        });
+
         setOpenTransactionMenuId(transaction.id);
     }
 
@@ -52,13 +62,18 @@ export default function TransactionCard({
         setOpenTransactionMenuId(transaction.id);
     }
 
+    function handleCardClick(e) {
+        if (isMenuOpen) return;
+        onClick?.(e);
+    }
+
     return (
         <div
             key={transaction.id}
-            onClick={onClick}
+            onClick={handleCardClick}
             onContextMenu={onCtxMenuClick}
             className="
-                group relative flex cursor-pointer items-center justify-between overflow-hidden rounded-xl
+                group relative z-0 flex cursor-pointer items-center justify-between overflow-visible rounded-xl
                 border border-slate-200 bg-white px-4 py-4
                 shadow-[0_1px_2px_rgba(15,23,42,0.04)]
                 transition-all duration-200 ease-out
@@ -101,9 +116,10 @@ export default function TransactionCard({
                             className={`
                                 inline-flex shrink-0 items-center gap-1 rounded-full border px-1.5 py-0.5
                                 text-[10px] font-medium leading-none
-                                ${isIncome
-                                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                                    : "border-red-200 bg-red-50 text-red-700"
+                                ${
+                                    isIncome
+                                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                        : "border-red-200 bg-red-50 text-red-700"
                                 }
                             `}
                         >
@@ -126,7 +142,12 @@ export default function TransactionCard({
 
             <div className="ml-4 flex shrink-0 items-center gap-2">
                 <div className="text-right">
-                    <AmountRatio firstNum={formatCurrency(current)} secondNum={formatCurrency(budget)} />
+                    <AmountRatio
+                        firstNum={formatCurrency(current)}
+                        secondNum={formatCurrency(budget)}
+                        isIncome={isIncome}
+                    />
+
                     <div className="truncate text-sm font-semibold leading-5 text-slate-500">
                         Rimanenti:{" "}
                         <span className="text-slate-900">
@@ -135,23 +156,26 @@ export default function TransactionCard({
                     </div>
                 </div>
 
-                <div onClick={(e) => e.stopPropagation()}>
+                <div
+                    onClick={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => e.stopPropagation()}
+                >
                     <CardMenu
-                        isOpen={openTransactionMenuId === transaction.id}
+                        isOpen={isMenuOpen}
                         anchor={transactionMenuAnchor}
-                        contextPosition={ctxMenuPosition}
+                        contextPosition={transactionContextPosition}
                         onToggle={handleMenuToggle}
                         items={[
                             {
                                 label: "Modifica",
                                 icon: Pencil,
-                                onClick: () => { },
+                                onClick: () => {},
                             },
                             {
                                 label: "Elimina",
                                 icon: Trash2,
                                 danger: true,
-                                onClick: () => { },
+                                onClick: () => {},
                             },
                         ]}
                     />
@@ -161,20 +185,3 @@ export default function TransactionCard({
     );
 }
 
-
-
-
-function AmountRatio({
-    firstNum,
-    secondNum
-}) {
-    return (
-        <div className={`mb-1 whitespace-nowrap text-xs font-medium leading-4 text-red-600`}  >
-            {firstNum}
-            <span className="font-normal text-slate-500">
-                {" "}
-                / {secondNum}
-            </span>
-        </div>
-    )
-}

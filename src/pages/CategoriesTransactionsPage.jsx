@@ -460,16 +460,26 @@ function TransactionsSide({
     setSelectedDay,
     selectedMonth,
     selectedYear,
-    onTransactionCardClick
+    onTransactionCardClick,
 }) {
     const total = selectedCategory?.entriesTotal ?? 0;
 
+    const [openTransactionMenuId, setOpenTransactionMenuId] = useState(null);
+    const [transactionMenuAnchor, setTransactionMenuAnchor] = useState("button");
+    const [transactionContextPosition, setTransactionContextPosition] = useState({
+        x: 0,
+        y: 0,
+    });
+
     return (
         <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:h-full">
-
             <HeadOfSide
                 title={selectedCategory ? selectedCategory.name : "Transazioni"}
-                subtitle={selectedCategory ? `${transactions.length} transazioni` : "Transazioni della categoria"}
+                subtitle={
+                    selectedCategory
+                        ? `${transactions.length} transazioni`
+                        : "Transazioni della categoria"
+                }
                 iconCTA={Plus}
                 hoverTitle="Aggiungi transazione"
                 search={searchedTransaction}
@@ -477,6 +487,7 @@ function TransactionsSide({
                 onCTAClick={() => setIsCreateTransactionModalOpen(true)}
                 valuePill={formatCurrency(total)}
             />
+
             <div className="min-h-0 flex-1 overflow-y-auto p-2">
                 {loading ? (
                     <LoadingState />
@@ -496,7 +507,25 @@ function TransactionsSide({
                                         categories={categories}
                                         selectedCategoryId={selectedCategoryId}
                                         setOpenCategoryMenuId={setOpenCategoryMenuId}
-                                        onClick={() => onTransactionCardClick(transaction)}
+                                        onClick={() =>
+                                            onTransactionCardClick(transaction)
+                                        }
+                                        openTransactionMenuId={openTransactionMenuId}
+                                        setOpenTransactionMenuId={
+                                            setOpenTransactionMenuId
+                                        }
+                                        transactionMenuAnchor={
+                                            transactionMenuAnchor
+                                        }
+                                        setTransactionMenuAnchor={
+                                            setTransactionMenuAnchor
+                                        }
+                                        transactionContextPosition={
+                                            transactionContextPosition
+                                        }
+                                        setTransactionContextPosition={
+                                            setTransactionContextPosition
+                                        }
                                     />
                                 );
                             })}
