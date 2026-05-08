@@ -108,9 +108,7 @@ export default function CategoriesTransactionsPage() {
     const filteredTransactions = useMemo(() => {
         const query = searchedTransaction.trim().toLowerCase();
         return transactions.filter((transaction) => {
-            const matchesSearch = !query
-                ? true
-                : transaction.name?.toLowerCase().includes(query);
+            const matchesSearch = !query ? true : transaction.name?.toLowerCase().includes(query);
             return matchesSearch;
         });
     }, [transactions, searchedTransaction]);

@@ -52,7 +52,6 @@ export default function MonthDaysCarousel({
         ],
     };
 
-
     const days = useMemo(() => {
         return getDaysOfMonth(selectedMonth, selectedYear);
     }, [selectedMonth, selectedYear]);
