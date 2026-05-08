@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FolderPlus, LoaderCircle } from "lucide-react";
-import { usePost } from "../hooks/usePost";
-import { API_ENDPOINTS } from "../api/endpoint";
+import { usePost } from "../../hooks/usePost";
+import { API_ENDPOINTS } from "../../api/endpoint";
 
 export default function CreateCategoryModal({ onClose, reload }) {
 

@@ -7,12 +7,12 @@ import formatCurrency from "../utils/formatCurrency";
 import CategoryCard from "../components/CategoryCard";
 import MonthYearPicker from "../components/MonthYearPicker";
 import ModalWrapper from "../components/ModalWrapper";
-import CreateCategoryModal from "../components/CreateCategoryModal";
-import CreateTransactionModal from "../components/CreateTransactionModal";
+import CreateCategoryModal from "../components/Modals/CreateCategoryModal";
+import CreateTransactionModal from "../components/Modals/CreateTransactionModal";
 import DividerSection from "../components/DividerSection";
 import getMonthByNum from "../utils/getMonthByNum";
 import MonthDaysCarousel from "../components/MonthDayCarousel";
-import TransactionMovementsModal from "../components/TransactionMovementsModal";
+import TransactionMovementsModal from "../components/Modals/TransactionMovementsModal";
 import MonthNavigator from "../components/MonthNavigator";
 
 
