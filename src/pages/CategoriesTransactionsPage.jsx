@@ -108,7 +108,7 @@ export default function CategoriesTransactionsPage() {
     const filteredTransactions = useMemo(() => {
         const query = searchedTransaction.trim().toLowerCase();
         return transactions.filter((transaction) => {
-            const matchesSearch = !query  ? true   : transaction.name?.toLowerCase().includes(query);
+            const matchesSearch = !query ? true : transaction.name?.toLowerCase().includes(query);
             return matchesSearch;
         });
     }, [transactions, searchedTransaction]);
@@ -446,6 +446,7 @@ function CategorySide({
 }
 
 function TransactionsSide({
+
     loading,
     selectedCategory,
     transactions,
@@ -459,26 +460,20 @@ function TransactionsSide({
     setSelectedDay,
     selectedMonth,
     selectedYear,
-    onTransactionCardClick,
+    onTransactionCardClick
+
 }) {
     const total = selectedCategory?.entriesTotal ?? 0;
 
     const [openTransactionMenuId, setOpenTransactionMenuId] = useState(null);
     const [transactionMenuAnchor, setTransactionMenuAnchor] = useState("button");
-    const [transactionContextPosition, setTransactionContextPosition] = useState({
-        x: 0,
-        y: 0,
-    });
+    const [transactionContextPosition, setTransactionContextPosition] = useState({ x: 0, y: 0 });
 
     return (
         <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:h-full">
             <HeadOfSide
                 title={selectedCategory ? selectedCategory.name : "Transazioni"}
-                subtitle={
-                    selectedCategory
-                        ? `${transactions.length} transazioni`
-                        : "Transazioni della categoria"
-                }
+                subtitle={selectedCategory ? `${transactions.length} transazioni` : "Transazioni della categoria"}
                 iconCTA={Plus}
                 hoverTitle="Aggiungi transazione"
                 search={searchedTransaction}
@@ -490,10 +485,11 @@ function TransactionsSide({
             <div className="min-h-0 flex-1 overflow-y-auto p-2">
                 {loading ? (
                     <LoadingState />
-                ) : selectedCategory ? (
-                    transactions.length > 0 ? (
+                ) : selectedCategory ?
+                    transactions.length > 0 ?
                         <div className="space-y-2">
                             {transactions.map((transaction) => {
+
                                 const current = transaction.entriesTotal;
                                 const target = transaction.target;
 
@@ -506,41 +502,22 @@ function TransactionsSide({
                                         categories={categories}
                                         selectedCategoryId={selectedCategoryId}
                                         setOpenCategoryMenuId={setOpenCategoryMenuId}
-                                        onClick={() =>
-                                            onTransactionCardClick(transaction)
-                                        }
+                                        onClick={() => onTransactionCardClick(transaction)}
                                         openTransactionMenuId={openTransactionMenuId}
-                                        setOpenTransactionMenuId={
-                                            setOpenTransactionMenuId
-                                        }
-                                        transactionMenuAnchor={
-                                            transactionMenuAnchor
-                                        }
-                                        setTransactionMenuAnchor={
-                                            setTransactionMenuAnchor
-                                        }
-                                        transactionContextPosition={
-                                            transactionContextPosition
-                                        }
-                                        setTransactionContextPosition={
-                                            setTransactionContextPosition
-                                        }
+                                        setOpenTransactionMenuId={setOpenTransactionMenuId}
+                                        transactionMenuAnchor={transactionMenuAnchor}
+                                        setTransactionMenuAnchor={setTransactionMenuAnchor}
+                                        transactionContextPosition={transactionContextPosition}
+                                        setTransactionContextPosition={setTransactionContextPosition}
                                     />
                                 );
                             })}
                         </div>
-                    ) : (
-                        <ItemEmpty
-                            text={
-                                searchedTransaction
-                                    ? "Nessuna transazione trovata"
-                                    : "Nessuna transazione disponibile per il periodo selezionato"
-                            }
-                        />
-                    )
-                ) : (
+                        :
+                        <ItemEmpty text={searchedTransaction ? "Nessuna transazione trovata" : "Nessuna transazione disponibile per il periodo selezionato"} />
+                    :
                     <ItemEmpty text="Seleziona una categoria" />
-                )}
+                }
             </div>
         </div>
     );

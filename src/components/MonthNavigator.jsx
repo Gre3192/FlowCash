@@ -1,35 +1,46 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { MONTHS } from "../constants/month.js";
 import IconButton from "./../ui/IconButton.jsx";
 
 export default function MonthNavigator({
-
     selectedYear,
     setSelectedYear,
     selectedMonth,
     setSelectedMonth,
-    availableYears,
+    availableYears = [],
     currentYear,
-
 }) {
-
     const rootRef = useRef(null);
     const pickerRef = useRef(null);
 
     const [isPickerOpen, setIsPickerOpen] = useState(false);
-    const [pickerPosition, setPickerPosition] = useState({
-        top: 0,
-        left: 0,
-        width: 300,
-    });
+    const [pickerPosition, setPickerPosition] = useState(null);
 
+    const normalizedSelectedMonth = Number(selectedMonth);
+    const normalizedSelectedYear = Number(selectedYear);
 
-    const monthLabel = MONTHS.find((item) => item.value === Number(selectedMonth))?.label ?? selectedMonth;
+    const monthLabel =
+        MONTHS.find((item) => Number(item.value) === normalizedSelectedMonth)
+            ?.label ?? selectedMonth;
 
-    function updatePickerPosition() {
+    const minYear = availableYears.length
+        ? Math.min(...availableYears)
+        : currentYear;
+
+    const maxYear = availableYears.length
+        ? Math.max(...availableYears)
+        : currentYear;
+
+    const isPrevDisabled =
+        normalizedSelectedYear === minYear && normalizedSelectedMonth === 1;
+
+    const isNextDisabled =
+        normalizedSelectedYear === maxYear && normalizedSelectedMonth === 12;
+
+    function getPickerPosition() {
         const element = rootRef.current;
-        if (!element) return;
+        if (!element) return null;
 
         const rect = element.getBoundingClientRect();
 
@@ -43,11 +54,18 @@ export default function MonthNavigator({
             Math.min(left, window.innerWidth - pickerWidth - viewportPadding)
         );
 
-        setPickerPosition({
+        return {
             top: rect.bottom + 8,
             left,
             width: pickerWidth,
-        });
+        };
+    }
+
+    function updatePickerPosition() {
+        const nextPosition = getPickerPosition();
+        if (!nextPosition) return;
+
+        setPickerPosition(nextPosition);
     }
 
     function togglePicker() {
@@ -55,88 +73,71 @@ export default function MonthNavigator({
             const next = !prev;
 
             if (next) {
-                requestAnimationFrame(updatePickerPosition);
+                const nextPosition = getPickerPosition();
+
+                if (!nextPosition) return false;
+
+                setPickerPosition(nextPosition);
             }
 
             return next;
         });
     }
 
+    function handlePreviousMonth() {
+        if (isPrevDisabled) return;
+
+        if (normalizedSelectedMonth === 1) {
+            setSelectedMonth(12);
+            setSelectedYear(normalizedSelectedYear - 1);
+        } else {
+            setSelectedMonth(normalizedSelectedMonth - 1);
+        }
+    }
+
+    function handleNextMonth() {
+        if (isNextDisabled) return;
+
+        if (normalizedSelectedMonth === 12) {
+            setSelectedMonth(1);
+            setSelectedYear(normalizedSelectedYear + 1);
+        } else {
+            setSelectedMonth(normalizedSelectedMonth + 1);
+        }
+    }
+
     useEffect(() => {
         if (!isPickerOpen) return;
 
-        function handleClickOutside(e) {
+        function handlePointerDown(e) {
             const clickedRoot = rootRef.current?.contains(e.target);
             const clickedPicker = pickerRef.current?.contains(e.target);
 
             if (!clickedRoot && !clickedPicker) {
                 setIsPickerOpen(false);
+                setPickerPosition(null);
             }
         }
 
         function handleKeyDown(e) {
             if (e.key === "Escape") {
                 setIsPickerOpen(false);
+                setPickerPosition(null);
             }
         }
 
-        function handleReposition() {
-            updatePickerPosition();
-        }
-
-        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("pointerdown", handlePointerDown, true);
         document.addEventListener("keydown", handleKeyDown);
-        window.addEventListener("resize", handleReposition);
-        window.addEventListener("scroll", handleReposition, true);
+        window.addEventListener("resize", updatePickerPosition);
+        window.addEventListener("scroll", updatePickerPosition, true);
 
         return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("pointerdown", handlePointerDown, true);
             document.removeEventListener("keydown", handleKeyDown);
-            window.removeEventListener("resize", handleReposition);
-            window.removeEventListener("scroll", handleReposition, true);
+            window.removeEventListener("resize", updatePickerPosition);
+            window.removeEventListener("scroll", updatePickerPosition, true);
         };
     }, [isPickerOpen]);
-
-    const minYear = Math.min(...availableYears);
-    const maxYear = Math.max(...availableYears);
-
-    const isPrevDisabled = selectedYear === minYear && selectedMonth === 1;
-    const isNextDisabled = selectedYear === maxYear && selectedMonth === 12;
-
-    const handlePreviousMonth = () => {
-        if (isPrevDisabled) return;
-
-        console.log(typeof selectedMonth, selectedMonth);
-
-
-        if (selectedMonth === 1) {
-            setSelectedMonth(12);
-            setSelectedYear(selectedYear - 1);
-        } else {
-            setSelectedMonth(selectedMonth - 1);
-        }
-    };
-
-    const handleNextMonth = () => {
-        if (isNextDisabled) return;
-
-        console.log(typeof selectedMonth, selectedMonth);
-
-        if (selectedMonth === 12) {
-            setSelectedMonth(1);
-            setSelectedYear(selectedYear + 1);
-        } else {
-            setSelectedMonth(selectedMonth + 1);
-        }
-    };
-
-    console.log(selectedYear, selectedMonth);
-
-
-    const onMonthYearChange = () => {
-        setSelectedYear(selectedYear)
-        setSelectedMonth(selectedMonth)
-    }
 
     return (
         <>
@@ -150,12 +151,13 @@ export default function MonthNavigator({
                     icon={ChevronLeft}
                     size="sm"
                     variant="ghost"
-                    className="h-8 w-8 text-slate-500 hover:bg-white hover:text-slate-900"
+                    disabled={isPrevDisabled}
+                    className="h-8 w-8 text-slate-500 hover:bg-white hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-40"
                 />
 
                 <div className="flex min-w-0 items-center gap-2 text-center">
                     <p className="truncate text-sm font-semibold text-slate-900">
-                        {monthLabel} {selectedYear}
+                        {monthLabel} {normalizedSelectedYear}
                     </p>
 
                     <button
@@ -164,9 +166,10 @@ export default function MonthNavigator({
                         title="Seleziona mese e anno"
                         className={`
                             inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg transition
-                            ${isPickerOpen
-                                ? "bg-white text-slate-900 shadow-sm"
-                                : "text-slate-500 hover:bg-white hover:text-slate-900"
+                            ${
+                                isPickerOpen
+                                    ? "bg-white text-slate-900 shadow-sm"
+                                    : "text-slate-500 hover:bg-white hover:text-slate-900"
                             }
                         `}
                     >
@@ -180,62 +183,63 @@ export default function MonthNavigator({
                     size="sm"
                     variant="ghost"
                     icon={ChevronRight}
-                    className="h-8 w-8 text-slate-500 hover:bg-white hover:text-slate-900"
+                    disabled={isNextDisabled}
+                    className="h-8 w-8 text-slate-500 hover:bg-white hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-40"
                 />
-
             </div>
 
-            {isPickerOpen && (
+            {isPickerOpen && pickerPosition && (
                 <MonthsYearsPicker
                     pickerRef={pickerRef}
                     pickerPosition={pickerPosition}
-                    selectedYear={selectedYear}
+                    selectedYear={normalizedSelectedYear}
                     setSelectedYear={setSelectedYear}
-                    selectedMonth={selectedMonth}
+                    selectedMonth={normalizedSelectedMonth}
                     setSelectedMonth={setSelectedMonth}
                     availableYears={availableYears}
                     setIsPickerOpen={setIsPickerOpen}
-                    currentYear={currentYear}
+                    setPickerPosition={setPickerPosition}
                 />
             )}
         </>
     );
 }
 
-
 function MonthsYearsPicker({
-
     selectedYear,
     setSelectedYear,
     selectedMonth,
     setSelectedMonth,
     pickerRef,
     pickerPosition,
-    availableYears,
+    availableYears = [],
     setIsPickerOpen,
-    currentYear
-
+    setPickerPosition,
 }) {
+    const [selectedLocalYear, setSelectedLocalYear] = useState(selectedYear);
 
-    const [selectedLocalYear, setSelectedLocalYear] = useState(currentYear)
-
-    function handleMonthClick(selectedMonth) {
-        setSelectedMonth(selectedMonth)
-        setSelectedYear(selectedLocalYear)
+    function closePicker() {
         setIsPickerOpen(false);
+        setPickerPosition(null);
+    }
+
+    function handleMonthClick(month) {
+        setSelectedMonth(Number(month));
+        setSelectedYear(Number(selectedLocalYear));
+        closePicker();
     }
 
     function handleYearChange(e) {
-        setSelectedLocalYear(Number(e.target.value))
+        setSelectedLocalYear(Number(e.target.value));
     }
 
     function handleTodayClick() {
         const today = new Date();
-        setSelectedMonth(today.getMonth() + 1)
-        setSelectedYear(today.getFullYear())
-        setIsPickerOpen(false);
-    }
 
+        setSelectedMonth(today.getMonth() + 1);
+        setSelectedYear(today.getFullYear());
+        closePicker();
+    }
 
     return (
         <div
@@ -246,7 +250,7 @@ function MonthsYearsPicker({
                 left: pickerPosition.left,
                 width: pickerPosition.width,
             }}
-            className="z-10000 rounded-xl border border-slate-200 bg-white p-3 shadow-xl"
+            className="z-[10000] rounded-xl border border-slate-200 bg-white p-3 shadow-xl"
         >
             <div className="mb-3 flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -263,7 +267,7 @@ function MonthsYearsPicker({
                     <button
                         type="button"
                         onClick={handleTodayClick}
-                        className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
+                        className="h-8 cursor-pointer rounded-lg border border-slate-200 bg-white px-2 text-xs font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
                     >
                         Oggi
                     </button>
@@ -271,7 +275,7 @@ function MonthsYearsPicker({
                     <select
                         value={selectedLocalYear}
                         onChange={handleYearChange}
-                        className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs font-medium text-slate-700 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+                        className="h-8 cursor-pointer rounded-lg border border-slate-200 bg-white px-2 text-xs font-medium text-slate-700 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
                     >
                         {availableYears.map((item) => (
                             <option key={item} value={item}>
@@ -284,8 +288,9 @@ function MonthsYearsPicker({
 
             <div className="grid grid-cols-3 gap-2">
                 {MONTHS.map((item) => {
-
-                    const isSelected = Number(item.value) === Number(selectedMonth);
+                    const isSelected =
+                        Number(item.value) === Number(selectedMonth) &&
+                        Number(selectedLocalYear) === Number(selectedYear);
 
                     return (
                         <button
@@ -293,12 +298,13 @@ function MonthsYearsPicker({
                             type="button"
                             onClick={() => handleMonthClick(item.value)}
                             className={`
-                                        cursor-pointer rounded-lg border px-2 py-2 text-xs font-medium transition
-                                        ${isSelected
-                                    ? "border-slate-900 bg-slate-900 text-white"
-                                    : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                                cursor-pointer rounded-lg border px-2 py-2 text-xs font-medium transition
+                                ${
+                                    isSelected
+                                        ? "border-slate-900 bg-slate-900 text-white"
+                                        : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                                 }
-                                    `}
+                            `}
                         >
                             {item.label.slice(0, 3)}
                         </button>
@@ -306,5 +312,5 @@ function MonthsYearsPicker({
                 })}
             </div>
         </div>
-    )
+    );
 }
