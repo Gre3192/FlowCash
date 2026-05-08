@@ -38,7 +38,7 @@ export default function CategoriesTransactionsPage() {
     const [showMovementsModal, setShowMovementsModal] = useState(false)
     const [selectedTransaction, setSelectedTransaction] = useState(null);
 
-    const { data, loading, error, reload } = useGet(
+    const { data, loading, error, reload: reloadMonthlyOverview } = useGet(
         API_ENDPOINTS.monthlyOverview({
             month: selectedMonth,
             year: selectedYear,
@@ -108,7 +108,7 @@ export default function CategoriesTransactionsPage() {
     const filteredTransactions = useMemo(() => {
         const query = searchedTransaction.trim().toLowerCase();
         return transactions.filter((transaction) => {
-            const matchesSearch = !query ? true : transaction.name?.toLowerCase().includes(query);
+            const matchesSearch = !query  ? true   : transaction.name?.toLowerCase().includes(query);
             return matchesSearch;
         });
     }, [transactions, searchedTransaction]);
@@ -214,7 +214,7 @@ export default function CategoriesTransactionsPage() {
                 title="Nuova categoria"
             >
                 <CreateCategoryModal
-                    reload={reload}
+                    reload={reloadMonthlyOverview}
                     onClose={() => setIsCreateCategoryModalOpen(false)}
                 />
             </ModalWrapper>
@@ -227,7 +227,7 @@ export default function CategoriesTransactionsPage() {
                 title="Nuova transazione"
             >
                 <CreateTransactionModal
-                    reload={reload}
+                    reload={reloadMonthlyOverview}
                     onClose={() => setIsCreateTransactionModalOpen(false)}
                 />
             </ModalWrapper>
@@ -249,6 +249,7 @@ export default function CategoriesTransactionsPage() {
                     onDayChange={setSelectedDay}
                     availableYears={availableYears}
                     currentYear={currentYear}
+                    reloadMonthlyOverview={reloadMonthlyOverview}
                 />
             </ModalWrapper>
 

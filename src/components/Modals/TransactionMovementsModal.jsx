@@ -19,7 +19,8 @@ export default function TransactionMovementsModal({
     onClose,
     onDayChange,
     availableYears,
-    currentYear
+    currentYear,
+    reloadMonthlyOverview
 
 }) {
 
@@ -148,6 +149,7 @@ export default function TransactionMovementsModal({
         };
         const createdMovement = await postData(API_ENDPOINTS.transactionMovements(), payload);
         reload?.();
+        reloadMonthlyOverview?.();
         setFormData({
             name: "",
             amount: "",
@@ -161,6 +163,7 @@ export default function TransactionMovementsModal({
             API_ENDPOINTS.transactionMovements() + movement.id + "/",
         );
         reload?.();
+        reloadMonthlyOverview?.();
     }
 
     const filteredMovements = useMemo(() => {
