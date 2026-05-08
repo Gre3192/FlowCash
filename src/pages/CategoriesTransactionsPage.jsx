@@ -13,30 +13,8 @@ import DividerSection from "../components/DividerSection";
 import getMonthByNum from "../utils/getMonthByNum";
 import MonthDaysCarousel from "../components/MonthDayCarousel";
 import TransactionMovementsModal from "../components/TransactionMovementsModal";
+import MonthNavigator from "../components/MonthNavigator";
 
-const transactionMovements = [
-    {
-        id: "1",
-        transactionId: "abc",
-        name: "Spesa supermercato",
-        amount: 35.5,
-        type: "Expense",
-        day: 5,
-        month: 4,
-        year: 2026,
-        note: "Esselunga",
-    },
-    {
-        id: "2",
-        transactionId: "abc",
-        name: "Rimborso",
-        amount: 20,
-        type: "Income",
-        day: 5,
-        month: 4,
-        year: 2026,
-    },
-];
 
 export default function CategoriesTransactionsPage() {
 
@@ -154,25 +132,39 @@ export default function CategoriesTransactionsPage() {
         return years;
     }, [currentYear]);
 
+
+
     const handleTransactionCard = (transaction) => {
         setSelectedTransaction(transaction);
         setShowMovementsModal(true);
     }
 
+
+
     return (
         <div className="h-full min-h-0 box-border overflow-hidden bg-slate-50 p-2 sm:p-3">
             <div className="flex h-full min-h-0 flex-col">
-                <div className="mb-3 flex shrink-0 items-center justify-between gap-3">
-                    <div className="min-w-0">
+                <div className="grid min-h-0 mb-3 grid-cols-1 gap-3 overflow-hidden lg:grid-cols-4">
+                    <div className="min-h-0 overflow-hidden lg:col-span-1">
                         <h1 className="truncate text-xl font-semibold text-slate-900 sm:text-xl">
-                            {getMonthByNum(selectedMonth)} {selectedYear}
+                            Categorie e transazioni
                         </h1>
                         <p className="truncate text-[11px] text-slate-500 sm:text-xs">
-                            Categorie e transazioni
+                            Seleziona le transazioni
                         </p>
                     </div>
+                    <div className="min-h-0 overflow-hidden lg:col-span-3">
+                        <MonthNavigator
+                            selectedYear={selectedYear}
+                            setSelectedYear={setSelectedYear}
+                            selectedMonth={getMonthByNum(selectedMonth)}
+                            setSelectedMonth={setSelectedMonth}
+                            availableYears={availableYears}
+                            currentYear={currentYear}
+                        />
+                    </div>
 
-                    <div className="shrink-0">
+                    {/* <div className="shrink-0">
                         <MonthYearPicker
                             selectedMonth={selectedMonth}
                             selectedYear={selectedYear}
@@ -180,7 +172,7 @@ export default function CategoriesTransactionsPage() {
                             onYearChange={setSelectedYear}
                             years={availableYears}
                         />
-                    </div>
+                    </div> */}
                 </div>
 
                 {error && (
@@ -265,9 +257,9 @@ export default function CategoriesTransactionsPage() {
                     selectedYear={selectedYear}
                     selectedDay={selectedDay}
                     transaction={selectedTransaction}
-                    movements={transactionMovements}
                     onClose={() => setShowMovementsModal(false)}
                     onDayChange={setSelectedDay}
+                    
                 />
             </ModalWrapper>
 
@@ -481,7 +473,7 @@ function TransactionsSide({
 
     return (
         <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:h-full">
-            
+
             <HeadOfSide
                 title={selectedCategory ? selectedCategory.name : "Transazioni"}
                 subtitle={selectedCategory ? `${transactions.length} transazioni` : "Transazioni della categoria"}
