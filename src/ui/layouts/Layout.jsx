@@ -84,27 +84,11 @@ export default function Layout() {
 
                 {/* NAVIGAZIONE */}
                 <nav className="flex-1 px-3 mt-4 space-y-2 overflow-y-auto overflow-x-hidden">
-                    {/* <NavItem
-                        icon={<LayoutDashboard size={22} />}
-                        label="Dashboard"
-                        to="/"
-                        active={location.pathname === '/'}
-                        isExpanded={isExpanded}
-                        isMobileOpen={isMobileOpen}
-                    />
-                    <NavItem
-                        icon={<ArrowLeftRight size={22} />}
-                        label="Transazioni"
-                        to="/transactions"
-                        active={location.pathname === '/transactions'}
-                        isExpanded={isExpanded}
-                        isMobileOpen={isMobileOpen}
-                    /> */}
                     <NavItem
                         icon={<Wallet size={22} />}
-                        label="Riepilogo"
-                        to="/summaryPage"
-                        active={location.pathname === '/summary'}
+                        label="Categorie e Transazioni"
+                        to="/"
+                        active={location.pathname === '/'}
                         isExpanded={isExpanded}
                         isMobileOpen={isMobileOpen}
                     />
@@ -116,14 +100,6 @@ export default function Layout() {
                         isExpanded={isExpanded}
                         isMobileOpen={isMobileOpen}
                     />
-                    {/* <NavItem
-                        icon={<Wallet size={22} />}
-                        label="Previsoni"
-                        to="/projections"
-                        active={location.pathname === '/projections'}
-                        isExpanded={isExpanded}
-                        isMobileOpen={isMobileOpen}
-                    /> */}
                 </nav>
 
                 {/* FOOTER */}
@@ -182,11 +158,11 @@ export default function Layout() {
                 </header>
 
                 {/* CONTENUTO DELLA PAGINA */}
-<main className="min-h-0 flex-1 overflow-auto px-4 pb-4 md:px-6 md:pb-1">
-    <div className="h-full min-h-0 min-w-0">
-        <Outlet />
-    </div>
-</main>
+                <main className="min-h-0 flex-1 overflow-auto px-4 pb-4 md:px-6 md:pb-1">
+                    <div className="h-full min-h-0 min-w-0">
+                        <Outlet />
+                    </div>
+                </main>
             </div>
         </div>
     );
