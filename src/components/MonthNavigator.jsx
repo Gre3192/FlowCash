@@ -1,20 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
-
-const MONTHS = [
-    { value: 1, label: "Gennaio" },
-    { value: 2, label: "Febbraio" },
-    { value: 3, label: "Marzo" },
-    { value: 4, label: "Aprile" },
-    { value: 5, label: "Maggio" },
-    { value: 6, label: "Giugno" },
-    { value: 7, label: "Luglio" },
-    { value: 8, label: "Agosto" },
-    { value: 9, label: "Settembre" },
-    { value: 10, label: "Ottobre" },
-    { value: 11, label: "Novembre" },
-    { value: 12, label: "Dicembre" },
-];
+import { MONTHS } from "../constants/month.js";
+import IconButton from "./../ui/IconButton.jsx";
 
 export default function MonthNavigator({
 
@@ -36,7 +23,6 @@ export default function MonthNavigator({
         left: 0,
         width: 300,
     });
-
 
 
     const monthLabel = MONTHS.find((item) => item.value === Number(selectedMonth))?.label ?? selectedMonth;
@@ -120,6 +106,9 @@ export default function MonthNavigator({
     const handlePreviousMonth = () => {
         if (isPrevDisabled) return;
 
+        console.log(typeof selectedMonth, selectedMonth);
+
+
         if (selectedMonth === 1) {
             setSelectedMonth(12);
             setSelectedYear(selectedYear - 1);
@@ -131,6 +120,8 @@ export default function MonthNavigator({
     const handleNextMonth = () => {
         if (isNextDisabled) return;
 
+        console.log(typeof selectedMonth, selectedMonth);
+
         if (selectedMonth === 12) {
             setSelectedMonth(1);
             setSelectedYear(selectedYear + 1);
@@ -138,6 +129,9 @@ export default function MonthNavigator({
             setSelectedMonth(selectedMonth + 1);
         }
     };
+
+    console.log(selectedYear, selectedMonth);
+
 
     const onMonthYearChange = () => {
         setSelectedYear(selectedYear)
@@ -150,13 +144,14 @@ export default function MonthNavigator({
                 ref={rootRef}
                 className="relative flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"
             >
-                <button
+                <IconButton
                     type="button"
                     onClick={handlePreviousMonth}
-                    className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition hover:bg-white hover:text-slate-900"
-                >
-                    <ChevronLeft size={17} />
-                </button>
+                    icon={ChevronLeft}
+                    size="sm"
+                    variant="ghost"
+                    className="h-8 w-8 text-slate-500 hover:bg-white hover:text-slate-900"
+                />
 
                 <div className="flex min-w-0 items-center gap-2 text-center">
                     <p className="truncate text-sm font-semibold text-slate-900">
@@ -179,13 +174,15 @@ export default function MonthNavigator({
                     </button>
                 </div>
 
-                <button
+                <IconButton
                     type="button"
                     onClick={handleNextMonth}
-                    className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition hover:bg-white hover:text-slate-900"
-                >
-                    <ChevronRight size={17} />
-                </button>
+                    size="sm"
+                    variant="ghost"
+                    icon={ChevronRight}
+                    className="h-8 w-8 text-slate-500 hover:bg-white hover:text-slate-900"
+                />
+
             </div>
 
             {isPickerOpen && (

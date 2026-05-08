@@ -18,6 +18,8 @@ export default function TransactionMovementsModal({
     transaction,
     onClose,
     onDayChange,
+    availableYears,
+    currentYear
 
 }) {
 
@@ -180,10 +182,12 @@ export default function TransactionMovementsModal({
         <div className="flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden">
             <div className="grid shrink-0 grid-cols-1 gap-4 border-b border-slate-200 px-0 pb-3 md:grid-cols-[300px_minmax(0,1fr)]">
                 <MonthNavigator
-                    month={getMonthByNum(localSelectedMonth)}
-                    year={localSelectedYear}
-                    handleNextMonth={handleNextMonth}
-                    handlePreviousMonth={handlePreviousMonth}
+                    selectedYear={localSelectedYear}
+                    setSelectedYear={setLocalSelectedYear}
+                    selectedMonth={localSelectedMonth}
+                    setSelectedMonth={setLocalSelectedMonth}
+                    availableYears={availableYears}
+                    currentYear={currentYear}
                 />
 
                 <div className="min-w-0">

@@ -132,8 +132,6 @@ export default function CategoriesTransactionsPage() {
         return years;
     }, [currentYear]);
 
-
-
     const handleTransactionCard = (transaction) => {
         setSelectedTransaction(transaction);
         setShowMovementsModal(true);
@@ -157,22 +155,12 @@ export default function CategoriesTransactionsPage() {
                         <MonthNavigator
                             selectedYear={selectedYear}
                             setSelectedYear={setSelectedYear}
-                            selectedMonth={getMonthByNum(selectedMonth)}
+                            selectedMonth={selectedMonth}
                             setSelectedMonth={setSelectedMonth}
                             availableYears={availableYears}
                             currentYear={currentYear}
                         />
                     </div>
-
-                    {/* <div className="shrink-0">
-                        <MonthYearPicker
-                            selectedMonth={selectedMonth}
-                            selectedYear={selectedYear}
-                            onMonthChange={setSelectedMonth}
-                            onYearChange={setSelectedYear}
-                            years={availableYears}
-                        />
-                    </div> */}
                 </div>
 
                 {error && (
@@ -220,6 +208,7 @@ export default function CategoriesTransactionsPage() {
                 </div>
             </div>
 
+            {/* Crea nuova categoria */}
             <ModalWrapper
                 height={"h-fit"}
                 isOpen={isCreateCategoryModalOpen}
@@ -232,6 +221,7 @@ export default function CategoriesTransactionsPage() {
                 />
             </ModalWrapper>
 
+            {/* Crea nuova transazione */}
             <ModalWrapper
                 height={"h-fit"}
                 isOpen={isCreateTransactionModalOpen}
@@ -244,7 +234,7 @@ export default function CategoriesTransactionsPage() {
                 />
             </ModalWrapper>
 
-
+            {/* Movimenti giornalieri */}
             <ModalWrapper
                 title={selectedTransaction?.name}
                 height="h-[800px]"
@@ -259,7 +249,8 @@ export default function CategoriesTransactionsPage() {
                     transaction={selectedTransaction}
                     onClose={() => setShowMovementsModal(false)}
                     onDayChange={setSelectedDay}
-                    
+                    availableYears={availableYears}
+                    currentYear={currentYear}
                 />
             </ModalWrapper>
 
@@ -270,6 +261,7 @@ export default function CategoriesTransactionsPage() {
 
 
 function CategorySide({
+
     loading,
     categories,
     setIsCreateCategoryModalOpen,
@@ -282,6 +274,7 @@ function CategorySide({
     setSelectedCategoryId,
     selectedYear,
     selectedMonth,
+
 }) {
     const [showCategoriesWithTransactions, setShowCategoriesWithTransactions] = useState(true);
     const [showCategoriesEmptyInSelectedPeriod, setShowCategoriesEmptyInSelectedPeriod] = useState(true);
