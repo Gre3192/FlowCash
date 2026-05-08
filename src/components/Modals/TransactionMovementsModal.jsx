@@ -196,6 +196,10 @@ export default function TransactionMovementsModal({
                         selectedYear={localSelectedYear}
                         selectedDay={localSelectedDay}
                         onDayChange={handleDayChange}
+                        movementDays={movements.map((movement) => {
+                            const [, , day] = movement.movement_date?.split("-") ?? [];
+                            return Number(day);
+                        })}
                     />
                 </div>
             </div>

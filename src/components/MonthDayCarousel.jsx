@@ -3,12 +3,11 @@ import getDaysOfMonth from "../utils/getDaysOfMonth";
 import getEasterHolidays from "../utils/getEasterHolidays";
 
 export default function MonthDaysCarousel({
-
     selectedMonth,
     selectedYear,
     selectedDay,
     onDayChange,
-
+    movementDays = [],
 }) {
     const scrollRef = useRef(null);
     const wheelFrameRef = useRef(null);
@@ -40,7 +39,10 @@ export default function MonthDaysCarousel({
             { month: 1, day: 1, label: "Capodanno" },
             { month: 1, day: 6, label: "Epifania" },
             { ...getEasterHolidays(selectedYear).easter, label: "Pasqua" },
-            { ...getEasterHolidays(selectedYear).easterMonday, label: "Pasquetta" },
+            {
+                ...getEasterHolidays(selectedYear).easterMonday,
+                label: "Pasquetta",
+            },
             { month: 4, day: 25, label: "Liberazione" },
             { month: 5, day: 1, label: "Festa dei lavoratori" },
             { month: 6, day: 2, label: "Festa della Repubblica" },
@@ -56,10 +58,21 @@ export default function MonthDaysCarousel({
         return getDaysOfMonth(selectedMonth, selectedYear);
     }, [selectedMonth, selectedYear]);
 
+    const movementDaysSet = useMemo(() => {
+        return new Set(movementDays.map((day) => Number(day)));
+    }, [movementDays]);
+
     function stopInertia() {
         if (inertiaFrameRef.current) {
             cancelAnimationFrame(inertiaFrameRef.current);
             inertiaFrameRef.current = null;
+        }
+    }
+
+    function stopWheelAnimation() {
+        if (wheelFrameRef.current) {
+            cancelAnimationFrame(wheelFrameRef.current);
+            wheelFrameRef.current = null;
         }
     }
 
@@ -131,6 +144,54 @@ export default function MonthDaysCarousel({
             isRedDay: isWeekend || isHoliday,
             holidayLabel: holiday?.label,
         };
+    }
+
+function getDayButtonClass({ isSelected, isRedDay, hasMovements }) {
+    if (isSelected && isRedDay && hasMovements) {
+        return "border-red-400 bg-red-200 text-red-700 ring-2 ring-inset ring-red-200 shadow-sm";
+    }
+
+    if (isSelected && isRedDay) {
+        return "border-red-300 bg-red-200 text-red-700 ring-1 ring-inset ring-red-200";
+    }
+
+    if (isSelected && hasMovements) {
+        return "border-slate-500 bg-slate-200 text-slate-900 ring-2 ring-inset ring-slate-300 shadow-sm";
+    }
+
+    if (isSelected) {
+        return "border-slate-300 bg-slate-200 text-slate-900 ring-1 ring-inset ring-slate-300";
+    }
+
+    if (isRedDay && hasMovements) {
+        return "border-red-400 bg-red-50 text-red-700 ring-1 ring-inset ring-red-200 shadow-sm hover:bg-red-100";
+    }
+
+    if (isRedDay) {
+        return "border-red-200 bg-red-50 text-red-600 hover:bg-red-100";
+    }
+
+    if (hasMovements) {
+        return "border-slate-400 bg-slate-50 text-slate-800 ring-1 ring-inset ring-slate-300 shadow-sm hover:bg-slate-100";
+    }
+
+    return "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100";
+}
+
+    function getDayNameClass({ isSelected, isRedDay }) {
+        if (isSelected && isRedDay) {
+            return "text-red-500";
+        }
+
+        if (isSelected) {
+            return "text-slate-500";
+        }
+
+        if (isRedDay) {
+            return "text-red-500";
+        }
+
+        return "text-slate-500";
     }
 
     function handlePointerDown(e) {
@@ -221,13 +282,6 @@ export default function MonthDaysCarousel({
         }
     }
 
-    function stopWheelAnimation() {
-        if (wheelFrameRef.current) {
-            cancelAnimationFrame(wheelFrameRef.current);
-            wheelFrameRef.current = null;
-        }
-    }
-
     function handleWheel(e) {
         const element = scrollRef.current;
         if (!element) return;
@@ -267,7 +321,8 @@ export default function MonthDaysCarousel({
             currentElement.scrollLeft += distance * 0.18;
 
             if (Math.abs(distance) > 0.5) {
-                wheelFrameRef.current = requestAnimationFrame(animateWheelScroll);
+                wheelFrameRef.current =
+                    requestAnimationFrame(animateWheelScroll);
             } else {
                 currentElement.scrollLeft = wheelTargetScrollLeftRef.current;
                 wheelFrameRef.current = null;
@@ -300,6 +355,10 @@ export default function MonthDaysCarousel({
                         day.dayNumber
                     );
 
+                    const hasMovements = movementDaysSet.has(
+                        Number(day.dayNumber)
+                    );
+
                     return (
                         <button
                             key={day.id}
@@ -308,24 +367,21 @@ export default function MonthDaysCarousel({
                             title={holidayLabel || undefined}
                             draggable={false}
                             className={`
-                                    relative cursor-pointer flex min-w-10.5 flex-col items-center justify-center rounded-md border px-2 py-1 transition
-                                    ${isSelected
-                                    ? "border-slate-900 bg-slate-900 text-white"
-                                    : isRedDay
-                                        ? "border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
-                                        : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-                                }
+                                relative flex min-w-10.5 cursor-pointer flex-col items-center justify-center rounded-md border px-2 py-1 transition
+                                ${getDayButtonClass({
+                                isSelected,
+                                isRedDay,
+                                hasMovements,
+                            })}
                             `}
                         >
                             <span
                                 className={`
                                     text-[9px] font-medium
-                                    ${isSelected
-                                        ? "text-slate-200"
-                                        : isRedDay
-                                            ? "text-red-500"
-                                            : "text-slate-500"
-                                    }
+                                    ${getDayNameClass({
+                                    isSelected,
+                                    isRedDay,
+                                })}
                                 `}
                             >
                                 {day.dayName}
@@ -337,9 +393,6 @@ export default function MonthDaysCarousel({
 
                             {isHoliday && !isSelected && (
                                 <span className="pointer-events-none absolute bottom-0.5 h-0.5 w-0.5 rounded-full bg-red-500" />
-                            )}
-                            {isHoliday && !isSelected && (
-                                <span className="pointer-events-none absolute top-0.5 h-0.5 w-5 rounded-full bg-red-500" />
                             )}
                         </button>
                     );
