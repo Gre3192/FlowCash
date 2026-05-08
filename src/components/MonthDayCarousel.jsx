@@ -146,37 +146,37 @@ export default function MonthDaysCarousel({
         };
     }
 
-function getDayButtonClass({ isSelected, isRedDay, hasMovements }) {
-    if (isSelected && isRedDay && hasMovements) {
-        return "border-red-400 bg-red-200 text-red-700 ring-2 ring-inset ring-red-200 shadow-sm";
-    }
+    function getDayButtonClass({ isSelected, isRedDay, hasMovements }) {
+        if (isSelected && isRedDay && hasMovements) {
+            return "border-red-400 bg-red-200 text-red-700 ring-2 ring-inset ring-red-200 shadow-sm";
+        }
 
-    if (isSelected && isRedDay) {
-        return "border-red-300 bg-red-200 text-red-700 ring-1 ring-inset ring-red-200";
-    }
+        if (isSelected && isRedDay) {
+            return "border-red-300 bg-red-200 text-red-700 ring-1 ring-inset ring-red-200";
+        }
 
-    if (isSelected && hasMovements) {
-        return "border-slate-500 bg-slate-200 text-slate-900 ring-2 ring-inset ring-slate-300 shadow-sm";
-    }
+        if (isSelected && hasMovements) {
+            return "border-slate-500 bg-slate-200 text-slate-900 ring-2 ring-inset ring-slate-300 shadow-sm";
+        }
 
-    if (isSelected) {
-        return "border-slate-300 bg-slate-200 text-slate-900 ring-1 ring-inset ring-slate-300";
-    }
+        if (isSelected) {
+            return "border-slate-300 bg-slate-200 text-slate-900 ring-1 ring-inset ring-slate-300";
+        }
 
-    if (isRedDay && hasMovements) {
-        return "border-red-400 bg-red-50 text-red-700 ring-1 ring-inset ring-red-200 shadow-sm hover:bg-red-100";
-    }
+        if (isRedDay && hasMovements) {
+            return "border-red-400 bg-red-50 text-red-700 ring-1 ring-inset ring-red-200 shadow-sm hover:bg-red-100";
+        }
 
-    if (isRedDay) {
-        return "border-red-200 bg-red-50 text-red-600 hover:bg-red-100";
-    }
+        if (isRedDay) {
+            return "border-red-200 bg-red-50 text-red-600 hover:bg-red-100";
+        }
 
-    if (hasMovements) {
-        return "border-slate-400 bg-slate-50 text-slate-800 ring-1 ring-inset ring-slate-300 shadow-sm hover:bg-slate-100";
-    }
+        if (hasMovements) {
+            return "border-slate-400 bg-slate-50 text-slate-800 ring-1 ring-inset ring-slate-300 shadow-sm hover:bg-slate-100";
+        }
 
-    return "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100";
-}
+        return "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100";
+    }
 
     function getDayNameClass({ isSelected, isRedDay }) {
         if (isSelected && isRedDay) {
