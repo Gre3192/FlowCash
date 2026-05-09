@@ -10,24 +10,25 @@ import {
 
 import amazon from "../assets/logos/PrimeVideo.png";
 import AmountRatio from "./AmountRatio";
-
+import { useDelete } from "../hooks/useDelete";
+import { API_ENDPOINTS } from "../api/endpoint";
 
 export default function TransactionCard({
-
     setOpenCategoryMenuId,
     transaction,
     current,
     budget,
-    onClick = () => {},
+    onClick = () => { },
     openTransactionMenuId,
     setOpenTransactionMenuId,
     transactionMenuAnchor,
     setTransactionMenuAnchor,
     transactionContextPosition,
     setTransactionContextPosition,
-
+    reloadMonthlyOverview,
 }) {
-    
+    const { deleteData } = useDelete();
+
     const isMenuOpen = openTransactionMenuId === transaction.id;
     const isIncome = transaction.type === "Income";
     const typeLabel = isIncome ? "Entrata" : "Uscita";
@@ -35,6 +36,21 @@ export default function TransactionCard({
 
     const progress = budget > 0 ? (current / budget) * 100 : 0;
     const remaining = budget - current;
+
+    async function handleDeleteTransaction() {
+        if (!transaction?.id) return;
+
+        try {
+            setOpenTransactionMenuId(null);
+
+            await deleteData(API_ENDPOINTS.transactions() + transaction.id + "/");
+            reloadMonthlyOverview?.();
+        } catch (err) {
+            if (err.name !== "AbortError") {
+                console.error(err);
+            }
+        }
+    }
 
     function onCtxMenuClick(e) {
         e.preventDefault();
@@ -56,6 +72,9 @@ export default function TransactionCard({
             setOpenTransactionMenuId(null);
             return;
         }
+
+        console.log(transaction.id);
+        
 
         setOpenCategoryMenuId?.(null);
         setTransactionMenuAnchor(options.anchor || "button");
@@ -116,10 +135,9 @@ export default function TransactionCard({
                             className={`
                                 inline-flex shrink-0 items-center gap-1 rounded-full border px-1.5 py-0.5
                                 text-[10px] font-medium leading-none
-                                ${
-                                    isIncome
-                                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                                        : "border-red-200 bg-red-50 text-red-700"
+                                ${isIncome
+                                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                    : "border-red-200 bg-red-50 text-red-700"
                                 }
                             `}
                         >
@@ -169,13 +187,13 @@ export default function TransactionCard({
                             {
                                 label: "Modifica",
                                 icon: Pencil,
-                                onClick: () => {},
+                                onClick: () => { },
                             },
                             {
                                 label: "Elimina",
                                 icon: Trash2,
                                 danger: true,
-                                onClick: () => {},
+                                onClick: handleDeleteTransaction,
                             },
                         ]}
                     />
@@ -184,4 +202,3 @@ export default function TransactionCard({
         </div>
     );
 }
-

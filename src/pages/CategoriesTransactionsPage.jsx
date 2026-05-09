@@ -201,6 +201,7 @@ export default function CategoriesTransactionsPage() {
                             selectedMonth={selectedMonth}
                             selectedYear={selectedYear}
                             onTransactionCardClick={handleTransactionCard}
+                            reloadMonthlyOverview={reloadMonthlyOverview}
                         />
                     </div>
                 </div>
@@ -460,7 +461,8 @@ function TransactionsSide({
     setSelectedDay,
     selectedMonth,
     selectedYear,
-    onTransactionCardClick
+    onTransactionCardClick,
+    reloadMonthlyOverview
 
 }) {
     const total = selectedCategory?.entriesTotal ?? 0;
@@ -509,6 +511,7 @@ function TransactionsSide({
                                         setTransactionMenuAnchor={setTransactionMenuAnchor}
                                         transactionContextPosition={transactionContextPosition}
                                         setTransactionContextPosition={setTransactionContextPosition}
+                                        reloadMonthlyOverview={reloadMonthlyOverview}
                                     />
                                 );
                             })}

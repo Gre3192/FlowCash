@@ -3,6 +3,7 @@ import { FolderOpen, Pencil, Trash2 } from "lucide-react";
 import EdgeProgressBar from "./EdgeProgressBar";
 import CardMenu from "./CardMenu";
 import formatCurrency from "../utils/formatCurrency";
+import AmountRatio from "../components/AmountRatio"
 
 export default function CategoryCard({
     category,
@@ -13,7 +14,7 @@ export default function CategoryCard({
     setOpenCategoryMenuId,
     setSelectedCategoryId,
 }) {
-    
+
     const [categoryMenuAnchor, setCategoryMenuAnchor] = useState("button");
     const [ctxMenuPosition, setCtxMenuPosition] = useState({ x: 0, y: 0 });
 
@@ -38,19 +39,13 @@ export default function CategoryCard({
             onContextMenu={handleContextMenu}
             className={`
                 group relative cursor-pointer overflow-visible rounded-xl transition-all duration-150
-                ${isSelected
-                    ? "bg-sky-50 shadow-[0_4px_14px_rgba(14,165,233,0.12)]"
-                    : "bg-white hover:bg-slate-50 hover:shadow-[0_4px_14px_rgba(15,23,42,0.08)]"
-                }
+                ${isSelected ? "bg-sky-50 shadow-[0_4px_14px_rgba(14,165,233,0.12)]" : "bg-white hover:bg-slate-50 hover:shadow-[0_4px_14px_rgba(15,23,42,0.08)]"}
             `}
         >
             <div
                 className={`
                     relative flex items-center justify-between overflow-hidden rounded-xl border px-3 py-3
-                    ${isSelected
-                        ? "border-sky-200 bg-sky-50"
-                        : "border-slate-200 bg-white group-hover:border-slate-300"
-                    }
+                    ${isSelected ? "border-sky-200 bg-sky-50" : "border-slate-200 bg-white group-hover:border-slate-300"}
                 `}
             >
                 <EdgeProgressBar value={progress} />
@@ -59,10 +54,7 @@ export default function CategoryCard({
                     <div
                         className={`
                             flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border shadow-sm
-                            ${isSelected
-                                ? "border-sky-200 bg-white text-sky-700"
-                                : "border-slate-200 bg-slate-50 text-slate-600"
-                            }
+                            ${isSelected ? "border-sky-200 bg-white text-sky-700" : "border-slate-200 bg-slate-50 text-slate-600"}
                         `}
                     >
                         <FolderOpen size={18} />
@@ -74,9 +66,7 @@ export default function CategoryCard({
                         </div>
 
                         <div className="truncate text-xs leading-4 text-slate-500">
-                            {transactionsCount === 1
-                                ? "1 transazione"
-                                : `${transactionsCount} transazioni`}
+                            {transactionsCount === 1 ? "1 transazione" : `${transactionsCount} transazioni`}
                         </div>
                     </div>
                 </div>
@@ -87,10 +77,7 @@ export default function CategoryCard({
                             <span
                                 className={`
                                     rounded-md px-1.5 py-0.5 text-[10px] font-medium leading-none
-                                    ${isSelected
-                                        ? "bg-sky-100 text-sky-700"
-                                        : "bg-slate-100 text-slate-600"
-                                    }
+                                    ${isSelected ? "bg-sky-100 text-sky-700" : "bg-slate-100 text-slate-600"}
                                 `}
                             >
                                 {progress.toFixed(0)}%
@@ -103,7 +90,9 @@ export default function CategoryCard({
                                 ${isSelected ? "text-sky-700" : "text-emerald-600"}
                             `}
                         >
-                            {formatCurrency(total)}
+
+                            {/* {formatCurrency(total)} */}
+                            <AmountRatio firstNum={formatCurrency(453)} secondNum={formatCurrency(total)}/>
                         </div>
                     </div>
 
@@ -125,13 +114,13 @@ export default function CategoryCard({
                             {
                                 label: "Modifica",
                                 icon: Pencil,
-                                onClick: () => {},
+                                onClick: () => { },
                             },
                             {
                                 label: "Elimina",
                                 icon: Trash2,
                                 danger: true,
-                                onClick: () => {},
+                                onClick: () => { },
                             },
                         ]}
                     />
