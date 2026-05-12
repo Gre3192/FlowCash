@@ -182,6 +182,7 @@ export default function CategoriesTransactionsPage() {
                             setIsCreateCategoryModalOpen={setIsCreateCategoryModalOpen}
                             selectedYear={selectedYear}
                             selectedMonth={selectedMonth}
+                            reloadMonthlyOverview={reloadMonthlyOverview}
                         />
                     </div>
 
@@ -274,6 +275,7 @@ function CategorySide({
     setSelectedCategoryId,
     selectedYear,
     selectedMonth,
+    reloadMonthlyOverview
 
 }) {
     const [showCategoriesWithTransactions, setShowCategoriesWithTransactions] = useState(true);
@@ -367,6 +369,7 @@ function CategorySide({
                                             openCategoryMenuId={openCategoryMenuId}
                                             setOpenCategoryMenuId={setOpenCategoryMenuId}
                                             setSelectedCategoryId={setSelectedCategoryId}
+                                            reloadMonthlyOverview={reloadMonthlyOverview}
                                             total={total}
                                         />
                                     );
@@ -399,6 +402,7 @@ function CategorySide({
                                             setOpenCategoryMenuId={setOpenCategoryMenuId}
                                             setSelectedCategoryId={setSelectedCategoryId}
                                             total={0}
+                                            reloadMonthlyOverview={reloadMonthlyOverview}
                                         />
                                     );
                                 })
@@ -429,6 +433,7 @@ function CategorySide({
                                             openCategoryMenuId={openCategoryMenuId}
                                             setOpenCategoryMenuId={setOpenCategoryMenuId}
                                             setSelectedCategoryId={setSelectedCategoryId}
+                                            reloadMonthlyOverview={reloadMonthlyOverview}
                                             total={0}
                                         />
                                     );
@@ -512,6 +517,9 @@ function TransactionsSide({
                                         transactionContextPosition={transactionContextPosition}
                                         setTransactionContextPosition={setTransactionContextPosition}
                                         reloadMonthlyOverview={reloadMonthlyOverview}
+                                        setSelectedDay={setSelectedDay}
+                                        selectedMonth={selectedMonth}
+                                        selectedYear={selectedYear}
                                     />
                                 );
                             })}

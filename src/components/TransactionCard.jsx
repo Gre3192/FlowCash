@@ -26,6 +26,9 @@ export default function TransactionCard({
     transactionContextPosition,
     setTransactionContextPosition,
     reloadMonthlyOverview,
+    setSelectedDay,
+    selectedMonth,
+    selectedYear
 }) {
     const { deleteData } = useDelete();
 
@@ -43,7 +46,12 @@ export default function TransactionCard({
         try {
             setOpenTransactionMenuId(null);
 
-            await deleteData(API_ENDPOINTS.transactions() + transaction.id + "/");
+            await deleteData(API_ENDPOINTS.transactions({
+                month: selectedMonth,
+                year: selectedYear
+            },
+                transaction.id
+            ));
             reloadMonthlyOverview?.();
         } catch (err) {
             if (err.name !== "AbortError") {
@@ -74,7 +82,7 @@ export default function TransactionCard({
         }
 
         console.log(transaction.id);
-        
+
 
         setOpenCategoryMenuId?.(null);
         setTransactionMenuAnchor(options.anchor || "button");

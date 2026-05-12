@@ -4,6 +4,8 @@ import EdgeProgressBar from "./EdgeProgressBar";
 import CardMenu from "./CardMenu";
 import formatCurrency from "../utils/formatCurrency";
 import AmountRatio from "../components/AmountRatio"
+import { useDelete } from "../hooks/useDelete";
+import { API_ENDPOINTS } from "../api/endpoint";
 
 export default function CategoryCard({
     category,
@@ -13,7 +15,10 @@ export default function CategoryCard({
     openCategoryMenuId,
     setOpenCategoryMenuId,
     setSelectedCategoryId,
+    reloadMonthlyOverview,
 }) {
+
+    const { deleteData } = useDelete();
 
     const [categoryMenuAnchor, setCategoryMenuAnchor] = useState("button");
     const [ctxMenuPosition, setCtxMenuPosition] = useState({ x: 0, y: 0 });
@@ -32,6 +37,24 @@ export default function CategoryCard({
         setCtxMenuPosition({ x: e.clientX, y: e.clientY });
         setOpenCategoryMenuId(category.id);
     }
+
+async function handleDeleteCategory() {
+    if (!category?.id) return;
+
+    try {
+        setOpenCategoryMenuId(null);
+
+        await deleteData(
+            API_ENDPOINTS.categories({}, category.id)
+        );
+
+        reloadMonthlyOverview?.();
+    } catch (err) {
+        if (err.name !== "AbortError") {
+            console.error(err);
+        }
+    }
+}
 
     return (
         <div
@@ -92,7 +115,7 @@ export default function CategoryCard({
                         >
 
                             {/* {formatCurrency(total)} */}
-                            <AmountRatio firstNum={formatCurrency(453)} secondNum={formatCurrency(total)}/>
+                            <AmountRatio firstNum={formatCurrency(453)} secondNum={formatCurrency(total)} />
                         </div>
                     </div>
 
@@ -120,7 +143,7 @@ export default function CategoryCard({
                                 label: "Elimina",
                                 icon: Trash2,
                                 danger: true,
-                                onClick: () => { },
+                                onClick: handleDeleteCategory,
                             },
                         ]}
                     />
