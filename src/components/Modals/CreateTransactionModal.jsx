@@ -75,14 +75,14 @@ export default function CreateTransactionModal({
         if (!validateForm()) return;
 
         const payload = {
-            name: formData.name.trim(),
+            transaction_name: formData.name.trim(),
             type: formData.type,
             note: formData.note.trim(),
             category_id: selectedCategoryId,
         };
 
         try {
-            await postData(API_ENDPOINTS.transactions(), payload);
+            await postData(API_ENDPOINTS.monthlyOverview(), payload);
 
             onClose?.();
             reload?.();

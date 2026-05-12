@@ -229,6 +229,7 @@ export default function CategoriesTransactionsPage() {
                 title="Nuova transazione"
             >
                 <CreateTransactionModal
+                    selectedCategoryId={selectedCategoryId}
                     reload={reloadMonthlyOverview}
                     onClose={() => setIsCreateTransactionModalOpen(false)}
                 />
