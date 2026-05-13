@@ -12,7 +12,7 @@ import DividerSection from "../components/DividerSection";
 import getMonthByNum from "../utils/getMonthByNum";
 import TransactionMovementsModal from "../components/Modals/TransactionMovementsModal";
 import MonthNavigator from "../components/MonthNavigator";
-import {useSearchFilter} from "../hooks/useSearchFilter";
+import { useSearchFilter } from "../hooks/useSearchFilter";
 import { useSelectedItem } from "../hooks/useSelectedItem";
 
 export default function CategoriesTransactionsPage() {
@@ -101,10 +101,10 @@ export default function CategoriesTransactionsPage() {
 
                     <div className="min-h-0 overflow-hidden lg:col-span-3">
                         <MonthNavigator
-                            selectedYear={selectedYear}
-                            setSelectedYear={setSelectedYear}
                             selectedMonth={selectedMonth}
                             setSelectedMonth={setSelectedMonth}
+                            selectedYear={selectedYear}
+                            setSelectedYear={setSelectedYear}
                             availableYears={availableYears}
                             currentYear={currentYear}
                         />

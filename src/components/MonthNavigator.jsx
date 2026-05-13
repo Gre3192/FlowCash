@@ -8,6 +8,8 @@ export default function MonthNavigator({
     setSelectedYear,
     selectedMonth,
     setSelectedMonth,
+    selectedDay,
+    setSelectedDay,
     availableYears = [],
     currentYear,
 }) {
@@ -64,7 +66,6 @@ export default function MonthNavigator({
     function updatePickerPosition() {
         const nextPosition = getPickerPosition();
         if (!nextPosition) return;
-
         setPickerPosition(nextPosition);
     }
 
@@ -196,6 +197,8 @@ export default function MonthNavigator({
                     setSelectedYear={setSelectedYear}
                     selectedMonth={normalizedSelectedMonth}
                     setSelectedMonth={setSelectedMonth}
+                    selectedDay={selectedDay}
+                    setSelectedDay={setSelectedDay}
                     availableYears={availableYears}
                     setIsPickerOpen={setIsPickerOpen}
                     setPickerPosition={setPickerPosition}
@@ -210,6 +213,8 @@ function MonthsYearsPicker({
     setSelectedYear,
     selectedMonth,
     setSelectedMonth,
+    selectedDay,
+    setSelectedDay,
     pickerRef,
     pickerPosition,
     availableYears = [],
@@ -236,9 +241,13 @@ function MonthsYearsPicker({
     function handleTodayClick() {
         const today = new Date();
 
-        
         setSelectedMonth(today.getMonth() + 1);
         setSelectedYear(today.getFullYear());
+
+        if (typeof setSelectedDay === "function") {
+            setSelectedDay(today.getDate());
+        }
+
         closePicker();
     }
 

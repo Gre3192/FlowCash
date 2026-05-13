@@ -107,7 +107,7 @@ export default function TransactionMovementsModal({
     function handleTodayClick() {
         const today = new Date();
 
-        const todayDay = today.getDate();
+        const todayDay = today.getDay();
         const todayMonth = today.getMonth() + 1;
         const todayYear = today.getFullYear();
 
@@ -185,6 +185,8 @@ export default function TransactionMovementsModal({
         <div className="flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden">
             <div className="grid shrink-0 grid-cols-1 gap-4 border-b border-slate-200 px-0 pb-3 md:grid-cols-[300px_minmax(0,1fr)]">
                 <MonthNavigator
+                    selectedDay={localSelectedDay}
+                    setSelectedDay={setLocalSelectedDay}
                     selectedYear={localSelectedYear}
                     setSelectedYear={setLocalSelectedYear}
                     selectedMonth={localSelectedMonth}
