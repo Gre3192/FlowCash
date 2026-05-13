@@ -422,12 +422,6 @@ function BudgetHeader({
                                 </>
                             )}
                         </div>
-
-                        {note && (
-                            <p className="mt-0.5 truncate text-xs text-slate-400">
-                                {note}
-                            </p>
-                        )}
                     </div>
                 </div>
 
