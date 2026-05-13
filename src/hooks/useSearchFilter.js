@@ -1,17 +1,19 @@
 import { useMemo } from "react";
 
-export default function useSearchFilter(items = [], searchValue = "", getSearchText) {
+export function useSearchFilter(items = [], searchValue = "", searchKeys = ["name"]) {
     return useMemo(() => {
         const query = searchValue.trim().toLowerCase();
 
         if (!query) return items;
 
         return items.filter((item) => {
-            const text = getSearchText(item);
+            return searchKeys.some((key) => {
+                const value = item?.[key];
 
-            return String(text ?? "")
-                .toLowerCase()
-                .includes(query);
+                return String(value ?? "")
+                    .toLowerCase()
+                    .includes(query);
+            });
         });
-    }, [items, searchValue, getSearchText]);
+    }, [items, searchValue, searchKeys]);
 }

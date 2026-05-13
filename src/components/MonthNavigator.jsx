@@ -236,6 +236,7 @@ function MonthsYearsPicker({
     function handleTodayClick() {
         const today = new Date();
 
+        
         setSelectedMonth(today.getMonth() + 1);
         setSelectedYear(today.getFullYear());
         closePicker();
