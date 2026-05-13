@@ -10,6 +10,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import formatCurrency from "../utils/formatCurrency";
 import BulkUpdatePanel from "../components/BulkUpdatePanel";
+import TransactionTypeBadge from "../components/TransactionTypeBadge";
 import { useGet } from "../hooks/useGet";
 import { API_ENDPOINTS } from "../api/endpoint";
 
@@ -110,7 +111,6 @@ function buildBudgetPayload(rows, transactionId) {
 }
 
 export default function BudgetPage() {
-
     const { id } = useParams();
 
     const [rows, setRows] = useState([]);
@@ -119,11 +119,17 @@ export default function BudgetPage() {
     const [isInitialized, setIsInitialized] = useState(false);
     const [isYearsModalOpen, setIsYearsModalOpen] = useState(false);
 
-    const { data: transactionBudgets, loading, error, reload: reloadTransactionBudgets, } = useGet(id ? API_ENDPOINTS.transactionBudgets(
-        {
-            transaction_id: id
-        }
-    ) : null,
+    const {
+        data: transactionBudgets,
+        loading,
+        error,
+        reload: reloadTransactionBudgets,
+    } = useGet(
+        id
+            ? API_ENDPOINTS.transactionBudgets({
+                transaction_id: id,
+            })
+            : null,
         {
             delayMs: 0,
         }
@@ -134,7 +140,7 @@ export default function BudgetPage() {
     const pageTitle = transaction?.name ?? "Budget transazione";
 
     const pageSubtitle = transaction?.category?.name
-        ? `${transaction.category.name} • ${transaction.type}`
+        ? transaction.category.name
         : "Gestisci i budget annuali della transazione";
 
     useEffect(() => {
@@ -223,12 +229,10 @@ export default function BudgetPage() {
         console.log("Salvataggio:", payload);
 
         /*
-            Da gestire dopo:
-
+            Qui dopo puoi gestire:
             - PATCH se row.id esiste
             - POST se row.id è null
 
-            Dopo il salvataggio:
             reloadTransactionBudgets?.();
         */
     }
@@ -323,6 +327,7 @@ export default function BudgetPage() {
                 <BudgetHeader
                     title={pageTitle}
                     subtitle={pageSubtitle}
+                    type={transaction?.type}
                     note={transaction?.note}
                     yearsLabel={yearsLabel}
                     onOpenYearsModal={handleOpenYearsModal}
@@ -373,6 +378,7 @@ export default function BudgetPage() {
 function BudgetHeader({
     title,
     subtitle,
+    type,
     note,
     yearsLabel,
     onOpenYearsModal,
@@ -403,9 +409,16 @@ function BudgetHeader({
                             </span>
                         </div>
 
-                        <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-                            {subtitle}
-                        </p>
+                        <div className="mt-1 flex min-w-0 items-center gap-2">
+                            <p className="truncate text-xs text-slate-500 sm:text-sm">
+                                {subtitle}
+                            </p>
+
+                            {type && <>
+                                <span className="text-xs text-slate-300">•</span>
+                                <TransactionTypeBadge type={type} />
+                            </>}
+                        </div>
                     </div>
                 </div>
 

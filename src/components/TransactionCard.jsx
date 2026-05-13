@@ -15,6 +15,7 @@ import { ROUTE_PAGE } from "../routes/routePage"
 import amazon from "../assets/logos/PrimeVideo.png";
 import AmountRatio from "./AmountRatio";
 import { useDelete } from "../hooks/useDelete";
+import TransactionTypeBadge from "./TransactionTypeBadge";
 import { API_ENDPOINTS } from "../api/endpoint";
 
 export default function TransactionCard({
@@ -39,8 +40,6 @@ export default function TransactionCard({
 
     const isMenuOpen = openTransactionMenuId === transaction.id;
     const isIncome = transaction.type === "Income";
-    const typeLabel = isIncome ? "Entrata" : "Uscita";
-    const TypeIcon = isIncome ? ArrowDownLeft : ArrowUpRight;
 
     const hasBudget = true;
 
@@ -134,6 +133,9 @@ export default function TransactionCard({
         onClick?.(e);
     }
 
+    console.log(transaction);
+    
+
     return (
         <div
             key={transaction.id}
@@ -191,20 +193,7 @@ export default function TransactionCard({
                     </div>
 
                     <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                        <span
-                            className={`
-                                inline-flex shrink-0 items-center gap-1 rounded-full border px-1.5 py-0.5
-                                text-[10px] font-medium leading-none
-                                ${isIncome
-                                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                                    : "border-red-200 bg-red-50 text-red-700"
-                                }
-                            `}
-                        >
-                            <TypeIcon size={11} />
-                            {typeLabel}
-                        </span>
-
+                        <TransactionTypeBadge type={transaction.type} />
                         {hasBudget ? (
                             <div className="inline-flex shrink-0 items-center gap-1">
                                 <span
