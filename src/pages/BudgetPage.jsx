@@ -215,26 +215,26 @@ export default function BudgetPage() {
         });
     }
 
-async function handleSave() {
-    if (!id) return;
+    async function handleSave() {
+        if (!id) return;
 
-    const payload = buildBudgetPayload(sortedRows, id);
+        const payload = buildBudgetPayload(sortedRows, id);
 
-    try {
-        await postData(
-            API_ENDPOINTS.transactionBudgetsBulkCreate(),
-            payload
-        );
+        try {
+            await postData(
+                API_ENDPOINTS.transactionBudgetsBulkCreate(),
+                payload
+            );
 
-        await reloadTransactionBudgets?.();
+            await reloadTransactionBudgets?.();
 
-        console.log("Budget salvati:", payload);
-    } catch (err) {
-        if (err.name !== "AbortError") {
-            console.error("Errore durante il salvataggio dei budget:", err);
+            console.log("Budget salvati:", payload);
+        } catch (err) {
+            if (err.name !== "AbortError") {
+                console.error("Errore durante il salvataggio dei budget:", err);
+            }
         }
     }
-}
 
     function handleOpenYearsModal() {
         if (sortedRows.length > 0) {
