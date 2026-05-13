@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Save, PlusCircle, MinusCircle, CalendarRange, Eraser } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import {
+    ArrowLeft,
+    Save,
+    PlusCircle,
+    MinusCircle,
+    CalendarRange,
+    Eraser,
+} from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
 import formatCurrency from "../utils/formatCurrency";
 import BulkUpdatePanel from "../components/BulkUpdatePanel";
 import { useGet } from "../hooks/useGet";
@@ -35,8 +42,6 @@ const MONTH_FIELDS = [
     "nov_val",
     "dic_val",
 ];
-
-const TRANSACTION_ID = "09b6792f-ec58-48c1-829c-e0a509d790e4";
 
 function createYearRow(year) {
     return {
@@ -79,7 +84,7 @@ function normalizeBudgetRows(apiData) {
     }));
 }
 
-function buildBudgetPayload(rows) {
+function buildBudgetPayload(rows, transactionId) {
     return rows.map((row) => {
         const monthValues = MONTH_FIELDS.reduce((acc, field, index) => {
             const value = row.values[index];
@@ -95,7 +100,7 @@ function buildBudgetPayload(rows) {
 
         return {
             id: row.id,
-            transaction_id: TRANSACTION_ID,
+            transaction_id: transactionId,
             year: row.year,
             ...monthValues,
         };
@@ -103,6 +108,7 @@ function buildBudgetPayload(rows) {
 }
 
 export default function BudgetPage() {
+    const { id } = useParams();
 
     const [rows, setRows] = useState([]);
     const [startYear, setStartYear] = useState("");
@@ -110,18 +116,29 @@ export default function BudgetPage() {
     const [isInitialized, setIsInitialized] = useState(false);
     const [isYearsModalOpen, setIsYearsModalOpen] = useState(false);
 
-    const { data: transactionBudgets, loading, error, reload: reloadTransactionBudgets, } = useGet(API_ENDPOINTS.transactionBudgets(
-        {
-            transaction_id: TRANSACTION_ID,
-        }
-    ),
+    const {
+        data: transactionBudgets,
+        loading,
+        error,
+        reload: reloadTransactionBudgets,
+    } = useGet(
+        id
+            ? API_ENDPOINTS.transactionBudgets({
+                  transaction_id: id,
+              })
+            : null,
         {
             delayMs: 0,
         }
     );
 
     useEffect(() => {
-        if (!transactionBudgets || isInitialized) return;
+        setRows([]);
+        setIsInitialized(false);
+    }, [id]);
+
+    useEffect(() => {
+        if (!id || !transactionBudgets || isInitialized) return;
 
         const mappedRows = normalizeBudgetRows(transactionBudgets);
 
@@ -132,7 +149,7 @@ export default function BudgetPage() {
         }
 
         setIsInitialized(true);
-    }, [transactionBudgets, isInitialized]);
+    }, [id, transactionBudgets, isInitialized]);
 
     const sortedRows = useMemo(() => {
         return [...rows].sort((a, b) => a.year - b.year);
@@ -149,10 +166,11 @@ export default function BudgetPage() {
 
         const firstYear = sortedRows[0].year;
         const lastYear = sortedRows[sortedRows.length - 1].year;
+
         if (firstYear === lastYear) return String(firstYear);
+
         return `${firstYear} - ${lastYear}`;
     }, [sortedRows]);
-
 
     function handleValueChange(year, monthIndex, value) {
         if (!/^-?\d*([.,]?\d{0,2})?$/.test(value)) return;
@@ -161,11 +179,11 @@ export default function BudgetPage() {
             prev.map((row) =>
                 row.year === year
                     ? {
-                        ...row,
-                        values: row.values.map((currentValue, index) =>
-                            index === monthIndex ? value : currentValue
-                        ),
-                    }
+                          ...row,
+                          values: row.values.map((currentValue, index) =>
+                              index === monthIndex ? value : currentValue
+                          ),
+                      }
                     : row
             )
         );
@@ -193,10 +211,20 @@ export default function BudgetPage() {
     }
 
     function handleSave() {
-        const payload = buildBudgetPayload(sortedRows);
+        if (!id) return;
+
+        const payload = buildBudgetPayload(sortedRows, id);
 
         console.log("Salvataggio:", payload);
 
+        /*
+            Qui dopo puoi gestire:
+
+            - PATCH se row.id esiste
+            - POST se row.id è null
+
+            reloadTransactionBudgets?.();
+        */
     }
 
     function handleOpenYearsModal() {
@@ -245,11 +273,21 @@ export default function BudgetPage() {
             prev.map((row) =>
                 row.year === year
                     ? {
-                        ...row,
-                        values: row.values.map(() => ""),
-                    }
+                          ...row,
+                          values: row.values.map(() => ""),
+                      }
                     : row
             )
+        );
+    }
+
+    if (!id) {
+        return (
+            <div className="h-full bg-slate-50 p-3 sm:p-4">
+                <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 shadow-sm">
+                    ID transazione non presente nella rotta.
+                </div>
+            </div>
         );
     }
 
