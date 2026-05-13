@@ -158,6 +158,8 @@ export default function CategoriesTransactionsPage() {
                 </div>
             </div>
 
+
+
             <ModalWrapper
                 height="h-fit"
                 isOpen={isCreateCategoryModalOpen}
@@ -205,6 +207,7 @@ export default function CategoriesTransactionsPage() {
         </div>
     );
 }
+
 
 
 
