@@ -3,6 +3,8 @@ import { ArrowLeft, Save, PlusCircle, MinusCircle, CalendarRange, Eraser } from 
 import { useNavigate } from "react-router-dom";
 import formatCurrency from "../utils/formatCurrency";
 import BulkUpdatePanel from "../components/BulkUpdatePanel";
+import { useGet } from "../hooks/useGet";
+import { API_ENDPOINTS } from "../api/endpoint";
 
 const MONTHS = [
     "Gen",
@@ -19,43 +21,26 @@ const MONTHS = [
     "Dic",
 ];
 
-const INITIAL_DATA = {
-    title: "Amazon prime",
-    icon: "",
-    rows: [
-        {
-            year: 2025,
-            values: ["100", "120", "150", "", "180", "", "", "210", "", "", "250", "300"],
-        },
-        {
-            year: 2026,
-            values: ["90", "", "130", "160", "", "", "400", "", "220", "", "", "280"],
-        },
-        {
-            year: 2027,
-            values: ["110", "", "", "170", "200", "", "", "", "260", "", "290", ""],
-        },
-        {
-            year: 2028,
-            values: ["", "140", "", "", "190", "", "230", "", "", "270", "", "310"],
-        },
-        {
-            year: 2029,
-            values: ["125", "", "155", "", "", "205", "", "", "245", "", "", "295"],
-        },
-        {
-            year: 2030,
-            values: ["", "135", "", "175", "", "", "225", "", "255", "", "285", ""],
-        },
-        {
-            year: 2031,
-            values: ["150", "", "", "", "210", "", "", "240", "", "275", "", "320"],
-        },
-    ],
-};
+const MONTH_FIELDS = [
+    "gen_val",
+    "feb_val",
+    "mar_val",
+    "apr_val",
+    "mag_val",
+    "giu_val",
+    "lug_val",
+    "ago_val",
+    "set_val",
+    "ott_val",
+    "nov_val",
+    "dic_val",
+];
+
+const TRANSACTION_ID = "09b6792f-ec58-48c1-829c-e0a509d790e4";
 
 function createYearRow(year) {
     return {
+        id: null,
         year,
         values: Array(12).fill(""),
     };
@@ -74,31 +59,79 @@ function getYearTotal(values) {
     return totalCents / 100;
 }
 
-export default function BudgetPage() {
-    const [data] = useState(INITIAL_DATA);
+function normalizeBudgetValue(value) {
+    if (value === null || value === undefined) return "";
 
+    const num = Number(value);
+
+    if (Number.isNaN(num)) return "";
+
+    return num === 0 ? "" : String(value);
+}
+
+function normalizeBudgetRows(apiData) {
+    if (!Array.isArray(apiData)) return [];
+
+    return apiData.map((budget) => ({
+        id: budget.id,
+        year: Number(budget.year),
+        values: MONTH_FIELDS.map((field) => normalizeBudgetValue(budget[field])),
+    }));
+}
+
+function buildBudgetPayload(rows) {
+    return rows.map((row) => {
+        const monthValues = MONTH_FIELDS.reduce((acc, field, index) => {
+            const value = row.values[index];
+
+            if (value === "" || value === null || value === undefined) {
+                acc[field] = "0.00";
+                return acc;
+            }
+
+            acc[field] = String(value).replace(",", ".");
+            return acc;
+        }, {});
+
+        return {
+            id: row.id,
+            transaction_id: TRANSACTION_ID,
+            year: row.year,
+            ...monthValues,
+        };
+    });
+}
+
+export default function BudgetPage() {
     const [rows, setRows] = useState([]);
     const [startYear, setStartYear] = useState("");
     const [endYear, setEndYear] = useState("");
     const [isInitialized, setIsInitialized] = useState(false);
     const [isYearsModalOpen, setIsYearsModalOpen] = useState(false);
 
-    const loading = false;
+    const { data: transactionBudgets, loading, error, reload: reloadTransactionBudgets, } = useGet(API_ENDPOINTS.transactionBudgets(
+        {
+            transaction_id: TRANSACTION_ID,
+        }
+    ),
+        {
+            delayMs: 0,
+        }
+    );
 
     useEffect(() => {
-        if (!data?.rows || !Array.isArray(data.rows) || isInitialized) return;
+        if (!transactionBudgets || isInitialized) return;
 
-        const mappedRows = data.rows.map((item) => ({
-            year: Number(item.year),
-            values: Array.from({ length: 12 }, (_, index) => {
-                const value = item.values?.[index];
-                return value === null || value === undefined ? "" : String(value);
-            }),
-        }));
+        const mappedRows = normalizeBudgetRows(transactionBudgets);
 
-        setRows(mappedRows);
+        if (mappedRows.length > 0) {
+            setRows(mappedRows);
+        } else {
+            setRows([createYearRow(new Date().getFullYear())]);
+        }
+
         setIsInitialized(true);
-    }, [data, isInitialized]);
+    }, [transactionBudgets, isInitialized]);
 
     const sortedRows = useMemo(() => {
         return [...rows].sort((a, b) => a.year - b.year);
@@ -122,7 +155,7 @@ export default function BudgetPage() {
     }, [sortedRows]);
 
     function handleValueChange(year, monthIndex, value) {
-        if (!/^\d*([.,]?\d{0,2})?$/.test(value)) return;
+        if (!/^-?\d*([.,]?\d{0,2})?$/.test(value)) return;
 
         setRows((prev) =>
             prev.map((row) =>
@@ -139,7 +172,13 @@ export default function BudgetPage() {
     }
 
     function handleAddNextYear() {
-        setRows((prev) => [...prev, createYearRow(nextYear)]);
+        setRows((prev) => {
+            const alreadyExists = prev.some((row) => row.year === nextYear);
+
+            if (alreadyExists) return prev;
+
+            return [...prev, createYearRow(nextYear)];
+        });
     }
 
     function handleRemoveLastYear() {
@@ -154,16 +193,28 @@ export default function BudgetPage() {
     }
 
     function handleSave() {
-        const payload = {
-            title: data.title,
-            icon: data.icon,
-            rows: sortedRows.map((row) => ({
-                year: row.year,
-                values: row.values,
-            })),
-        };
+        const payload = buildBudgetPayload(sortedRows);
 
         console.log("Salvataggio:", payload);
+
+        /*
+            Payload generato:
+
+            [
+                {
+                    id: "409fd200-a53d-4ff5-8bf7-39726568ef3b",
+                    transaction_id: "...",
+                    year: 2026,
+                    gen_val: "650.00",
+                    feb_val: "650.00",
+                    ...
+                }
+            ]
+
+            Qui puoi gestire:
+            - PATCH se row.id esiste
+            - POST se row.id è null
+        */
     }
 
     function handleOpenYearsModal() {
@@ -230,11 +281,21 @@ export default function BudgetPage() {
         );
     }
 
+    if (error && !isInitialized) {
+        return (
+            <div className="h-full bg-slate-50 p-3 sm:p-4">
+                <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 shadow-sm">
+                    Errore durante il caricamento dei budget.
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="h-full min-h-0 bg-slate-50">
             <div className="flex h-full min-h-0 flex-col px-3 pb-3 sm:px-4 md:px-6 lg:px-8">
                 <BudgetHeader
-                    title={data.title}
+                    title="Budget transazione"
                     subtitle="Gestisci i budget annuali della transazione"
                     yearsLabel={yearsLabel}
                     onOpenYearsModal={handleOpenYearsModal}
@@ -444,7 +505,9 @@ function BudgetFooterActions({
                 className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-100 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             >
                 <MinusCircle className="h-5 w-5 shrink-0" />
-                <span className="truncate">Togli ultimo anno ({nextYear - 1})</span>
+                <span className="truncate">
+                    Togli ultimo anno ({nextYear - 1})
+                </span>
             </button>
 
             <button
@@ -453,7 +516,9 @@ function BudgetFooterActions({
                 className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-100 hover:text-slate-900 sm:w-auto"
             >
                 <PlusCircle className="h-5 w-5 shrink-0" />
-                <span className="truncate">Aggiungi anno successivo ({nextYear})</span>
+                <span className="truncate">
+                    Aggiungi anno successivo ({nextYear})
+                </span>
             </button>
         </div>
     );
@@ -491,14 +556,14 @@ function YearsRangeModal({
                         label="Anno iniziale"
                         value={startYear}
                         onChange={setStartYear}
-                        placeholder="Es. 2025"
+                        placeholder="Es. 2026"
                     />
 
                     <YearInput
                         label="Anno finale"
                         value={endYear}
                         onChange={setEndYear}
-                        placeholder="Es. 2031"
+                        placeholder="Es. 2027"
                     />
                 </div>
 
