@@ -228,15 +228,17 @@ function CategorySide({
     selectedMonth,
     reloadMonthlyOverview,
 }) {
+    
     const [showCategoriesWithTransactions, setShowCategoriesWithTransactions] = useState(true);
     const [showCategoriesEmptyInSelectedPeriod, setShowCategoriesEmptyInSelectedPeriod] = useState(true);
     const [showCategoriesWithoutTransactions, setShowCategoriesWithoutTransactions] = useState(true);
+
 
     const categoriesWithTransactions = useMemo(() => {
         return categories.filter((category) => {
             return (
                 category.has_transactions &&
-                Number(category.current_total || 0) > 0
+                Number(category.budget_total || 0) > 0
             );
         });
     }, [categories]);
@@ -245,7 +247,7 @@ function CategorySide({
         return categories.filter((category) => {
             return (
                 category.has_transactions &&
-                Number(category.current_total || 0) === 0
+                Number(category.budget_total || 0) === 0
             );
         });
     }, [categories]);
