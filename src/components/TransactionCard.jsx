@@ -47,10 +47,7 @@ export default function TransactionCard({
     const numericCurrent = Number(current || 0);
     const numericBudget = Number(budget || 0);
 
-    const progress =
-        hasBudget && numericBudget > 0
-            ? (numericCurrent / numericBudget) * 100
-            : 0;
+    const progress = hasBudget && numericBudget > 0 ? (numericCurrent / numericBudget) * 100 : 0;
 
     const remaining = hasBudget ? numericBudget - numericCurrent : 0;
 

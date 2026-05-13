@@ -1,13 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-    ArrowLeft,
-    Save,
-    PlusCircle,
-    MinusCircle,
-    CalendarRange,
-    Eraser,
-} from "lucide-react";
+import { ArrowLeft, Save, PlusCircle, MinusCircle, CalendarRange, Eraser } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import formatCurrency from "../utils/formatCurrency";
 import BulkUpdatePanel from "../components/BulkUpdatePanel";
 
 const MONTHS = [
@@ -78,13 +72,6 @@ function getYearTotal(values) {
     }, 0);
 
     return totalCents / 100;
-}
-
-function formatEuro(value) {
-    return value.toLocaleString("it-IT", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    });
 }
 
 export default function BudgetPage() {
@@ -400,7 +387,7 @@ function BudgetTable({
                                 <div className="mt-0.5 text-xs font-medium leading-tight text-slate-500">
                                     Totale{" "}
                                     <span className="font-semibold text-slate-800">
-                                        {formatEuro(total)} €
+                                        {formatCurrency(total)}
                                     </span>
                                 </div>
                             </td>

@@ -1,7 +1,7 @@
 export const ROUTE_PAGE = {
 
     categoriesTransactionsPage: `/`,
-    budgetPage: `/budgetPage`,
+    budgetPage: (transactionId = null) => transactionId ? `/budgetPage/${transactionId}` : "/budgetPage",
     testPage: `/testPage`
 
 };
