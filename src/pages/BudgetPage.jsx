@@ -110,7 +110,7 @@ function buildBudgetPayload(rows, transactionId) {
 }
 
 export default function BudgetPage() {
-    
+
     const { id } = useParams();
 
     const [rows, setRows] = useState([]);
@@ -119,12 +119,11 @@ export default function BudgetPage() {
     const [isInitialized, setIsInitialized] = useState(false);
     const [isYearsModalOpen, setIsYearsModalOpen] = useState(false);
 
-    const {
-        data: transactionBudgets,
-        loading,
-        error,
-        reload: reloadTransactionBudgets,
-    } = useGet(id ? API_ENDPOINTS.transactionBudgets({ transaction_id: id, }) : null,
+    const { data: transactionBudgets, loading, error, reload: reloadTransactionBudgets, } = useGet(id ? API_ENDPOINTS.transactionBudgets(
+        {
+            transaction_id: id
+        }
+    ) : null,
         {
             delayMs: 0,
         }
