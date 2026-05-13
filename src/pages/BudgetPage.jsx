@@ -1,12 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-    ArrowLeft,
-    Save,
-    PlusCircle,
-    MinusCircle,
-    CalendarRange,
-    Eraser,
-} from "lucide-react";
+import { ArrowLeft, Save, PlusCircle, MinusCircle, CalendarRange, Eraser } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import formatCurrency from "../utils/formatCurrency";
 import BulkUpdatePanel from "../components/BulkUpdatePanel";
@@ -14,6 +7,7 @@ import TransactionTypeBadge from "../components/TransactionTypeBadge";
 import ModalWrapper from "../components/ModalWrapper";
 import { useGet } from "../hooks/useGet";
 import { API_ENDPOINTS } from "../api/endpoint";
+import { usePost } from "../hooks/usePost";
 
 const MONTHS = [
     "Gen",
@@ -89,29 +83,35 @@ function normalizeBudgetRows(apiData) {
 }
 
 function buildBudgetPayload(rows, transactionId) {
-    return rows.map((row) => {
-        const monthValues = MONTH_FIELDS.reduce((acc, field, index) => {
-            const value = row.values[index];
+    return {
+        transaction_id: transactionId,
+        budgets: rows.map((row) => {
+            const monthValues = MONTH_FIELDS.reduce((acc, field, index) => {
+                const value = row.values[index];
 
-            if (value === "" || value === null || value === undefined) {
-                acc[field] = "0.00";
+                if (value === "" || value === null || value === undefined) {
+                    acc[field] = "0.00";
+                    return acc;
+                }
+
+                const normalized = String(value).replace(",", ".");
+                const num = Number(normalized);
+
+                acc[field] = Number.isNaN(num) ? "0.00" : num.toFixed(2);
+
                 return acc;
-            }
+            }, {});
 
-            acc[field] = String(value).replace(",", ".");
-            return acc;
-        }, {});
-
-        return {
-            id: row.id,
-            transaction_id: transactionId,
-            year: row.year,
-            ...monthValues,
-        };
-    });
+            return {
+                year: row.year,
+                ...monthValues,
+            };
+        }),
+    };
 }
 
 export default function BudgetPage() {
+
     const { id } = useParams();
 
     const [rows, setRows] = useState([]);
@@ -120,29 +120,22 @@ export default function BudgetPage() {
     const [isInitialized, setIsInitialized] = useState(false);
     const [isYearsModalOpen, setIsYearsModalOpen] = useState(false);
 
-    const {
-        data: transactionBudgets,
-        loading,
-        error,
-        reload: reloadTransactionBudgets,
-    } = useGet(
-        id
-            ? API_ENDPOINTS.transactionBudgets({
-                  transaction_id: id,
-              })
-            : null,
+    const { data: transactionBudgets, loading, error, reload: reloadTransactionBudgets, } = useGet(id ? API_ENDPOINTS.transactionBudgets(
+        {
+            transaction_id: id,
+        })
+        : null,
         {
             delayMs: 0,
         }
     );
 
+    const { postData, loading: saving, error: saveError } = usePost();
+
+
     const transaction = transactionBudgets?.transaction ?? null;
-
     const pageTitle = transaction?.name ?? "Budget transazione";
-
-    const pageSubtitle = transaction?.category?.name
-        ? transaction.category.name
-        : "Gestisci i budget annuali della transazione";
+    const pageSubtitle = transaction?.category?.name ? transaction.category.name : "Gestisci i budget annuali della transazione";
 
     useEffect(() => {
         setRows([]);
@@ -191,11 +184,11 @@ export default function BudgetPage() {
             prev.map((row) =>
                 row.year === year
                     ? {
-                          ...row,
-                          values: row.values.map((currentValue, index) =>
-                              index === monthIndex ? value : currentValue
-                          ),
-                      }
+                        ...row,
+                        values: row.values.map((currentValue, index) =>
+                            index === monthIndex ? value : currentValue
+                        ),
+                    }
                     : row
             )
         );
@@ -222,21 +215,26 @@ export default function BudgetPage() {
         });
     }
 
-    function handleSave() {
-        if (!id) return;
+async function handleSave() {
+    if (!id) return;
 
-        const payload = buildBudgetPayload(sortedRows, id);
+    const payload = buildBudgetPayload(sortedRows, id);
 
-        console.log("Salvataggio:", payload);
+    try {
+        await postData(
+            API_ENDPOINTS.transactionBudgetsBulkCreate(),
+            payload
+        );
 
-        /*
-            Qui dopo puoi gestire:
-            - PATCH se row.id esiste
-            - POST se row.id è null
+        await reloadTransactionBudgets?.();
 
-            reloadTransactionBudgets?.();
-        */
+        console.log("Budget salvati:", payload);
+    } catch (err) {
+        if (err.name !== "AbortError") {
+            console.error("Errore durante il salvataggio dei budget:", err);
+        }
     }
+}
 
     function handleOpenYearsModal() {
         if (sortedRows.length > 0) {
@@ -284,9 +282,9 @@ export default function BudgetPage() {
             prev.map((row) =>
                 row.year === year
                     ? {
-                          ...row,
-                          values: row.values.map(() => ""),
-                      }
+                        ...row,
+                        values: row.values.map(() => ""),
+                    }
                     : row
             )
         );

@@ -10,6 +10,8 @@ export const API_ENDPOINTS = {
 
   transactionBudgets: buildEndpoint(base_url, `/api/transaction-budgets/`),
 
+  transactionBudgetsBulkCreate: buildEndpoint(base_url, `/api/transaction-budgets/bulk-create/`),
+
   transactionMovements: buildEndpoint(base_url, `/api/transaction-movements/`),
 
   monthlyOverview: buildEndpoint(base_url, `/api/flowcash/monthly-overview/`),
