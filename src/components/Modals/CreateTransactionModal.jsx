@@ -94,6 +94,7 @@ export default function CreateTransactionModal({
     const isIncome = formData.type === "Income";
     const isExpense = formData.type === "Expense";
 
+    
     return (
         <form onSubmit={handleSubmit} className="space-y-5">
             <div className="flex items-start gap-3 rounded-xl bg-slate-50 p-4">

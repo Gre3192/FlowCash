@@ -14,6 +14,8 @@ import getMonthByNum from "../utils/getMonthByNum";
 import MonthDaysCarousel from "../components/MonthDayCarousel";
 import TransactionMovementsModal from "../components/Modals/TransactionMovementsModal";
 import MonthNavigator from "../components/MonthNavigator";
+import Select from "../ui/Select";
+import useSearchFilter from "../hooks/useSearchFilter";
 
 
 export default function CategoriesTransactionsPage() {
@@ -50,6 +52,7 @@ export default function CategoriesTransactionsPage() {
 
     const categories = useMemo(() => {
         return (data?.categories ?? []).map((category) => {
+
             const transactions = (category.transactions ?? []).map((transaction) => {
                 const current = Number(transaction.entries_total || 0);
                 const target = Number(transaction.budget?.month_value || 0);
@@ -83,15 +86,7 @@ export default function CategoriesTransactionsPage() {
         });
     }, [data, selectedMonth, selectedYear]);
 
-    const filteredCategories = useMemo(() => {
-        const query = searchedCategory.trim().toLowerCase();
-
-        if (!query) return categories;
-
-        return categories.filter((category) =>
-            category.name.toLowerCase().includes(query)
-        );
-    }, [categories, searchedCategory]);
+    const filteredCategories = useSearchFilter(categories, searchedCategory, (category) => category.name);
 
     const selectedCategory = useMemo(() => {
         if (!filteredCategories.length) return null;
@@ -105,13 +100,7 @@ export default function CategoriesTransactionsPage() {
 
     const transactions = selectedCategory?.transactions ?? [];
 
-    const filteredTransactions = useMemo(() => {
-        const query = searchedTransaction.trim().toLowerCase();
-        return transactions.filter((transaction) => {
-            const matchesSearch = !query ? true : transaction.name?.toLowerCase().includes(query);
-            return matchesSearch;
-        });
-    }, [transactions, searchedTransaction]);
+    const filteredTransactions = useSearchFilter(transactions, searchedTransaction, (transaction) => transaction.name);
 
     const maxCategoryTotal = useMemo(() => {
         if (!filteredCategories.length) return 0;
@@ -134,7 +123,6 @@ export default function CategoriesTransactionsPage() {
         setSelectedTransaction(transaction);
         setShowMovementsModal(true);
     }
-
 
 
     return (
@@ -617,7 +605,6 @@ function HeadOfSide({
                     <h2 className="truncate text-sm font-semibold text-slate-900">
                         {title}
                     </h2>
-
                     <p className="truncate text-[11px] text-slate-500">
                         {subtitle}
                     </p>
@@ -637,6 +624,16 @@ function HeadOfSide({
             </div>
 
             <SearchBar search={search} setSearch={setSearch} />
+
+            {
+                true && <div>
+
+
+
+
+
+                </div>
+            }
         </div>
     );
 }

@@ -105,6 +105,13 @@ export const UI_VARIANTS = {
         },
     },
 
+    select: {
+        default:
+            "border-slate-200 bg-white text-slate-900 focus:border-slate-400 focus:ring-slate-200",
+        error:
+            "border-red-300 bg-white text-slate-900 focus:border-red-400 focus:ring-red-100",
+    },
+
     modalAnimation: {
         fade: {
             initial: { opacity: 0 },
