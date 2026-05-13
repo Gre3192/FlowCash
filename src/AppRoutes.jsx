@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './ui/layouts/Layout';
 import TestPage from './pages/TestPage';
-import BudgetYearlyPage from './pages/BudgetYearlyPage';
+import BudgetPage from './pages/BudgetPage';
+import { ROUTE_PAGE } from "./routes/routePage"
 
 import CategoriesTransactionsPage from './pages/CategoriesTransactionsPage';
 
@@ -13,9 +14,9 @@ export default function AppRoute() {
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<Layout />}>
-                    <Route path="/" element={<CategoriesTransactionsPage />} />
-                    <Route path="/budgetPage" element={<BudgetYearlyPage />} />
-                    <Route path="test" element={<TestPage />} />
+                    <Route path={ROUTE_PAGE.categoriesTransactionsPage} element={<CategoriesTransactionsPage />} />
+                    <Route path={ROUTE_PAGE.budgetPage} element={<BudgetPage />} />
+                    <Route path={ROUTE_PAGE.testPage} element={<TestPage />} />
                 </Route>
             </Routes>
         </BrowserRouter>

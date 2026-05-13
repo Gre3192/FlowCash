@@ -9,6 +9,8 @@ import {
     Wallet,
     AlertCircle,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ROUTE_PAGE } from "../routes/routePage"
 
 import amazon from "../assets/logos/PrimeVideo.png";
 import AmountRatio from "./AmountRatio";
@@ -32,6 +34,7 @@ export default function TransactionCard({
     selectedMonth,
     selectedYear,
 }) {
+    const navigate = useNavigate();
     const { deleteData } = useDelete();
 
     const isMenuOpen = openTransactionMenuId === transaction.id;
@@ -50,6 +53,15 @@ export default function TransactionCard({
             : 0;
 
     const remaining = hasBudget ? numericBudget - numericCurrent : 0;
+
+    function handleGoToBudgetPage(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        setOpenTransactionMenuId?.(null);
+
+        navigate(ROUTE_PAGE.budgetPage);
+    }
 
     async function handleDeleteBudget() {
         if (!transaction?.id) return;
@@ -76,8 +88,6 @@ export default function TransactionCard({
     }
 
     async function handleDeleteTranstitions() {
-
-
         if (!transaction?.id) return;
 
         try {
@@ -96,7 +106,6 @@ export default function TransactionCard({
                 console.error(err);
             }
         }
-
     }
 
     function onCtxMenuClick(e) {
@@ -202,15 +211,32 @@ export default function TransactionCard({
                         </span>
 
                         {hasBudget ? (
-                            <span
-                                className="
-                                    inline-flex shrink-0 items-center rounded-full border border-slate-200 bg-slate-50
-                                    px-1.5 py-0.5 text-[10px] font-medium leading-none text-slate-600
-                                    transition-colors duration-200 group-hover:bg-white
-                                "
-                            >
-                                {progress.toFixed(0)}%
-                            </span>
+                            <div className="inline-flex shrink-0 items-center gap-1">
+                                <span
+                                    className="
+                                        inline-flex shrink-0 items-center rounded-full border border-slate-200 bg-slate-50
+                                        px-1.5 py-0.5 text-[10px] font-medium leading-none text-slate-600
+                                        transition-colors duration-200 group-hover:bg-white
+                                    "
+                                >
+                                    {progress.toFixed(0)}%
+                                </span>
+
+                                <button
+                                    type="button"
+                                    onClick={handleGoToBudgetPage}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    className="
+                                        inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full
+                                        border border-slate-200 bg-slate-50 text-slate-500
+                                        transition hover:bg-slate-100 hover:text-slate-900
+                                    "
+                                    aria-label="Vai alla pagina budget"
+                                    title="Vai alla pagina budget"
+                                >
+                                    <Wallet size={11} />
+                                </button>
+                            </div>
                         ) : (
                             <span
                                 className="
@@ -268,7 +294,7 @@ export default function TransactionCard({
                             {
                                 label: hasBudget ? "Modifica" : "Aggiungi budget",
                                 icon: Pencil,
-                                onClick: () => { },
+                                onClick: handleGoToBudgetPage,
                             },
                             {
                                 label: "Elimina budget",
