@@ -75,9 +75,11 @@ function normalizeBudgetValue(value) {
 }
 
 function normalizeBudgetRows(apiData) {
-    if (!Array.isArray(apiData)) return [];
+    const budgets = apiData?.budgets;
 
-    return apiData.map((budget) => ({
+    if (!Array.isArray(budgets)) return [];
+
+    return budgets.map((budget) => ({
         id: budget.id,
         year: Number(budget.year),
         values: MONTH_FIELDS.map((field) => normalizeBudgetValue(budget[field])),
@@ -108,6 +110,7 @@ function buildBudgetPayload(rows, transactionId) {
 }
 
 export default function BudgetPage() {
+    
     const { id } = useParams();
 
     const [rows, setRows] = useState([]);
@@ -121,16 +124,19 @@ export default function BudgetPage() {
         loading,
         error,
         reload: reloadTransactionBudgets,
-    } = useGet(
-        id
-            ? API_ENDPOINTS.transactionBudgets({
-                  transaction_id: id,
-              })
-            : null,
+    } = useGet(id ? API_ENDPOINTS.transactionBudgets({ transaction_id: id, }) : null,
         {
             delayMs: 0,
         }
     );
+
+    const transaction = transactionBudgets?.transaction ?? null;
+
+    const pageTitle = transaction?.name ?? "Budget transazione";
+
+    const pageSubtitle = transaction?.category?.name
+        ? `${transaction.category.name} • ${transaction.type}`
+        : "Gestisci i budget annuali della transazione";
 
     useEffect(() => {
         setRows([]);
@@ -179,11 +185,11 @@ export default function BudgetPage() {
             prev.map((row) =>
                 row.year === year
                     ? {
-                          ...row,
-                          values: row.values.map((currentValue, index) =>
-                              index === monthIndex ? value : currentValue
-                          ),
-                      }
+                        ...row,
+                        values: row.values.map((currentValue, index) =>
+                            index === monthIndex ? value : currentValue
+                        ),
+                    }
                     : row
             )
         );
@@ -218,11 +224,12 @@ export default function BudgetPage() {
         console.log("Salvataggio:", payload);
 
         /*
-            Qui dopo puoi gestire:
+            Da gestire dopo:
 
             - PATCH se row.id esiste
             - POST se row.id è null
 
+            Dopo il salvataggio:
             reloadTransactionBudgets?.();
         */
     }
@@ -273,9 +280,9 @@ export default function BudgetPage() {
             prev.map((row) =>
                 row.year === year
                     ? {
-                          ...row,
-                          values: row.values.map(() => ""),
-                      }
+                        ...row,
+                        values: row.values.map(() => ""),
+                    }
                     : row
             )
         );
@@ -315,8 +322,9 @@ export default function BudgetPage() {
         <div className="h-full min-h-0 bg-slate-50">
             <div className="flex h-full min-h-0 flex-col px-3 pb-3 sm:px-4 md:px-6 lg:px-8">
                 <BudgetHeader
-                    title="Budget transazione"
-                    subtitle="Gestisci i budget annuali della transazione"
+                    title={pageTitle}
+                    subtitle={pageSubtitle}
+                    note={transaction?.note}
                     yearsLabel={yearsLabel}
                     onOpenYearsModal={handleOpenYearsModal}
                     onSave={handleSave}
@@ -366,6 +374,7 @@ export default function BudgetPage() {
 function BudgetHeader({
     title,
     subtitle,
+    note,
     yearsLabel,
     onOpenYearsModal,
     onSave,
