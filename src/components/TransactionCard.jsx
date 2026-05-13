@@ -20,7 +20,7 @@ export default function TransactionCard({
     transaction,
     current = 0,
     budget = 0,
-    onClick = () => {},
+    onClick = () => { },
     openTransactionMenuId,
     setOpenTransactionMenuId,
     transactionMenuAnchor,
@@ -51,7 +51,7 @@ export default function TransactionCard({
 
     const remaining = hasBudget ? numericBudget - numericCurrent : 0;
 
-    async function handleDeleteTransaction() {
+    async function handleDeleteBudget() {
         if (!transaction?.id) return;
 
         try {
@@ -73,6 +73,30 @@ export default function TransactionCard({
                 console.error(err);
             }
         }
+    }
+
+    async function handleDeleteTranstitions() {
+
+
+        if (!transaction?.id) return;
+
+        try {
+            setOpenTransactionMenuId(null);
+
+            await deleteData(
+                API_ENDPOINTS.transactions(
+                    {},
+                    transaction.id
+                )
+            );
+
+            reloadMonthlyOverview?.();
+        } catch (err) {
+            if (err.name !== "AbortError") {
+                console.error(err);
+            }
+        }
+
     }
 
     function onCtxMenuClick(e) {
@@ -121,10 +145,9 @@ export default function TransactionCard({
                 hover:shadow-[0_8px_24px_rgba(15,23,42,0.10)]
                 active:translate-y-0
                 active:shadow-[0_2px_8px_rgba(15,23,42,0.08)]
-                ${
-                    hasBudget
-                        ? "border-slate-200 hover:border-slate-300"
-                        : "border-dashed border-amber-300 bg-amber-50/40 hover:border-amber-400 hover:bg-amber-50/70"
+                ${hasBudget
+                    ? "border-slate-200 hover:border-slate-300"
+                    : "border-dashed border-amber-300 bg-amber-50/40 hover:border-amber-400 hover:bg-amber-50/70"
                 }
             `}
         >
@@ -140,10 +163,9 @@ export default function TransactionCard({
                         flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg
                         border shadow-sm transition-all duration-200
                         group-hover:shadow-md
-                        ${
-                            hasBudget
-                                ? "border-slate-200 bg-slate-50 group-hover:border-slate-300 group-hover:bg-white"
-                                : "border-amber-200 bg-amber-100 text-amber-700 group-hover:border-amber-300"
+                        ${hasBudget
+                            ? "border-slate-200 bg-slate-50 group-hover:border-slate-300 group-hover:bg-white"
+                            : "border-amber-200 bg-amber-100 text-amber-700 group-hover:border-amber-300"
                         }
                     `}
                 >
@@ -169,10 +191,9 @@ export default function TransactionCard({
                             className={`
                                 inline-flex shrink-0 items-center gap-1 rounded-full border px-1.5 py-0.5
                                 text-[10px] font-medium leading-none
-                                ${
-                                    isIncome
-                                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                                        : "border-red-200 bg-red-50 text-red-700"
+                                ${isIncome
+                                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                    : "border-red-200 bg-red-50 text-red-700"
                                 }
                             `}
                         >
@@ -247,13 +268,19 @@ export default function TransactionCard({
                             {
                                 label: hasBudget ? "Modifica" : "Aggiungi budget",
                                 icon: Pencil,
-                                onClick: () => {},
+                                onClick: () => { },
+                            },
+                            {
+                                label: "Elimina budget",
+                                icon: Trash2,
+                                danger: true,
+                                onClick: handleDeleteBudget,
                             },
                             {
                                 label: "Elimina",
                                 icon: Trash2,
                                 danger: true,
-                                onClick: handleDeleteTransaction,
+                                onClick: handleDeleteTranstitions,
                             },
                         ]}
                     />
