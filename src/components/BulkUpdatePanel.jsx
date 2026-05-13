@@ -1,18 +1,34 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Eraser, MinusCircle, PlusCircle, RotateCcw } from "lucide-react";
+import {
+    ChevronDown,
+    Eraser,
+    MinusCircle,
+    PlusCircle,
+    RotateCcw,
+} from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
-const MONTHS = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
+const MONTHS = [
+    "Gen",
+    "Feb",
+    "Mar",
+    "Apr",
+    "Mag",
+    "Giu",
+    "Lug",
+    "Ago",
+    "Set",
+    "Ott",
+    "Nov",
+    "Dic",
+];
 
 export default function BulkUpdatePanel({
-
     rows,
     setRows,
     handleAddNextYear,
-    handleRemoveLastYear
-
+    handleRemoveLastYear,
 }) {
-
     const [isOpen, setIsOpen] = useState(false);
     const [bulkValue, setBulkValue] = useState("");
     const [selectedMonths, setSelectedMonths] = useState([]);
@@ -23,68 +39,75 @@ export default function BulkUpdatePanel({
     const inputRef = useRef(null);
     const lastWheelTimeRef = useRef(0);
 
-    const toggleMonth = (monthIndex) => {
+    function toggleMonth(monthIndex) {
         setSelectedMonths((prev) =>
             prev.includes(monthIndex)
-                ? prev.filter((m) => m !== monthIndex)
+                ? prev.filter((month) => month !== monthIndex)
                 : [...prev, monthIndex].sort((a, b) => a - b)
         );
-    };
+    }
 
-    const toggleYear = (year) => {
+    function toggleYear(year) {
         setSelectedYears((prev) =>
             prev.includes(year)
-                ? prev.filter((y) => y !== year)
+                ? prev.filter((currentYear) => currentYear !== year)
                 : [...prev, year].sort((a, b) => a - b)
         );
-    };
+    }
 
-    const selectAllMonths = () => {
+    function selectAllMonths() {
         setSelectedMonths(MONTHS.map((_, index) => index));
-    };
+    }
 
-    const selectAllYears = () => {
+    function selectAllYears() {
         setSelectedYears(rows.map((row) => row.year));
-    };
+    }
 
-    const handleClearValue = () => {
+    function handleClearValue() {
         setBulkValue("");
-    };
+    }
 
-    const handleClearMonths = () => {
+    function handleClearMonths() {
         setSelectedMonths([]);
-    };
+    }
 
-    const handleClearYears = () => {
+    function handleClearYears() {
         setSelectedYears([]);
-    };
+    }
 
-    const normalizeValueString = (value) => {
+    function normalizeValueString(value) {
         return String(value).replace(",", ".");
-    };
+    }
 
-    const splitNumberParts = (value) => {
+    function splitNumberParts(value) {
         const normalized = normalizeValueString(value);
 
         if (!normalized || Number.isNaN(Number(normalized))) {
-            return { integerPart: 0, decimalPart: 0 };
+            return {
+                integerPart: 0,
+                decimalPart: 0,
+            };
         }
 
-        const [intStr = "0", decStr = ""] = normalized.split(".");
-        const integerPart = parseInt(intStr, 10) || 0;
-        const decimalPart = parseInt((decStr + "00").slice(0, 2), 10) || 0;
+        const [integerString = "0", decimalString = ""] = normalized.split(".");
 
-        return { integerPart, decimalPart };
-    };
+        const integerPart = parseInt(integerString, 10) || 0;
+        const decimalPart = parseInt((decimalString + "00").slice(0, 2), 10) || 0;
 
-    const buildValueFromParts = (integerPart, decimalPart) => {
+        return {
+            integerPart,
+            decimalPart,
+        };
+    }
+
+    function buildValueFromParts(integerPart, decimalPart) {
         const safeInteger = Math.max(0, integerPart);
         const safeDecimal = Math.max(0, Math.min(99, decimalPart));
+
         return `${safeInteger},${String(safeDecimal).padStart(2, "0")}`;
-    };
+    }
 
-    const getScrollStep = (deltaY, deltaTime, mode) => {
-
+    function getScrollStep(deltaY, deltaTime, mode) {
         const safeDeltaTime = deltaTime <= 0 ? 1 : deltaTime;
         const speed = Math.abs(deltaY) / safeDeltaTime;
 
@@ -94,25 +117,27 @@ export default function BulkUpdatePanel({
             return 10;
         }
 
-        if (speed < 1.5) return 1;  // 0,01
-        if (speed < 3) return 5;    // 0,05
-        return 10;                  // 0,10
-    };
+        if (speed < 1.5) return 1;
+        if (speed < 3) return 5;
+        return 10;
+    }
 
-    const handleWheelValue = (e) => {
+    function handleWheelValue(event) {
         const now = performance.now();
+
         const deltaTime = lastWheelTimeRef.current
             ? now - lastWheelTimeRef.current
             : 999;
 
         lastWheelTimeRef.current = now;
 
-        const direction = e.deltaY < 0 ? 1 : -1;
-        const step = getScrollStep(e.deltaY, deltaTime, valueMode);
+        const direction = event.deltaY < 0 ? 1 : -1;
+        const step = getScrollStep(event.deltaY, deltaTime, valueMode);
         const { integerPart, decimalPart } = splitNumberParts(bulkValue);
 
         if (valueMode === "integer") {
             const nextInteger = Math.max(0, integerPart + direction * step);
+
             setBulkValue(buildValueFromParts(nextInteger, decimalPart));
             return;
         }
@@ -122,11 +147,12 @@ export default function BulkUpdatePanel({
 
         const nextInteger = Math.floor(totalCents / 100);
         const nextDecimal = totalCents % 100;
-        setBulkValue(buildValueFromParts(nextInteger, nextDecimal));
-    };
 
-    const handleValueChange = (e) => {
-        const value = e.target.value;
+        setBulkValue(buildValueFromParts(nextInteger, nextDecimal));
+    }
+
+    function handleValueChange(event) {
+        const value = event.target.value;
 
         if (value === "") {
             setBulkValue("");
@@ -136,9 +162,9 @@ export default function BulkUpdatePanel({
         if (!/^\d*([.,]?\d{0,2})?$/.test(value)) return;
 
         setBulkValue(value);
-    };
+    }
 
-    const handleApplyBulkValue = () => {
+    function handleApplyBulkValue() {
         if (bulkValue === "") return;
         if (selectedMonths.length === 0) return;
         if (selectedYears.length === 0) return;
@@ -152,72 +178,71 @@ export default function BulkUpdatePanel({
                 return {
                     ...row,
                     values: row.values.map((currentValue, monthIndex) =>
-                        selectedMonths.includes(monthIndex) ? normalizedBulkValue : currentValue
+                        selectedMonths.includes(monthIndex)
+                            ? normalizedBulkValue
+                            : currentValue
                     ),
                 };
             })
         );
-    };
+    }
 
-    const handleClearTable = () => {
+    function handleClearTable() {
         setRows((prev) =>
             prev.map((row) => ({
                 ...row,
                 values: row.values.map(() => ""),
             }))
         );
-    };
+    }
 
-    const resetAllSelections = () => {
+    function resetAllSelections() {
         setBulkValue("");
         setSelectedMonths([]);
         setSelectedYears([]);
     }
 
     useEffect(() => {
-        const handleGlobalWheel = (e) => {
+        function handleGlobalWheel(event) {
             if (!isValueFocused) return;
             if (document.activeElement !== inputRef.current) return;
 
-            e.preventDefault();
-            handleWheelValue(e);
-        };
+            event.preventDefault();
+            handleWheelValue(event);
+        }
 
-        window.addEventListener("wheel", handleGlobalWheel, { passive: false });
+        window.addEventListener("wheel", handleGlobalWheel, {
+            passive: false,
+        });
 
         return () => {
             window.removeEventListener("wheel", handleGlobalWheel);
         };
     }, [isValueFocused, bulkValue, valueMode]);
 
-    const getToggleClass = (isActive) =>
-        `h-10 rounded-full border px-3 sm:px-4 text-xs sm:text-sm font-semibold transition-all duration-200 shadow-sm select-none ${isActive
-            ? "border-rose-300 bg-blue-100 text-blue-700 shadow-rose-100"
-            : "border-zinc-200 bg-zinc-50 text-zinc-700 hover:border-zinc-300 hover:bg-white"
-        }`;
-
     return (
-        <div className="mb-3 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
             <button
                 type="button"
                 onClick={() => setIsOpen((prev) => !prev)}
-                className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition hover:bg-zinc-50"
+                className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition hover:bg-slate-50"
             >
                 <div className="min-w-0">
-                    <div className="text-sm font-semibold text-zinc-800 sm:text-base">
+                    <div className="text-sm font-semibold text-slate-900 sm:text-base">
                         Aggiornamento massivo
                     </div>
-                    <div className="text-xs text-zinc-500">
+
+                    <div className="mt-0.5 text-xs text-slate-500">
                         Seleziona anni, mesi e applica un valore in blocco
                     </div>
                 </div>
 
-
                 <ChevronDown
                     size={22}
-                    className={`mt-0.5 shrink-0 text-zinc-500 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                    className={`shrink-0 text-slate-500 transition-transform duration-300 ${
+                        isOpen ? "rotate-180" : ""
+                    }`}
                 />
-
             </button>
 
             <AnimatePresence initial={false}>
@@ -227,243 +252,314 @@ export default function BulkUpdatePanel({
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.28, ease: "easeInOut" }}
+                        transition={{
+                            duration: 0.28,
+                            ease: "easeInOut",
+                        }}
                         className="overflow-hidden"
                     >
                         <motion.div
                             initial={{ y: -8 }}
                             animate={{ y: 0 }}
                             exit={{ y: -8 }}
-                            transition={{ duration: 0.22, ease: "easeOut" }}
-                            className="border-t border-zinc-200 p-3 sm:p-4"
+                            transition={{
+                                duration: 0.22,
+                                ease: "easeOut",
+                            }}
+                            className="border-t border-slate-200 p-3 sm:p-4"
                         >
                             <div className="grid gap-4 xl:grid-cols-[220px_1fr_1fr_auto]">
-                                <div>
-                                    <div className="mb-0 flex items-center gap-2">
-                                        <label className="block text-sm font-medium text-zinc-700">
-                                            Valore
-                                        </label>
+                                <BulkValueBox
+                                    inputRef={inputRef}
+                                    bulkValue={bulkValue}
+                                    valueMode={valueMode}
+                                    setValueMode={setValueMode}
+                                    handleValueChange={handleValueChange}
+                                    handleClearValue={handleClearValue}
+                                    setIsValueFocused={setIsValueFocused}
+                                />
 
-                                        <button
-                                            type="button"
-                                            onClick={handleClearValue}
-                                            className="h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition hover:scale-110"
-                                            aria-label="Reset valore"
-                                            title="Reset valore"
-                                        >
-                                            <Eraser size={14} />
-                                        </button>
-                                    </div>
-
-                                    <div className="relative">
-                                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-zinc-500">
-                                            &euro;
-                                        </span>
-
-                                        <input
-                                            ref={inputRef}
-                                            type="text"
-                                            inputMode="decimal"
-                                            value={bulkValue}
-                                            onChange={handleValueChange}
-                                            onFocus={() => setIsValueFocused(true)}
-                                            onBlur={() => setIsValueFocused(false)}
-                                            placeholder="0,00"
-                                            className="h-10 w-full rounded-xl border border-zinc-200 bg-zinc-50 pl-8 pr-3 text-sm text-zinc-700 outline-none transition placeholder:text-zinc-400 focus:border-zinc-300 focus:bg-white focus:ring-2 focus:ring-zinc-200"
-                                        />
-                                    </div>
-
-                                    <div className="mt-3">
-                                        <div className="mb-2 text-xs font-base tracking-wide text-zinc-500">
-                                            Incremento scroll
-                                        </div>
-                                        <div className="flex flex-row flex-wrap gap-4">
-                                            <div className="inline-flex items-center gap-1 text-sm text-zinc-700">
-                                                <input
-                                                    id="valueMode-integer"
-                                                    type="radio"
-                                                    name="valueMode"
-                                                    value="integer"
-                                                    checked={valueMode === "integer"}
-                                                    onChange={(e) => {
-                                                        setValueMode(e.target.value);
-                                                        inputRef.current?.focus();
-                                                    }}
-                                                    className="relative cursor-pointer top-px m-0 h-4 w-4 shrink-0"
-                                                />
-                                                <label
-                                                    htmlFor="valueMode-integer"
-                                                    className="cursor-pointer leading-none select-none"
-                                                >
-                                                    Interi
-                                                </label>
-                                            </div>
-
-                                            <div className="inline-flex items-center gap-1 text-sm text-zinc-700">
-                                                <input
-                                                    id="valueMode-decimal"
-                                                    type="radio"
-                                                    name="valueMode"
-                                                    value="decimal"
-                                                    checked={valueMode === "decimal"}
-                                                    onChange={(e) => {
-                                                        setValueMode(e.target.value);
-                                                        inputRef.current?.focus();
-                                                    }}
-                                                    className="relative cursor-pointer top-px m-0 h-4 w-4 shrink-0"
-                                                />
-                                                <label
-                                                    htmlFor="valueMode-decimal"
-                                                    className="cursor-pointer leading-none select-none"
-                                                >
-                                                    Decimali
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-                                </div>
-
-                                <div>
-                                    <div className="mb-0 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                        <div className="mb-0 flex items-center gap-2">
-                                            <label className="block text-sm font-medium text-zinc-700">
-                                                Mesi
-                                            </label>
-
-                                            <button
-                                                type="button"
-                                                onClick={handleClearMonths}
-                                                className="h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition hover:scale-110"
-                                                aria-label="Reset mesi selezionati"
-                                                title="Reset mesi selezionati"
-                                            >
-                                                <RotateCcw size={14} />
-                                            </button>
-                                        </div>
-
-                                        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
-                                            <button
-                                                type="button"
-                                                onClick={selectAllMonths}
-                                                className="text-zinc-500 transition select-none hover:text-zinc-800"
-                                            >
-                                                Seleziona tutti
-                                            </button>
-
-                                        </div>
-                                    </div>
-
-                                    <div className="grid h-auto min-h-[176px] grid-cols-3 gap-2 rounded-2xl border border-zinc-200 bg-zinc-50/60 p-3 sm:h-44 sm:grid-cols-4">
+                                <SelectionBox
+                                    label="Mesi"
+                                    onReset={handleClearMonths}
+                                    onSelectAll={selectAllMonths}
+                                >
+                                    <div className="grid min-h-[176px] grid-cols-3 gap-2 rounded-2xl border border-slate-200 bg-slate-50/70 p-3 sm:h-44 sm:grid-cols-4">
                                         {MONTHS.map((month, index) => (
-                                            <button
+                                            <ToggleButton
                                                 key={month}
-                                                type="button"
+                                                isActive={selectedMonths.includes(index)}
                                                 onClick={() => toggleMonth(index)}
-                                                className={getToggleClass(selectedMonths.includes(index))}
                                             >
                                                 {month}
-                                            </button>
+                                            </ToggleButton>
                                         ))}
                                     </div>
-                                </div>
+                                </SelectionBox>
 
-                                <div>
-                                    <div className="mb-0 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                        <div className="mb-0 flex items-center gap-2">
-                                            <label className="block text-sm font-medium text-zinc-700">
-                                                Anni presenti
-                                            </label>
-
-                                            <button
-                                                type="button"
-                                                onClick={handleClearYears}
-                                                className="h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition hover:scale-110"
-                                                aria-label="Reset anni selezionati"
-                                                title="Reset anni selezionati"
+                                <SelectionBox
+                                    label="Anni presenti"
+                                    onReset={handleClearYears}
+                                    onSelectAll={selectAllYears}
+                                    actions={
+                                        <div className="flex items-center gap-1">
+                                            <IconActionButton
+                                                onClick={handleRemoveLastYear}
+                                                title="Togli ultimo anno"
                                             >
-                                                <RotateCcw size={14} />
-                                            </button>
+                                                <MinusCircle size={15} />
+                                            </IconActionButton>
 
-                                            <div className="flex items-center gap-2">
-                                                <button
-                                                    type="button"
-                                                    onClick={handleRemoveLastYear}
-                                                    className="h-8  items-center justify-center rounded-lg text-zinc-500 transition hover:scale-110"
-                                                    aria-label="Togli ultimo anno"
-                                                    title="Togli ultimo anno"
-                                                >
-                                                    <MinusCircle size={14} />
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={handleAddNextYear}
-                                                    className="h-8  items-center justify-center rounded-lg text-zinc-500 transition hover:scale-110"
-                                                    aria-label="Aggiungi anno successivo"
-                                                    title="Aggiungi anno successivo"
-                                                >
-                                                    <PlusCircle size={14} />
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
-                                            <button
-                                                type="button"
-                                                onClick={selectAllYears}
-                                                className="text-zinc-500 transition select-none hover:text-zinc-800"
+                                            <IconActionButton
+                                                onClick={handleAddNextYear}
+                                                title="Aggiungi anno successivo"
                                             >
-                                                Seleziona tutti
-                                            </button>
-
+                                                <PlusCircle size={15} />
+                                            </IconActionButton>
                                         </div>
-                                    </div>
-
-                                    <div className="grid h-44 content-start grid-cols-2 auto-rows-[40px] gap-2 overflow-y-auto rounded-2xl border border-zinc-200 bg-zinc-50/60 p-3 sm:grid-cols-3">
+                                    }
+                                >
+                                    <div className="grid h-44 content-start grid-cols-2 auto-rows-[40px] gap-2 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50/70 p-3 sm:grid-cols-3">
                                         {rows.map((row) => (
-                                            <button
+                                            <ToggleButton
                                                 key={row.year}
-                                                type="button"
+                                                isActive={selectedYears.includes(row.year)}
                                                 onClick={() => toggleYear(row.year)}
-                                                className={getToggleClass(selectedYears.includes(row.year))}
                                             >
                                                 {row.year}
-                                            </button>
+                                            </ToggleButton>
                                         ))}
                                     </div>
-                                </div>
+                                </SelectionBox>
 
-                                <div className="flex flex-col justify-end gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={resetAllSelections}
-                                        className="mb-4 inline-flex h-10 w-full items-center justify-center rounded-xl border border-zinc-200 bg-white px-5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50"
-                                    >
-                                        Reset selezioni
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={handleApplyBulkValue}
-                                        className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-black px-5 text-sm font-medium text-white transition hover:bg-zinc-800"
-                                    >
-                                        Popola tabella
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={handleClearTable}
-                                        className="inline-flex h-10 w-full items-center justify-center rounded-xl border border-zinc-200 bg-white px-5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50"
-                                    >
-                                        Pulisci tabella
-                                    </button>
-
-                                </div>
+                                <BulkActions
+                                    onResetSelections={resetAllSelections}
+                                    onApply={handleApplyBulkValue}
+                                    onClearTable={handleClearTable}
+                                />
                             </div>
                         </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
+        </div>
+    );
+}
+
+function BulkValueBox({
+    inputRef,
+    bulkValue,
+    valueMode,
+    setValueMode,
+    handleValueChange,
+    handleClearValue,
+    setIsValueFocused,
+}) {
+    return (
+        <div>
+            <div className="mb-1 flex items-center gap-2">
+                <label className="block text-sm font-medium text-slate-700">
+                    Valore
+                </label>
+
+                <IconActionButton
+                    onClick={handleClearValue}
+                    title="Reset valore"
+                >
+                    <Eraser size={15} />
+                </IconActionButton>
+            </div>
+
+            <div className="relative">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-slate-500">
+                    €
+                </span>
+
+                <input
+                    ref={inputRef}
+                    type="text"
+                    inputMode="decimal"
+                    value={bulkValue}
+                    onChange={handleValueChange}
+                    onFocus={() => setIsValueFocused(true)}
+                    onBlur={() => setIsValueFocused(false)}
+                    placeholder="0,00"
+                    className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-slate-300 focus:bg-white focus:ring-2 focus:ring-slate-200"
+                />
+            </div>
+
+            <div className="mt-3">
+                <div className="mb-2 text-xs font-medium text-slate-500">
+                    Incremento scroll
+                </div>
+
+                <div className="flex flex-wrap gap-4">
+                    <RadioOption
+                        id="valueMode-integer"
+                        name="valueMode"
+                        value="integer"
+                        label="Interi"
+                        checked={valueMode === "integer"}
+                        onChange={(value) => {
+                            setValueMode(value);
+                            inputRef.current?.focus();
+                        }}
+                    />
+
+                    <RadioOption
+                        id="valueMode-decimal"
+                        name="valueMode"
+                        value="decimal"
+                        label="Decimali"
+                        checked={valueMode === "decimal"}
+                        onChange={(value) => {
+                            setValueMode(value);
+                            inputRef.current?.focus();
+                        }}
+                    />
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function SelectionBox({
+    label,
+    onReset,
+    onSelectAll,
+    actions,
+    children,
+}) {
+    return (
+        <div>
+            <div className="mb-1 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-2">
+                    <label className="block text-sm font-medium text-slate-700">
+                        {label}
+                    </label>
+
+                    <IconActionButton
+                        onClick={onReset}
+                        title={`Reset ${label.toLowerCase()}`}
+                    >
+                        <RotateCcw size={15} />
+                    </IconActionButton>
+
+                    {actions}
+                </div>
+
+                <button
+                    type="button"
+                    onClick={onSelectAll}
+                    className="w-fit text-xs font-medium text-slate-500 transition hover:text-slate-900"
+                >
+                    Seleziona tutti
+                </button>
+            </div>
+
+            {children}
+        </div>
+    );
+}
+
+function BulkActions({
+    onResetSelections,
+    onApply,
+    onClearTable,
+}) {
+    return (
+        <div className="flex flex-col justify-end gap-2">
+            <button
+                type="button"
+                onClick={onResetSelections}
+                className="inline-flex h-10 w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
+            >
+                Reset selezioni
+            </button>
+
+            <button
+                type="button"
+                onClick={onApply}
+                className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-slate-900 px-5 text-sm font-medium text-white transition hover:bg-slate-800"
+            >
+                Popola tabella
+            </button>
+
+            <button
+                type="button"
+                onClick={onClearTable}
+                className="inline-flex h-10 w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
+            >
+                Pulisci tabella
+            </button>
+        </div>
+    );
+}
+
+function ToggleButton({
+    isActive,
+    onClick,
+    children,
+}) {
+    const className = isActive
+        ? "border-blue-200 bg-blue-50 text-blue-700 shadow-sm"
+        : "border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-100 hover:text-slate-900";
+
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            className={`h-10 rounded-full border px-3 text-xs font-semibold transition sm:px-4 sm:text-sm ${className}`}
+        >
+            {children}
+        </button>
+    );
+}
+
+function IconActionButton({
+    onClick,
+    title,
+    children,
+}) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+            aria-label={title}
+            title={title}
+        >
+            {children}
+        </button>
+    );
+}
+
+function RadioOption({
+    id,
+    name,
+    value,
+    label,
+    checked,
+    onChange,
+}) {
+    return (
+        <div className="inline-flex items-center gap-1.5 text-sm text-slate-700">
+            <input
+                id={id}
+                type="radio"
+                name={name}
+                value={value}
+                checked={checked}
+                onChange={(event) => onChange(event.target.value)}
+                className="h-4 w-4 shrink-0 cursor-pointer accent-slate-900"
+            />
+
+            <label
+                htmlFor={id}
+                className="cursor-pointer select-none leading-none"
+            >
+                {label}
+            </label>
         </div>
     );
 }
