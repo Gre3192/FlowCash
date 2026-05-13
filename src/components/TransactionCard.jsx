@@ -54,10 +54,8 @@ export default function TransactionCard({
     function handleGoToBudgetPage(e) {
         e.preventDefault();
         e.stopPropagation();
-
         setOpenTransactionMenuId?.(null);
-
-        navigate(ROUTE_PAGE.budgetPage);
+        navigate(ROUTE_PAGE.budgetPage.replace(":id", transaction.id));
     }
 
     async function handleDeleteBudget() {

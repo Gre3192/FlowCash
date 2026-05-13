@@ -15,7 +15,7 @@ export default function AppRoute() {
             <Routes>
                 <Route path="/" element={<Layout />}>
                     <Route path={ROUTE_PAGE.categoriesTransactionsPage} element={<CategoriesTransactionsPage />} />
-                    <Route path={ROUTE_PAGE.budgetPage()} element={<BudgetPage />} />
+                    <Route path={ROUTE_PAGE.budgetPage} element={<BudgetPage />} />
                     <Route path={ROUTE_PAGE.testPage} element={<TestPage />} />
                 </Route>
             </Routes>

@@ -103,6 +103,7 @@ function buildBudgetPayload(rows) {
 }
 
 export default function BudgetPage() {
+
     const [rows, setRows] = useState([]);
     const [startYear, setStartYear] = useState("");
     const [endYear, setEndYear] = useState("");
@@ -148,11 +149,10 @@ export default function BudgetPage() {
 
         const firstYear = sortedRows[0].year;
         const lastYear = sortedRows[sortedRows.length - 1].year;
-
         if (firstYear === lastYear) return String(firstYear);
-
         return `${firstYear} - ${lastYear}`;
     }, [sortedRows]);
+
 
     function handleValueChange(year, monthIndex, value) {
         if (!/^-?\d*([.,]?\d{0,2})?$/.test(value)) return;
@@ -197,24 +197,6 @@ export default function BudgetPage() {
 
         console.log("Salvataggio:", payload);
 
-        /*
-            Payload generato:
-
-            [
-                {
-                    id: "409fd200-a53d-4ff5-8bf7-39726568ef3b",
-                    transaction_id: "...",
-                    year: 2026,
-                    gen_val: "650.00",
-                    feb_val: "650.00",
-                    ...
-                }
-            ]
-
-            Qui puoi gestire:
-            - PATCH se row.id esiste
-            - POST se row.id è null
-        */
     }
 
     function handleOpenYearsModal() {
@@ -358,7 +340,7 @@ function BudgetHeader({
                 <div className="flex min-w-0 items-center gap-3">
                     <button
                         type="button"
-                        onClick={() => navigate("/budgetPage")}
+                        onClick={() => navigate(-1)}
                         className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-100 hover:text-slate-900"
                     >
                         <ArrowLeft size={20} />
