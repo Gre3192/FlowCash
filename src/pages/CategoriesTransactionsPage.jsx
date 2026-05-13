@@ -58,16 +58,6 @@ export default function CategoriesTransactionsPage() {
 
     const filteredTransactions = useSearchFilter(transactions, searchedTransaction, ["name", "note", "type"]);
 
-    const availableYears = useMemo(() => {
-        const years = [];
-
-        for (let year = currentYear - 2; year <= currentYear + 5; year++) {
-            years.push(year);
-        }
-
-        return years;
-    }, [currentYear]);
-
     function handleTransactionCard(transaction) {
         setSelectedTransaction(transaction);
         setShowMovementsModal(true);
@@ -92,7 +82,7 @@ export default function CategoriesTransactionsPage() {
                             setSelectedMonth={setSelectedMonth}
                             selectedYear={selectedYear}
                             setSelectedYear={setSelectedYear}
-                            availableYears={availableYears}
+                            availableYears={data?.available_budget_years}
                             currentYear={currentYear}
                         />
                     </div>
@@ -185,7 +175,7 @@ export default function CategoriesTransactionsPage() {
                     transaction={selectedTransaction}
                     onClose={() => setShowMovementsModal(false)}
                     onDayChange={setSelectedDay}
-                    availableYears={availableYears}
+                    availableYears={data?.available_budget_years}
                     currentYear={currentYear}
                     reloadMonthlyOverview={reloadMonthlyOverview}
                 />
@@ -217,7 +207,6 @@ function CategorySide({
     const [showCategoriesWithTransactions, setShowCategoriesWithTransactions] = useState(true);
     const [showCategoriesEmptyInSelectedPeriod, setShowCategoriesEmptyInSelectedPeriod] = useState(false);
     const [showCategoriesWithoutTransactions, setShowCategoriesWithoutTransactions] = useState(false);
-
 
     const categoriesWithTransactions = useMemo(() => {
         return categories.filter((category) => {
