@@ -48,9 +48,6 @@ export default function CategoriesTransactionsPage() {
         }
     );
 
-    console.log(data);
-
-
     const categories = data?.categories ?? [];
 
     const filteredCategories = useSearchFilter(categories, searchedCategory, ["name"]);
@@ -60,16 +57,6 @@ export default function CategoriesTransactionsPage() {
     const transactions = selectedCategory?.transactions ?? [];
 
     const filteredTransactions = useSearchFilter(transactions, searchedTransaction, ["name", "note", "type"]);
-
-    // const maxCategoryTotal = useMemo(() => {
-    //     if (!filteredCategories.length) return 0;
-
-    //     return Math.max(
-    //         ...filteredCategories.map((category) =>
-    //             Number(category.current_total || 0)
-    //         )
-    //     );
-    // }, [filteredCategories]);
 
     const availableYears = useMemo(() => {
         const years = [];
@@ -125,7 +112,6 @@ export default function CategoriesTransactionsPage() {
                             searchedCategory={searchedCategory}
                             setSearchedCategory={setSearchedCategory}
                             selectedCategory={selectedCategory}
-                            // maxCategoryTotal={maxCategoryTotal}
                             openCategoryMenuId={openCategoryMenuId}
                             setOpenCategoryMenuId={setOpenCategoryMenuId}
                             setSelectedCategoryId={setSelectedCategoryId}
@@ -220,7 +206,6 @@ function CategorySide({
     searchedCategory,
     setSearchedCategory,
     selectedCategory,
-    maxCategoryTotal,
     openCategoryMenuId,
     setOpenCategoryMenuId,
     setSelectedCategoryId,
