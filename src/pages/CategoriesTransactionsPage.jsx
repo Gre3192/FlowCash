@@ -215,10 +215,8 @@ function CategorySide({
 }) {
 
     const [showCategoriesWithTransactions, setShowCategoriesWithTransactions] = useState(true);
-    const [showCategoriesEmptyInSelectedPeriod, setShowCategoriesEmptyInSelectedPeriod] = useState(true);
-    const [showCategoriesWithoutTransactions, setShowCategoriesWithoutTransactions] = useState(true);
-
-    console.log(categories);
+    const [showCategoriesEmptyInSelectedPeriod, setShowCategoriesEmptyInSelectedPeriod] = useState(false);
+    const [showCategoriesWithoutTransactions, setShowCategoriesWithoutTransactions] = useState(false);
 
 
     const categoriesWithTransactions = useMemo(() => {
