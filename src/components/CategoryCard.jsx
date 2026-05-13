@@ -11,12 +11,17 @@ export default function CategoryCard({
     category,
     isSelected,
     progress = 0,
-    total = 0,
     openCategoryMenuId,
     setOpenCategoryMenuId,
     setSelectedCategoryId,
     reloadMonthlyOverview,
+    currentTotal,
+    budgetTotal,
+    
 }) {
+
+    console.log(currentTotal);
+    
 
     const { deleteData } = useDelete();
 
@@ -115,7 +120,7 @@ async function handleDeleteCategory() {
                         >
 
                             {/* {formatCurrency(total)} */}
-                            <AmountRatio firstNum={formatCurrency(453)} secondNum={formatCurrency(total)} />
+                            <AmountRatio firstNum={formatCurrency(currentTotal)} secondNum={formatCurrency(budgetTotal)} />
                         </div>
                     </div>
 

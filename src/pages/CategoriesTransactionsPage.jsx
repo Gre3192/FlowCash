@@ -61,15 +61,15 @@ export default function CategoriesTransactionsPage() {
 
     const filteredTransactions = useSearchFilter(transactions, searchedTransaction, ["name", "note", "type"]);
 
-    const maxCategoryTotal = useMemo(() => {
-        if (!filteredCategories.length) return 0;
+    // const maxCategoryTotal = useMemo(() => {
+    //     if (!filteredCategories.length) return 0;
 
-        return Math.max(
-            ...filteredCategories.map((category) =>
-                Number(category.current_total || 0)
-            )
-        );
-    }, [filteredCategories]);
+    //     return Math.max(
+    //         ...filteredCategories.map((category) =>
+    //             Number(category.current_total || 0)
+    //         )
+    //     );
+    // }, [filteredCategories]);
 
     const availableYears = useMemo(() => {
         const years = [];
@@ -125,7 +125,7 @@ export default function CategoriesTransactionsPage() {
                             searchedCategory={searchedCategory}
                             setSearchedCategory={setSearchedCategory}
                             selectedCategory={selectedCategory}
-                            maxCategoryTotal={maxCategoryTotal}
+                            // maxCategoryTotal={maxCategoryTotal}
                             openCategoryMenuId={openCategoryMenuId}
                             setOpenCategoryMenuId={setOpenCategoryMenuId}
                             setSelectedCategoryId={setSelectedCategoryId}
@@ -228,10 +228,12 @@ function CategorySide({
     selectedMonth,
     reloadMonthlyOverview,
 }) {
-    
+
     const [showCategoriesWithTransactions, setShowCategoriesWithTransactions] = useState(true);
     const [showCategoriesEmptyInSelectedPeriod, setShowCategoriesEmptyInSelectedPeriod] = useState(true);
     const [showCategoriesWithoutTransactions, setShowCategoriesWithoutTransactions] = useState(true);
+
+    console.log(categories);
 
 
     const categoriesWithTransactions = useMemo(() => {
@@ -299,14 +301,11 @@ function CategorySide({
                         >
                             {categoriesWithTransactions.length > 0 ? (
                                 categoriesWithTransactions.map((category) => {
+
                                     const isSelected = category.id === selectedCategory?.id;
-                                    const total = Number(category.current_total || 0);
-
-                                    const progress =
-                                        maxCategoryTotal > 0
-                                            ? (total / maxCategoryTotal) * 100
-                                            : 0;
-
+                                    const progress = category.budget_total > 0 ? (category.current_total / category.budget_total) * 100 : 0;
+    
+                                    
                                     return (
                                         <CategoryCard
                                             key={category.id}
@@ -317,7 +316,8 @@ function CategorySide({
                                             setOpenCategoryMenuId={setOpenCategoryMenuId}
                                             setSelectedCategoryId={setSelectedCategoryId}
                                             reloadMonthlyOverview={reloadMonthlyOverview}
-                                            total={total}
+                                            currentTotal={category?.current_total}
+                                            budgetTotal={category?.budget_total}
                                         />
                                     );
                                 })
