@@ -11,6 +11,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import formatCurrency from "../utils/formatCurrency";
 import BulkUpdatePanel from "../components/BulkUpdatePanel";
 import TransactionTypeBadge from "../components/TransactionTypeBadge";
+import ModalWrapper from "../components/ModalWrapper";
 import { useGet } from "../hooks/useGet";
 import { API_ENDPOINTS } from "../api/endpoint";
 
@@ -127,8 +128,8 @@ export default function BudgetPage() {
     } = useGet(
         id
             ? API_ENDPOINTS.transactionBudgets({
-                transaction_id: id,
-            })
+                  transaction_id: id,
+              })
             : null,
         {
             delayMs: 0,
@@ -190,11 +191,11 @@ export default function BudgetPage() {
             prev.map((row) =>
                 row.year === year
                     ? {
-                        ...row,
-                        values: row.values.map((currentValue, index) =>
-                            index === monthIndex ? value : currentValue
-                        ),
-                    }
+                          ...row,
+                          values: row.values.map((currentValue, index) =>
+                              index === monthIndex ? value : currentValue
+                          ),
+                      }
                     : row
             )
         );
@@ -283,9 +284,9 @@ export default function BudgetPage() {
             prev.map((row) =>
                 row.year === year
                     ? {
-                        ...row,
-                        values: row.values.map(() => ""),
-                    }
+                          ...row,
+                          values: row.values.map(() => ""),
+                      }
                     : row
             )
         );
@@ -361,16 +362,15 @@ export default function BudgetPage() {
                 </div>
             </div>
 
-            {isYearsModalOpen && (
-                <YearsRangeModal
-                    startYear={startYear}
-                    endYear={endYear}
-                    setStartYear={setStartYear}
-                    setEndYear={setEndYear}
-                    onClose={handleCloseYearsModal}
-                    onConfirm={handleApplyYearsRange}
-                />
-            )}
+            <YearsRangeModal
+                isOpen={isYearsModalOpen}
+                startYear={startYear}
+                endYear={endYear}
+                setStartYear={setStartYear}
+                setEndYear={setEndYear}
+                onClose={handleCloseYearsModal}
+                onConfirm={handleApplyYearsRange}
+            />
         </div>
     );
 }
@@ -414,11 +414,22 @@ function BudgetHeader({
                                 {subtitle}
                             </p>
 
-                            {type && <>
-                                <span className="text-xs text-slate-300">•</span>
-                                <TransactionTypeBadge type={type} />
-                            </>}
+                            {type && (
+                                <>
+                                    <span className="text-xs text-slate-300">
+                                        •
+                                    </span>
+
+                                    <TransactionTypeBadge type={type} />
+                                </>
+                            )}
                         </div>
+
+                        {note && (
+                            <p className="mt-0.5 truncate text-xs text-slate-400">
+                                {note}
+                            </p>
+                        )}
                     </div>
                 </div>
 
@@ -566,6 +577,7 @@ function BudgetFooterActions({
 }
 
 function YearsRangeModal({
+    isOpen,
     startYear,
     endYear,
     setStartYear,
@@ -574,23 +586,18 @@ function YearsRangeModal({
     onConfirm,
 }) {
     return (
-        <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-3 sm:p-4"
-            onClick={onClose}
+        <ModalWrapper
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Gestisci anni"
+            size="sm"
+            height="h-fit"
+            animation="scale"
         >
-            <div
-                className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-4 shadow-xl sm:p-5"
-                onClick={(event) => event.stopPropagation()}
-            >
-                <div className="mb-4">
-                    <h2 className="text-base font-semibold text-slate-900 sm:text-lg">
-                        Gestisci anni
-                    </h2>
-
-                    <p className="mt-1 text-sm text-slate-500">
-                        Inserisci l&apos;intervallo di anni da mostrare in tabella.
-                    </p>
-                </div>
+            <div>
+                <p className="mb-4 text-sm text-slate-500">
+                    Inserisci l&apos;intervallo di anni da mostrare in tabella.
+                </p>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <YearInput
@@ -626,7 +633,7 @@ function YearsRangeModal({
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalWrapper>
     );
 }
 
