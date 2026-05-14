@@ -4,7 +4,6 @@ import TransactionCard from "../components/TransactionCard";
 import { API_ENDPOINTS } from "../api/endpoint";
 import React, { useMemo, useState, useEffect } from "react";
 import formatCurrency from "../utils/formatCurrency";
-import CategoryCard from "../components/CategoryCard";
 import ModalWrapper from "../components/ModalWrapper";
 import CreateCategoryModal from "../components/Modals/CreateCategoryModal";
 import CreateTransactionModal from "../components/Modals/CreateTransactionModal";
@@ -12,9 +11,8 @@ import DividerSection from "../components/DividerSection";
 import getMonthByNum from "../utils/getMonthByNum";
 import TransactionMovementsModal from "../components/Modals/TransactionMovementsModal";
 import MonthNavigator from "../components/MonthNavigator";
-import { useSearchFilter } from "../hooks/useSearchFilter";
-import { useSelectedItem } from "../hooks/useSelectedItem";
 import { useSearchParams } from "react-router-dom";
+import saveToStorage from "../utils/saveToStorage";
 
 function getValidYear(value, fallbackYear) {
     const year = Number(value);
@@ -34,6 +32,25 @@ function getValidMonth(value, fallbackMonth) {
     return month;
 }
 
+function getFromStorage(key, fallbackValue = {}, storageType = "local") {
+    const storage = storageType === "session" ? sessionStorage : localStorage;
+
+    try {
+        const value = storage.getItem(key);
+
+        if (!value) return fallbackValue;
+
+        return JSON.parse(value);
+    } catch (error) {
+        console.error("Errore durante la lettura dallo storage:", error);
+        return fallbackValue;
+    }
+}
+
+function getAccordionStorageKey(year, month) {
+    return `categories-transactions-open-accordions-${year}-${month}`;
+}
+
 export default function CategoriesTransactionsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
 
@@ -44,20 +61,21 @@ export default function CategoriesTransactionsPage() {
 
     const initialYear = getValidYear(searchParams.get("year"), currentYear);
     const initialMonth = getValidMonth(searchParams.get("month"), currentMonth);
-    const initialCategoryId = searchParams.get("categoryId") || null;
 
     const [selectedDay, setSelectedDay] = useState(currentDay);
     const [selectedMonth, setSelectedMonth] = useState(initialMonth);
     const [selectedYear, setSelectedYear] = useState(initialYear);
 
-    const [searchedCategory, setSearchedCategory] = useState("");
-    const [searchedTransaction, setSearchedTransaction] = useState("");
+    const [search, setSearch] = useState("");
 
-    const [selectedCategoryId, setSelectedCategoryId] = useState(initialCategoryId);
-    const [openCategoryMenuId, setOpenCategoryMenuId] = useState(null);
+    const [isCreateCategoryModalOpen, setIsCreateCategoryModalOpen] =
+        useState(false);
 
-    const [isCreateCategoryModalOpen, setIsCreateCategoryModalOpen] = useState(false);
-    const [isCreateTransactionModalOpen, setIsCreateTransactionModalOpen] = useState(false);
+    const [isCreateTransactionModalOpen, setIsCreateTransactionModalOpen] =
+        useState(false);
+
+    const [categoryIdForNewTransaction, setCategoryIdForNewTransaction] =
+        useState(null);
 
     const [showMovementsModal, setShowMovementsModal] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState(null);
@@ -68,14 +86,15 @@ export default function CategoriesTransactionsPage() {
         nextParams.set("year", String(selectedYear));
         nextParams.set("month", String(selectedMonth));
 
-        if (selectedCategoryId) {
-            nextParams.set("categoryId", selectedCategoryId);
-        }
-
         setSearchParams(nextParams, { replace: true });
-    }, [selectedYear, selectedMonth, selectedCategoryId, setSearchParams]);
+    }, [selectedYear, selectedMonth, setSearchParams]);
 
-    const { data, loading, error, reload: reloadMonthlyOverview, } = useGet(
+    const {
+        data,
+        loading,
+        error,
+        reload: reloadMonthlyOverview,
+    } = useGet(
         API_ENDPOINTS.monthlyOverview({
             month: selectedMonth,
             year: selectedYear,
@@ -87,22 +106,14 @@ export default function CategoriesTransactionsPage() {
 
     const categories = data?.categories ?? [];
 
-    const filteredCategories = useSearchFilter(categories, searchedCategory, ["name"]);
-
-    const selectedCategory = useSelectedItem(filteredCategories, selectedCategoryId);
-
-    const transactions = selectedCategory?.transactions ?? [];
-
-    const filteredTransactions = useSearchFilter(transactions, searchedTransaction, ["name", "note", "type"]);
-
-    function handleSelectedCategoryId(categoryId) {
-        setSelectedCategoryId(categoryId);
-        setSearchedTransaction("");
-    }
-
     function handleTransactionCard(transaction) {
         setSelectedTransaction(transaction);
         setShowMovementsModal(true);
+    }
+
+    function handleCreateTransaction(categoryId) {
+        setCategoryIdForNewTransaction(categoryId);
+        setIsCreateTransactionModalOpen(true);
     }
 
     return (
@@ -113,8 +124,9 @@ export default function CategoriesTransactionsPage() {
                         <h1 className="truncate text-xl font-semibold text-slate-900 sm:text-xl">
                             Categorie e transazioni
                         </h1>
+
                         <p className="truncate text-[11px] text-slate-500 sm:text-xs">
-                            Seleziona le transazioni
+                            Gestisci le transazioni per categoria
                         </p>
                     </div>
 
@@ -136,43 +148,21 @@ export default function CategoriesTransactionsPage() {
                     </div>
                 )}
 
-                <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden lg:grid-cols-4">
-                    <div className="min-h-0 overflow-hidden lg:col-span-1">
-                        <CategorySide
-                            loading={loading}
-                            categories={filteredCategories}
-                            searchedCategory={searchedCategory}
-                            setSearchedCategory={setSearchedCategory}
-                            selectedCategory={selectedCategory}
-                            openCategoryMenuId={openCategoryMenuId}
-                            setOpenCategoryMenuId={setOpenCategoryMenuId}
-                            setSelectedCategoryId={handleSelectedCategoryId}
-                            setIsCreateCategoryModalOpen={setIsCreateCategoryModalOpen}
-                            selectedYear={selectedYear}
-                            selectedMonth={selectedMonth}
-                            reloadMonthlyOverview={reloadMonthlyOverview}
-                        />
-                    </div>
-
-                    <div className="min-h-0 overflow-hidden lg:col-span-3">
-                        <TransactionsSide
-                            loading={loading}
-                            categories={categories}
-                            transactions={filteredTransactions}
-                            selectedCategory={selectedCategory}
-                            selectedCategoryId={selectedCategory?.id}
-                            setOpenCategoryMenuId={setOpenCategoryMenuId}
-                            searchedTransaction={searchedTransaction}
-                            setSearchedTransaction={setSearchedTransaction}
-                            setIsCreateTransactionModalOpen={setIsCreateTransactionModalOpen}
-                            selectedDay={selectedDay}
-                            setSelectedDay={setSelectedDay}
-                            selectedMonth={selectedMonth}
-                            selectedYear={selectedYear}
-                            onTransactionCardClick={handleTransactionCard}
-                            reloadMonthlyOverview={reloadMonthlyOverview}
-                        />
-                    </div>
+                <div className="min-h-0 flex-1 overflow-hidden">
+                    <TransactionsSide
+                        loading={loading}
+                        categories={categories}
+                        search={search}
+                        setSearch={setSearch}
+                        selectedDay={selectedDay}
+                        setSelectedDay={setSelectedDay}
+                        selectedMonth={selectedMonth}
+                        selectedYear={selectedYear}
+                        onTransactionCardClick={handleTransactionCard}
+                        reloadMonthlyOverview={reloadMonthlyOverview}
+                        setIsCreateCategoryModalOpen={setIsCreateCategoryModalOpen}
+                        onCreateTransaction={handleCreateTransaction}
+                    />
                 </div>
             </div>
 
@@ -195,7 +185,7 @@ export default function CategoriesTransactionsPage() {
                 title="Nuova transazione"
             >
                 <CreateTransactionModal
-                    selectedCategoryId={selectedCategory?.id}
+                    selectedCategoryId={categoryIdForNewTransaction}
                     reload={reloadMonthlyOverview}
                     onClose={() => setIsCreateTransactionModalOpen(false)}
                 />
@@ -224,326 +214,307 @@ export default function CategoriesTransactionsPage() {
     );
 }
 
-function CategorySide({
-    loading,
-    categories,
-    setIsCreateCategoryModalOpen,
-    searchedCategory,
-    setSearchedCategory,
-    selectedCategory,
-    openCategoryMenuId,
-    setOpenCategoryMenuId,
-    setSelectedCategoryId,
-    selectedYear,
-    selectedMonth,
-    reloadMonthlyOverview,
-}) {
-    const [showCategoriesWithTransactions, setShowCategoriesWithTransactions] =
-        useState(true);
-    const [
-        showCategoriesEmptyInSelectedPeriod,
-        setShowCategoriesEmptyInSelectedPeriod,
-    ] = useState(false);
-    const [
-        showCategoriesWithoutTransactions,
-        setShowCategoriesWithoutTransactions,
-    ] = useState(false);
-
-    const categoriesWithTransactions = useMemo(() => {
-        return categories.filter((category) => {
-            return category.has_transactions && Number(category.budget_total || 0) > 0;
-        });
-    }, [categories]);
-
-    const categoriesEmptyInSelectedPeriod = useMemo(() => {
-        return categories.filter((category) => {
-            return category.has_transactions && Number(category.budget_total || 0) === 0;
-        });
-    }, [categories]);
-
-    const categoriesWithoutTransactions = useMemo(() => {
-        return categories.filter((category) => !category.has_transactions);
-    }, [categories]);
-
-    useEffect(() => {
-        const hasSearch = searchedCategory.trim().length > 0;
-
-        if (!hasSearch) return;
-
-        setShowCategoriesWithTransactions(categoriesWithTransactions.length > 0);
-        setShowCategoriesEmptyInSelectedPeriod(
-            categoriesEmptyInSelectedPeriod.length > 0
-        );
-        setShowCategoriesWithoutTransactions(categoriesWithoutTransactions.length > 0);
-    }, [
-        searchedCategory,
-        categoriesWithTransactions.length,
-        categoriesEmptyInSelectedPeriod.length,
-        categoriesWithoutTransactions.length,
-    ]);
-
-    return (
-        <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm max-lg:h-[38vh] lg:h-full">
-            <HeadOfSide
-                title="Categorie"
-                subtitle={`${categories.length} categorie`}
-                iconCTA={Plus}
-                hoverTitle="Aggiungi categoria"
-                search={searchedCategory}
-                setSearch={setSearchedCategory}
-                onCTAClick={() => setIsCreateCategoryModalOpen(true)}
-            />
-
-            <div className="min-h-0 flex-1 overflow-y-scroll p-2">
-                {loading ? (
-                    <LoadingState />
-                ) : categories.length > 0 ? (
-                    <div className="space-y-2">
-                        <DividerSection
-                            label={`Categorie attive • ${getMonthByNum(
-                                selectedMonth,
-                                3
-                            )} ${selectedYear}`}
-                            numItems={categoriesWithTransactions.length}
-                            show={showCategoriesWithTransactions}
-                            dotColor="green"
-                            onClick={() =>
-                                setShowCategoriesWithTransactions((prev) => !prev)
-                            }
-                        >
-                            {categoriesWithTransactions.length > 0 ? (
-                                categoriesWithTransactions.map((category) => {
-                                    const isSelected =
-                                        category.id === selectedCategory?.id;
-                                    const progress =
-                                        category.budget_total > 0
-                                            ? (category.current_total /
-                                                category.budget_total) *
-                                            100
-                                            : 0;
-
-                                    return (
-                                        <CategoryCard
-                                            key={category.id}
-                                            isSelected={isSelected}
-                                            progress={progress}
-                                            category={category}
-                                            openCategoryMenuId={openCategoryMenuId}
-                                            setOpenCategoryMenuId={
-                                                setOpenCategoryMenuId
-                                            }
-                                            setSelectedCategoryId={
-                                                setSelectedCategoryId
-                                            }
-                                            reloadMonthlyOverview={
-                                                reloadMonthlyOverview
-                                            }
-                                            currentTotal={category?.current_total}
-                                            budgetTotal={category?.budget_total}
-                                        />
-                                    );
-                                })
-                            ) : (
-                                <ItemEmpty text="Nessuna categoria attiva" />
-                            )}
-                        </DividerSection>
-
-                        <DividerSection
-                            label={`Categorie inattive • ${getMonthByNum(
-                                selectedMonth,
-                                3
-                            )} ${selectedYear}`}
-                            numItems={categoriesEmptyInSelectedPeriod.length}
-                            show={showCategoriesEmptyInSelectedPeriod}
-                            dotColor="red"
-                            onClick={() =>
-                                setShowCategoriesEmptyInSelectedPeriod(
-                                    (prev) => !prev
-                                )
-                            }
-                        >
-                            {categoriesEmptyInSelectedPeriod.length > 0 ? (
-                                categoriesEmptyInSelectedPeriod.map((category) => {
-                                    const isSelected =
-                                        category.id === selectedCategory?.id;
-
-                                    return (
-                                        <CategoryCard
-                                            key={category.id}
-                                            isSelected={isSelected}
-                                            progress={0}
-                                            category={category}
-                                            openCategoryMenuId={openCategoryMenuId}
-                                            setOpenCategoryMenuId={
-                                                setOpenCategoryMenuId
-                                            }
-                                            setSelectedCategoryId={
-                                                setSelectedCategoryId
-                                            }
-                                            reloadMonthlyOverview={
-                                                reloadMonthlyOverview
-                                            }
-                                            total={0}
-                                        />
-                                    );
-                                })
-                            ) : (
-                                <ItemEmpty text="Nessuna categoria inattiva" />
-                            )}
-                        </DividerSection>
-
-                        <DividerSection
-                            label="Categorie vuote"
-                            numItems={categoriesWithoutTransactions.length}
-                            show={showCategoriesWithoutTransactions}
-                            dotColor="gray"
-                            onClick={() =>
-                                setShowCategoriesWithoutTransactions(
-                                    (prev) => !prev
-                                )
-                            }
-                        >
-                            {categoriesWithoutTransactions.length > 0 ? (
-                                categoriesWithoutTransactions.map((category) => {
-                                    const isSelected =
-                                        category.id === selectedCategory?.id;
-
-                                    return (
-                                        <CategoryCard
-                                            key={category.id}
-                                            isSelected={isSelected}
-                                            progress={0}
-                                            category={category}
-                                            openCategoryMenuId={openCategoryMenuId}
-                                            setOpenCategoryMenuId={
-                                                setOpenCategoryMenuId
-                                            }
-                                            setSelectedCategoryId={
-                                                setSelectedCategoryId
-                                            }
-                                            reloadMonthlyOverview={
-                                                reloadMonthlyOverview
-                                            }
-                                            total={0}
-                                        />
-                                    );
-                                })
-                            ) : (
-                                <ItemEmpty text="Nessuna categoria vuota" />
-                            )}
-                        </DividerSection>
-                    </div>
-                ) : (
-                    <ItemEmpty text="Nessuna categoria trovata" />
-                )}
-            </div>
-        </div>
-    );
-}
-
 function TransactionsSide({
     loading,
-    selectedCategory,
-    transactions,
-    selectedCategoryId,
-    setOpenCategoryMenuId,
     categories,
-    searchedTransaction,
-    setSearchedTransaction,
-    setIsCreateTransactionModalOpen,
+    search,
+    setSearch,
     selectedDay,
     setSelectedDay,
     selectedMonth,
     selectedYear,
     onTransactionCardClick,
     reloadMonthlyOverview,
+    setIsCreateCategoryModalOpen,
+    onCreateTransaction,
 }) {
-    const total = Number(selectedCategory?.current_total || 0);
+    const storageKey = useMemo(() => {
+        return getAccordionStorageKey(selectedYear, selectedMonth);
+    }, [selectedYear, selectedMonth]);
+
+    const [openCategoryMap, setOpenCategoryMap] = useState(() => {
+        return getFromStorage(storageKey, {});
+    });
 
     const [openTransactionMenuId, setOpenTransactionMenuId] = useState(null);
     const [transactionMenuAnchor, setTransactionMenuAnchor] = useState("button");
+
     const [transactionContextPosition, setTransactionContextPosition] = useState({
         x: 0,
         y: 0,
     });
 
+    const normalizedSearch = search.trim().toLowerCase();
+
+    const filteredCategories = useMemo(() => {
+        if (!normalizedSearch) return categories;
+
+        return categories
+            .map((category) => {
+                const categoryName = String(category.name || "").toLowerCase();
+
+                const categoryMatches = categoryName.includes(normalizedSearch);
+
+                const filteredTransactions = (category.transactions ?? []).filter(
+                    (transaction) => {
+                        const transactionName = String(
+                            transaction.name || ""
+                        ).toLowerCase();
+
+                        const transactionNote = String(
+                            transaction.note || ""
+                        ).toLowerCase();
+
+                        const transactionType = String(
+                            transaction.type || ""
+                        ).toLowerCase();
+
+                        return (
+                            transactionName.includes(normalizedSearch) ||
+                            transactionNote.includes(normalizedSearch) ||
+                            transactionType.includes(normalizedSearch)
+                        );
+                    }
+                );
+
+                return {
+                    ...category,
+                    transactions: categoryMatches
+                        ? category.transactions ?? []
+                        : filteredTransactions,
+                    isSearchMatch:
+                        categoryMatches || filteredTransactions.length > 0,
+                };
+            })
+            .filter((category) => category.isSearchMatch);
+    }, [categories, normalizedSearch]);
+
+    useEffect(() => {
+        const savedOpenCategoryMap = getFromStorage(storageKey, {});
+        setOpenCategoryMap(savedOpenCategoryMap);
+    }, [storageKey]);
+
+    useEffect(() => {
+        if (!categories.length) return;
+
+        setOpenCategoryMap((prev) => {
+            const next = { ...prev };
+
+            categories.forEach((category) => {
+                if (next[category.id] === undefined) {
+                    next[category.id] = Number(category.budget_total || 0) > 0;
+                }
+            });
+
+            return next;
+        });
+    }, [categories]);
+
+    useEffect(() => {
+        saveToStorage(storageKey, openCategoryMap);
+    }, [storageKey, openCategoryMap]);
+
+    useEffect(() => {
+        if (!normalizedSearch) return;
+
+        setOpenCategoryMap((prev) => {
+            const next = { ...prev };
+
+            filteredCategories.forEach((category) => {
+                next[category.id] = true;
+            });
+
+            return next;
+        });
+    }, [normalizedSearch, filteredCategories]);
+
+    const categoriesTotal = categories.length;
+
+    const transactionsTotal = useMemo(() => {
+        return categories.reduce((total, category) => {
+            return total + (category.transactions?.length ?? 0);
+        }, 0);
+    }, [categories]);
+
+    const currentTotal = useMemo(() => {
+        return categories.reduce((total, category) => {
+            return total + Number(category.current_total || 0);
+        }, 0);
+    }, [categories]);
+
+    function toggleCategory(categoryId) {
+        setOpenCategoryMap((prev) => ({
+            ...prev,
+            [categoryId]: !prev[categoryId],
+        }));
+    }
+
     return (
         <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:h-full">
             <HeadOfSide
-                title={selectedCategory ? selectedCategory.name : "Transazioni"}
-                subtitle={
-                    selectedCategory
-                        ? `${transactions.length} transazioni`
-                        : "Transazioni della categoria"
-                }
+                title="Transazioni"
+                subtitle={`${categoriesTotal} categorie • ${transactionsTotal} transazioni`}
                 iconCTA={Plus}
-                hoverTitle="Aggiungi transazione"
-                search={searchedTransaction}
-                setSearch={setSearchedTransaction}
-                onCTAClick={() => setIsCreateTransactionModalOpen(true)}
-                valuePill={formatCurrency(total)}
+                hoverTitle="Aggiungi categoria"
+                search={search}
+                setSearch={setSearch}
+                onCTAClick={() => setIsCreateCategoryModalOpen(true)}
+                valuePill={formatCurrency(currentTotal)}
             />
 
             <div className="min-h-0 flex-1 overflow-y-auto p-2">
                 {loading ? (
                     <LoadingState />
-                ) : selectedCategory ? (
-                    transactions.length > 0 ? (
-                        <div className="space-y-2">
-                            {transactions.map((transaction) => {
-                                const current = Number(transaction.current || 0);
-                                const target = Number(transaction.target || 0);
+                ) : filteredCategories.length > 0 ? (
+                    <div className="space-y-2">
+                        {filteredCategories.map((category) => {
+                            const transactions = category.transactions ?? [];
 
-                                return (
-                                    <TransactionCard
-                                        key={transaction.id}
-                                        budget={target}
-                                        current={current}
-                                        transaction={transaction}
-                                        categories={categories}
-                                        selectedCategoryId={selectedCategoryId}
-                                        setOpenCategoryMenuId={
-                                            setOpenCategoryMenuId
-                                        }
-                                        onClick={() =>
-                                            onTransactionCardClick(transaction)
-                                        }
-                                        openTransactionMenuId={openTransactionMenuId}
-                                        setOpenTransactionMenuId={
-                                            setOpenTransactionMenuId
-                                        }
-                                        transactionMenuAnchor={
-                                            transactionMenuAnchor
-                                        }
-                                        setTransactionMenuAnchor={
-                                            setTransactionMenuAnchor
-                                        }
-                                        transactionContextPosition={
-                                            transactionContextPosition
-                                        }
-                                        setTransactionContextPosition={
-                                            setTransactionContextPosition
-                                        }
-                                        reloadMonthlyOverview={reloadMonthlyOverview}
-                                        setSelectedDay={setSelectedDay}
-                                        selectedDay={selectedDay}
-                                        selectedMonth={selectedMonth}
-                                        selectedYear={selectedYear}
-                                    />
-                                );
-                            })}
-                        </div>
-                    ) : (
-                        <ItemEmpty
-                            text={
-                                searchedTransaction
-                                    ? "Nessuna transazione trovata"
-                                    : "Nessuna transazione disponibile per il periodo selezionato"
-                            }
-                        />
-                    )
+                            const isOpen = openCategoryMap[category.id] ?? false;
+
+                            const categoryCurrentTotal = Number(
+                                category.current_total || 0
+                            );
+
+                            const categoryBudgetTotal = Number(
+                                category.budget_total || 0
+                            );
+
+                            const dotColor =
+                                !category.has_transactions
+                                    ? "gray"
+                                    : categoryBudgetTotal > 0
+                                      ? "green"
+                                      : "red";
+
+                            return (
+                                <DividerSection
+                                    key={category.id}
+                                    label={`${category.name} • ${getMonthByNum(
+                                        selectedMonth,
+                                        3
+                                    )} ${selectedYear}`}
+                                    numItems={transactions.length}
+                                    show={isOpen}
+                                    dotColor={dotColor}
+                                    onClick={() => toggleCategory(category.id)}
+                                >
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                                            <div className="min-w-0">
+                                                <p className="truncate text-xs font-semibold text-slate-700">
+                                                    {formatCurrency(
+                                                        categoryCurrentTotal
+                                                    )}
+                                                    {" / "}
+                                                    {formatCurrency(
+                                                        categoryBudgetTotal
+                                                    )}
+                                                </p>
+
+                                                <p className="truncate text-[11px] text-slate-500">
+                                                    Totale corrente / budget
+                                                    categoria
+                                                </p>
+                                            </div>
+
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    onCreateTransaction(
+                                                        category.id
+                                                    )
+                                                }
+                                                className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white px-2 text-xs font-medium text-slate-700 transition hover:bg-slate-100"
+                                            >
+                                                <Plus size={13} />
+                                                Transazione
+                                            </button>
+                                        </div>
+
+                                        {transactions.length > 0 ? (
+                                            transactions.map((transaction) => {
+                                                const current = Number(
+                                                    transaction.current || 0
+                                                );
+
+                                                const target = Number(
+                                                    transaction.target || 0
+                                                );
+
+                                                return (
+                                                    <TransactionCard
+                                                        key={transaction.id}
+                                                        budget={target}
+                                                        current={current}
+                                                        transaction={transaction}
+                                                        categories={categories}
+                                                        selectedCategoryId={
+                                                            category.id
+                                                        }
+                                                        onClick={() =>
+                                                            onTransactionCardClick(
+                                                                transaction
+                                                            )
+                                                        }
+                                                        openTransactionMenuId={
+                                                            openTransactionMenuId
+                                                        }
+                                                        setOpenTransactionMenuId={
+                                                            setOpenTransactionMenuId
+                                                        }
+                                                        transactionMenuAnchor={
+                                                            transactionMenuAnchor
+                                                        }
+                                                        setTransactionMenuAnchor={
+                                                            setTransactionMenuAnchor
+                                                        }
+                                                        transactionContextPosition={
+                                                            transactionContextPosition
+                                                        }
+                                                        setTransactionContextPosition={
+                                                            setTransactionContextPosition
+                                                        }
+                                                        reloadMonthlyOverview={
+                                                            reloadMonthlyOverview
+                                                        }
+                                                        setSelectedDay={
+                                                            setSelectedDay
+                                                        }
+                                                        selectedDay={
+                                                            selectedDay
+                                                        }
+                                                        selectedMonth={
+                                                            selectedMonth
+                                                        }
+                                                        selectedYear={
+                                                            selectedYear
+                                                        }
+                                                    />
+                                                );
+                                            })
+                                        ) : (
+                                            <ItemEmpty
+                                                text={
+                                                    normalizedSearch
+                                                        ? "Nessuna transazione trovata"
+                                                        : "Nessuna transazione disponibile"
+                                                }
+                                            />
+                                        )}
+                                    </div>
+                                </DividerSection>
+                            );
+                        })}
+                    </div>
                 ) : (
-                    <ItemEmpty text="Seleziona una categoria" />
+                    <ItemEmpty
+                        text={
+                            normalizedSearch
+                                ? "Nessun risultato trovato"
+                                : "Nessuna categoria disponibile"
+                        }
+                    />
                 )}
             </div>
         </div>
@@ -592,7 +563,7 @@ function SearchBar({ search, setSearch }) {
 
             <input
                 type="text"
-                placeholder="Cerca..."
+                placeholder="Cerca categoria o transazione..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="h-8 w-full rounded-lg border border-slate-200 bg-white py-1 pl-8 pr-8 text-xs outline-none transition focus:border-slate-400"
@@ -629,6 +600,7 @@ function HeadOfSide({
                     <h2 className="truncate text-sm font-semibold text-slate-900">
                         {title}
                     </h2>
+
                     <p className="truncate text-[11px] text-slate-500">
                         {subtitle}
                     </p>
