@@ -8,7 +8,6 @@ import {
     Scale,
     FolderOpen,
     ChevronRight,
-    Wallet,
 } from "lucide-react";
 import TransactionCard from "../components/TransactionCard";
 import { API_ENDPOINTS } from "../api/endpoint";
@@ -656,6 +655,20 @@ function CategorySection({
                 </div>
             </button>
 
+            <div className="flex items-center justify-between border-t border-slate-100 px-3 py-1.5 sm:px-4">
+                <span className="text-[11px] font-medium text-slate-400">
+                    {formatCurrency(categoryCurrentTotal)} / {formatCurrency(categoryBudgetTotal)}
+                </span>
+                <button
+                    type="button"
+                    onClick={() => onCreateTransaction(category.id)}
+                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-blue-600 transition hover:bg-blue-50"
+                    title="Aggiungi transazione"
+                >
+                    <Plus size={13} />
+                    <span className="hidden sm:inline">Aggiungi</span>
+                </button>
+            </div>
             <AnimatePresence initial={false}>
                 {isOpen && (
                     <motion.div
@@ -668,62 +681,8 @@ function CategorySection({
                         }}
                         className="overflow-hidden"
                     >
-                        <div className="border-t border-slate-100 px-3 py-3 sm:px-4">
-                            <div
-                                className="group/summary relative mb-3 flex cursor-pointer items-center justify-between overflow-hidden rounded-xl border border-slate-200 bg-white px-4 py-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50 hover:shadow-[0_8px_24px_rgba(15,23,42,0.10)] active:translate-y-0 active:shadow-[0_2px_8px_rgba(15,23,42,0.08)]"
-                                onClick={() =>
-                                    onCreateTransaction(category.id)
-                                }
-                            >
-                                <div className="pointer-events-none absolute bottom-0 left-0 h-1 w-full overflow-hidden rounded-b-2xl bg-slate-100">
-                                    <div
-                                        className="h-full bg-emerald-500 transition-all duration-300"
-                                        style={{ width: `${progress}%` }}
-                                    />
-                                </div>
-
-                                <div className="flex min-w-0 items-center gap-3">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 shadow-sm transition-all duration-200 group-hover/summary:border-slate-300 group-hover/summary:bg-white group-hover/summary:shadow-md">
-                                        <Wallet size={20} className="text-slate-500" />
-                                    </div>
-
-                                    <div className="min-w-0">
-                                        <div className="truncate text-sm font-semibold leading-5 text-slate-900 transition-colors group-hover/summary:text-slate-950">
-                                            Riepilogo categoria
-                                        </div>
-                                        <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                                            <span className="inline-flex shrink-0 items-center rounded-full border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-medium leading-none text-slate-600 transition-colors duration-200 group-hover/summary:bg-white">
-                                                {progress.toFixed(0)}%
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="ml-4 flex shrink-0 items-center gap-2">
-                                    <div className="text-right">
-                                        <p className="text-sm font-semibold leading-5 text-emerald-600">
-                                            {formatCurrency(categoryCurrentTotal)}
-                                        </p>
-                                        <p className="text-sm font-semibold leading-5 text-slate-500">
-                                            / {formatCurrency(categoryBudgetTotal)}
-                                        </p>
-                                    </div>
-
-                                    <button
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onCreateTransaction(category.id);
-                                        }}
-                                        className="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600"
-                                        title="Aggiungi transazione"
-                                    >
-                                        <Plus size={15} />
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
+                        <div className="px-3 py-2 sm:px-4">
+                            <div className="space-y-1.5">
                                 {transactions.length > 0 ? (
                                     transactions.map((transaction) => {
                                         const current = Number(

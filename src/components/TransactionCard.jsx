@@ -142,8 +142,8 @@ export default function TransactionCard({
             onClick={handleCardClick}
             onContextMenu={onCtxMenuClick}
             className={`
-                group relative z-0 flex cursor-pointer items-center justify-between overflow-visible rounded-xl
-                border bg-white px-4 py-4
+                group relative z-0 flex cursor-pointer items-center justify-between overflow-visible rounded-lg
+                border bg-white px-3 py-2.5
                 shadow-[0_1px_2px_rgba(15,23,42,0.04)]
                 transition-all duration-200 ease-out
                 hover:-translate-y-0.5
@@ -163,10 +163,10 @@ export default function TransactionCard({
                 <div className="pointer-events-none absolute inset-x-4 bottom-0 h-[3px] rounded-full bg-amber-300" />
             )}
 
-            <div className="flex min-w-0 items-center gap-3">
+            <div className="flex min-w-0 items-center gap-2.5">
                 <div
                     className={`
-                        flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg
+                        flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md
                         border shadow-sm transition-all duration-200
                         group-hover:shadow-md
                         ${hasBudget
@@ -183,12 +183,12 @@ export default function TransactionCard({
                             className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
                         />
                     ) : (
-                        <Wallet size={20} />
+                        <Wallet size={16} />
                     )}
                 </div>
 
                 <div className="min-w-0">
-                    <div className="truncate text-sm font-semibold leading-5 text-slate-900 transition-colors group-hover:text-slate-950">
+                    <div className="truncate text-xs font-semibold leading-4 text-slate-900 transition-colors group-hover:text-slate-950">
                         {transaction.name}
                     </div>
 
@@ -236,7 +236,7 @@ export default function TransactionCard({
                 </div>
             </div>
 
-            <div className="ml-4 flex shrink-0 items-center gap-2">
+            <div className="ml-3 flex shrink-0 items-center gap-1.5">
                 {hasBudget ? (
                     <div className="text-right">
                         <AmountRatio
@@ -245,7 +245,7 @@ export default function TransactionCard({
                             isIncome={isIncome}
                         />
 
-                        <div className="truncate text-sm font-semibold leading-5 text-slate-500">
+                        <div className="truncate text-xs font-medium leading-4 text-slate-500">
                             Rimanenti:{" "}
                             <span className="text-slate-900">
                                 {formatCurrency(remaining)}
@@ -254,11 +254,11 @@ export default function TransactionCard({
                     </div>
                 ) : (
                     <div className="text-right">
-                        <div className="text-sm font-semibold leading-5 text-amber-700">
+                        <div className="text-xs font-semibold leading-4 text-amber-700">
                             Inserisci budget
                         </div>
 
-                        <div className="text-xs font-medium leading-5 text-amber-600">
+                        <div className="text-[10px] font-medium leading-4 text-amber-600">
                             Nessun budget per{" "}
                             {String(selectedMonth).padStart(2, "0")}/{selectedYear}
                         </div>
