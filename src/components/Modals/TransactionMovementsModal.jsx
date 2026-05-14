@@ -107,7 +107,7 @@ export default function TransactionMovementsModal({
     function handleTodayClick() {
         const today = new Date();
 
-        const todayDay = today.getDay();
+        const todayDay = today.getDate();
         const todayMonth = today.getMonth() + 1;
         const todayYear = today.getFullYear();
 
