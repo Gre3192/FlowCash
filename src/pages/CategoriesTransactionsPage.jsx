@@ -2,7 +2,7 @@ import { useGet } from "../hooks/useGet";
 import { Search, Plus, X } from "lucide-react";
 import TransactionCard from "../components/TransactionCard";
 import { API_ENDPOINTS } from "../api/endpoint";
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import formatCurrency from "../utils/formatCurrency";
 import ModalWrapper from "../components/ModalWrapper";
 import CreateCategoryModal from "../components/Modals/CreateCategoryModal";
@@ -13,6 +13,7 @@ import TransactionMovementsModal from "../components/Modals/TransactionMovements
 import MonthNavigator from "../components/MonthNavigator";
 import { useSearchParams } from "react-router-dom";
 import saveToStorage from "../utils/saveToStorage";
+import getFromStorage from "../utils/getFromStorage";
 
 function getValidYear(value, fallbackYear) {
     const year = Number(value);
@@ -32,23 +33,12 @@ function getValidMonth(value, fallbackMonth) {
     return month;
 }
 
-function getFromStorage(key, fallbackValue = {}, storageType = "local") {
-    const storage = storageType === "session" ? sessionStorage : localStorage;
-
-    try {
-        const value = storage.getItem(key);
-
-        if (!value) return fallbackValue;
-
-        return JSON.parse(value);
-    } catch (error) {
-        console.error("Errore durante la lettura dallo storage:", error);
-        return fallbackValue;
-    }
-}
-
 function getAccordionStorageKey(year, month) {
     return `categories-transactions-open-accordions-${year}-${month}`;
+}
+
+function getScrollStorageKey(year, month) {
+    return `categories-transactions-scroll-position-${year}-${month}`;
 }
 
 export default function CategoriesTransactionsPage() {
@@ -228,12 +218,18 @@ function TransactionsSide({
     setIsCreateCategoryModalOpen,
     onCreateTransaction,
 }) {
-    const storageKey = useMemo(() => {
+    const scrollContainerRef = useRef(null);
+
+    const accordionStorageKey = useMemo(() => {
         return getAccordionStorageKey(selectedYear, selectedMonth);
     }, [selectedYear, selectedMonth]);
 
+    const scrollStorageKey = useMemo(() => {
+        return getScrollStorageKey(selectedYear, selectedMonth);
+    }, [selectedYear, selectedMonth]);
+
     const [openCategoryMap, setOpenCategoryMap] = useState(() => {
-        return getFromStorage(storageKey, {});
+        return getFromStorage(accordionStorageKey, {});
     });
 
     const [openTransactionMenuId, setOpenTransactionMenuId] = useState(null);
@@ -245,6 +241,7 @@ function TransactionsSide({
     });
 
     const normalizedSearch = search.trim().toLowerCase();
+    const isSearching = normalizedSearch.length > 0;
 
     const filteredCategories = useMemo(() => {
         if (!normalizedSearch) return categories;
@@ -252,7 +249,6 @@ function TransactionsSide({
         return categories
             .map((category) => {
                 const categoryName = String(category.name || "").toLowerCase();
-
                 const categoryMatches = categoryName.includes(normalizedSearch);
 
                 const filteredTransactions = (category.transactions ?? []).filter(
@@ -290,9 +286,9 @@ function TransactionsSide({
     }, [categories, normalizedSearch]);
 
     useEffect(() => {
-        const savedOpenCategoryMap = getFromStorage(storageKey, {});
+        const savedOpenCategoryMap = getFromStorage(accordionStorageKey, {});
         setOpenCategoryMap(savedOpenCategoryMap);
-    }, [storageKey]);
+    }, [accordionStorageKey]);
 
     useEffect(() => {
         if (!categories.length) return;
@@ -302,7 +298,7 @@ function TransactionsSide({
 
             categories.forEach((category) => {
                 if (next[category.id] === undefined) {
-                    next[category.id] = Number(category.budget_total || 0) > 0;
+                    next[category.id] = false;
                 }
             });
 
@@ -311,22 +307,23 @@ function TransactionsSide({
     }, [categories]);
 
     useEffect(() => {
-        saveToStorage(storageKey, openCategoryMap);
-    }, [storageKey, openCategoryMap]);
+        if (isSearching) return;
+
+        saveToStorage(accordionStorageKey, openCategoryMap);
+    }, [accordionStorageKey, openCategoryMap, isSearching]);
 
     useEffect(() => {
-        if (!normalizedSearch) return;
+        if (loading) return;
 
-        setOpenCategoryMap((prev) => {
-            const next = { ...prev };
+        const scrollElement = scrollContainerRef.current;
+        if (!scrollElement) return;
 
-            filteredCategories.forEach((category) => {
-                next[category.id] = true;
-            });
+        const savedScrollTop = Number(getFromStorage(scrollStorageKey, 0)) || 0;
 
-            return next;
+        requestAnimationFrame(() => {
+            scrollElement.scrollTop = savedScrollTop;
         });
-    }, [normalizedSearch, filteredCategories]);
+    }, [loading, scrollStorageKey, filteredCategories.length]);
 
     const categoriesTotal = categories.length;
 
@@ -343,10 +340,18 @@ function TransactionsSide({
     }, [categories]);
 
     function toggleCategory(categoryId) {
+        if (isSearching) return;
+
         setOpenCategoryMap((prev) => ({
             ...prev,
             [categoryId]: !prev[categoryId],
         }));
+    }
+
+    function handleScroll(e) {
+        if (isSearching) return;
+
+        saveToStorage(scrollStorageKey, e.currentTarget.scrollTop);
     }
 
     return (
@@ -362,7 +367,11 @@ function TransactionsSide({
                 valuePill={formatCurrency(currentTotal)}
             />
 
-            <div className="min-h-0 flex-1 overflow-y-auto p-2">
+            <div
+                ref={scrollContainerRef}
+                onScroll={handleScroll}
+                className="min-h-0 flex-1 overflow-y-auto p-2"
+            >
                 {loading ? (
                     <LoadingState />
                 ) : filteredCategories.length > 0 ? (
@@ -370,7 +379,9 @@ function TransactionsSide({
                         {filteredCategories.map((category) => {
                             const transactions = category.transactions ?? [];
 
-                            const isOpen = openCategoryMap[category.id] ?? false;
+                            const isOpen = isSearching
+                                ? true
+                                : openCategoryMap[category.id] ?? false;
 
                             const categoryCurrentTotal = Number(
                                 category.current_total || 0
@@ -384,8 +395,8 @@ function TransactionsSide({
                                 !category.has_transactions
                                     ? "gray"
                                     : categoryBudgetTotal > 0
-                                      ? "green"
-                                      : "red";
+                                        ? "green"
+                                        : "red";
 
                             return (
                                 <DividerSection
@@ -447,7 +458,9 @@ function TransactionsSide({
                                                         key={transaction.id}
                                                         budget={target}
                                                         current={current}
-                                                        transaction={transaction}
+                                                        transaction={
+                                                            transaction
+                                                        }
                                                         categories={categories}
                                                         selectedCategoryId={
                                                             category.id
