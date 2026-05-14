@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { FolderPlus, LoaderCircle } from "lucide-react";
+import { FolderPlus, LoaderCircle, Check } from "lucide-react";
 import { usePost } from "../../hooks/usePost";
 import { API_ENDPOINTS } from "../../api/endpoint";
+import { CATEGORY_COLOR_KEYS, CATEGORY_COLORS_MAP } from "../../constants/categoryColors";
 
 export default function CreateCategoryModal({ onClose, reload }) {
 
     const { postData, loading, error } = usePost();
 
     const [categoryName, setCategoryName] = useState("");
+    const [selectedColor, setSelectedColor] = useState(CATEGORY_COLOR_KEYS[0]);
     const [errors, setErrors] = useState({});
 
     function handleChange(e) {
@@ -32,6 +34,7 @@ export default function CreateCategoryModal({ onClose, reload }) {
         if (!validateForm()) return;
         const payload = {
             name: categoryName.trim(),
+            color: selectedColor,
         };
         try {
             const createdCategory = await postData(
@@ -85,6 +88,29 @@ export default function CreateCategoryModal({ onClose, reload }) {
                         {errors.name}
                     </p>
                 )}
+            </div>
+
+            <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">
+                    Colore categoria
+                </label>
+                <div className="flex flex-wrap gap-2">
+                    {CATEGORY_COLOR_KEYS.map((colorKey) => {
+                        const color = CATEGORY_COLORS_MAP[colorKey];
+                        const isSelected = selectedColor === colorKey;
+                        return (
+                            <button
+                                key={colorKey}
+                                type="button"
+                                onClick={() => setSelectedColor(colorKey)}
+                                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${color.swatch} transition-all ${isSelected ? `ring-2 ${color.swatchRing} ring-offset-2` : "hover:scale-110"}`}
+                                title={color.label}
+                            >
+                                {isSelected && <Check size={14} className="text-white" />}
+                            </button>
+                        );
+                    })}
+                </div>
             </div>
 
             {error && (
