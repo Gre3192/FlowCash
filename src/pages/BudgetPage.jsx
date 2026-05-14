@@ -417,7 +417,6 @@ function BudgetHeader({
                                     <span className="text-xs text-slate-300">
                                         •
                                     </span>
-
                                     <TransactionTypeBadge type={type} />
                                 </>
                             )}

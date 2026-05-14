@@ -93,11 +93,7 @@ export default function CategoriesTransactionsPage() {
 
     const transactions = selectedCategory?.transactions ?? [];
 
-    const filteredTransactions = useSearchFilter(transactions, searchedTransaction, [
-        "name",
-        "note",
-        "type",
-    ]);
+    const filteredTransactions = useSearchFilter(transactions, searchedTransaction, ["name", "note", "type"]);
 
     function handleSelectedCategoryId(categoryId) {
         setSelectedCategoryId(categoryId);
