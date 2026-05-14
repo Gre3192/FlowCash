@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Save, PlusCircle, MinusCircle, CalendarRange, Eraser } from "lucide-react";
+import { ArrowLeft, Save, PlusCircle, MinusCircle, CalendarRange, Eraser, LoaderCircle } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import formatCurrency from "../utils/formatCurrency";
 import BulkUpdatePanel from "../components/BulkUpdatePanel";
@@ -331,6 +331,7 @@ export default function BudgetPage() {
                     yearsLabel={yearsLabel}
                     onOpenYearsModal={handleOpenYearsModal}
                     onSave={handleSave}
+                    saving={saving}
                 />
 
                 <div className="flex min-h-0 flex-1 flex-col pt-3">
@@ -381,6 +382,7 @@ function BudgetHeader({
     yearsLabel,
     onOpenYearsModal,
     onSave,
+    saving
 }) {
     const navigate = useNavigate();
 
@@ -437,10 +439,16 @@ function BudgetHeader({
                     <button
                         type="button"
                         onClick={onSave}
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-slate-900 px-3 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 sm:px-4"
+                        disabled={saving}
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-slate-900 px-3 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70 sm:px-4"
                     >
-                        <Save className="h-4 w-4 shrink-0" />
-                        <span>Salva</span>
+                        {saving ? (
+                            <LoaderCircle className="h-4 w-4 shrink-0 animate-spin" />
+                        ) : (
+                            <Save className="h-4 w-4 shrink-0" />
+                        )}
+
+                        <span>{saving ? "Salvataggio..." : "Salva"}</span>
                     </button>
                 </div>
             </div>
