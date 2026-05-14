@@ -342,50 +342,71 @@ function TransactionsSide({
         y: 0,
     });
 
+    const [typeFilter, setTypeFilter] = useState("all");
+    const [statusFilter, setStatusFilter] = useState("all");
+
     const normalizedSearch = search.trim().toLowerCase();
     const isSearching = normalizedSearch.length > 0;
 
     const filteredCategories = useMemo(() => {
-        if (!normalizedSearch) return categories;
+        let result = categories;
 
-        return categories
+        if (statusFilter !== "all") {
+            result = result.filter((category) => {
+                const isActive = category.has_transactions !== false;
+                return statusFilter === "active" ? isActive : !isActive;
+            });
+        }
+
+        result = result
             .map((category) => {
-                const categoryName = String(category.name || "").toLowerCase();
-                const categoryMatches = categoryName.includes(normalizedSearch);
+                let transactions = category.transactions ?? [];
 
-                const filteredTransactions = (category.transactions ?? []).filter(
-                    (transaction) => {
-                        const transactionName = String(
-                            transaction.name || ""
-                        ).toLowerCase();
+                if (typeFilter !== "all") {
+                    const filterType = typeFilter === "income" ? "Income" : "Expense";
+                    transactions = transactions.filter(
+                        (t) => t.type === filterType
+                    );
+                }
 
-                        const transactionNote = String(
-                            transaction.note || ""
-                        ).toLowerCase();
+                if (normalizedSearch) {
+                    const categoryName = String(category.name || "").toLowerCase();
+                    const categoryMatches = categoryName.includes(normalizedSearch);
 
-                        const transactionType = String(
-                            transaction.type || ""
-                        ).toLowerCase();
+                    if (!categoryMatches) {
+                        transactions = transactions.filter((transaction) => {
+                            const transactionName = String(
+                                transaction.name || ""
+                            ).toLowerCase();
+                            const transactionNote = String(
+                                transaction.note || ""
+                            ).toLowerCase();
+                            const transactionType = String(
+                                transaction.type || ""
+                            ).toLowerCase();
 
-                        return (
-                            transactionName.includes(normalizedSearch) ||
-                            transactionNote.includes(normalizedSearch) ||
-                            transactionType.includes(normalizedSearch)
-                        );
+                            return (
+                                transactionName.includes(normalizedSearch) ||
+                                transactionNote.includes(normalizedSearch) ||
+                                transactionType.includes(normalizedSearch)
+                            );
+                        });
                     }
-                );
+                }
 
                 return {
                     ...category,
-                    transactions: categoryMatches
-                        ? category.transactions ?? []
-                        : filteredTransactions,
-                    isSearchMatch:
-                        categoryMatches || filteredTransactions.length > 0,
+                    transactions,
+                    isSearchMatch: normalizedSearch
+                        ? String(category.name || "").toLowerCase().includes(normalizedSearch) ||
+                          transactions.length > 0
+                        : true,
                 };
             })
             .filter((category) => category.isSearchMatch);
-    }, [categories, normalizedSearch]);
+
+        return result;
+    }, [categories, normalizedSearch, typeFilter, statusFilter]);
 
     useEffect(() => {
         const savedOpenCategoryMap = getFromStorage(accordionStorageKey, {});
@@ -435,11 +456,6 @@ function TransactionsSide({
         }, 0);
     }, [categories]);
 
-    const currentTotal = useMemo(() => {
-        return categories.reduce((total, category) => {
-            return total + Number(category.current_total || 0);
-        }, 0);
-    }, [categories]);
 
     function toggleCategory(categoryId) {
         if (isSearching) return;
@@ -460,31 +476,34 @@ function TransactionsSide({
         <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:h-full">
             <div className="flex shrink-0 flex-col gap-3 border-b border-slate-200 p-3 sm:p-4">
                 <div className="flex items-center justify-between gap-3">
-                    <div className="min-w-0">
+                    <div className="flex items-center gap-2">
                         <h2 className="truncate text-sm font-bold text-slate-900">
                             Transazioni
                         </h2>
-                        <p className="truncate text-xs text-slate-500">
-                            {`${categoriesTotal} categorie · ${transactionsTotal} transazioni`}
-                        </p>
-                    </div>
-
-                    <div className="flex shrink-0 items-center gap-2">
-                        <span className="hidden rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700 sm:inline-block">
-                            {formatCurrency(currentTotal)}
+                        <span className="text-xs text-slate-400">
+                            {`${categoriesTotal} · ${transactionsTotal}`}
                         </span>
                         <button
                             type="button"
                             title="Aggiungi categoria"
                             onClick={() => setIsCreateCategoryModalOpen(true)}
-                            className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600"
+                            className="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600"
                         >
-                            <Plus size={15} />
+                            <Plus size={14} />
                         </button>
                     </div>
                 </div>
 
-                <SearchBar search={search} setSearch={setSearch} />
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <div className="min-w-0 flex-1">
+                        <SearchBar search={search} setSearch={setSearch} />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <TypeToggle value={typeFilter} onChange={setTypeFilter} />
+                        <StatusSelect value={statusFilter} onChange={setStatusFilter} />
+                    </div>
+                </div>
             </div>
 
             <div
@@ -809,5 +828,46 @@ function SearchBar({ search, setSearch }) {
                 </button>
             )}
         </div>
+    );
+}
+
+function TypeToggle({ value, onChange }) {
+    const options = [
+        { key: "all", label: "Tutte" },
+        { key: "income", label: "Entrate" },
+        { key: "expense", label: "Uscite" },
+    ];
+
+    return (
+        <div className="inline-flex h-9 items-center rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+            {options.map((opt) => (
+                <button
+                    key={opt.key}
+                    type="button"
+                    onClick={() => onChange(opt.key)}
+                    className={`cursor-pointer rounded-md px-2.5 py-1.5 text-[11px] font-medium transition-all ${
+                        value === opt.key
+                            ? "bg-white text-slate-900 shadow-sm"
+                            : "text-slate-500 hover:text-slate-700"
+                    }`}
+                >
+                    {opt.label}
+                </button>
+            ))}
+        </div>
+    );
+}
+
+function StatusSelect({ value, onChange }) {
+    return (
+        <select
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className="h-9 cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-2 text-[11px] font-medium text-slate-700 outline-none transition-all focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+        >
+            <option value="all">Tutte le categorie</option>
+            <option value="active">Attive</option>
+            <option value="inactive">Inattive</option>
+        </select>
     );
 }
