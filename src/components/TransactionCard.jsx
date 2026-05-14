@@ -34,6 +34,7 @@ export default function TransactionCard({
     setSelectedDay,
     selectedMonth,
     selectedYear,
+    categoryColorTheme,
 }) {
     const navigate = useNavigate();
     const { deleteData } = useDelete();
@@ -151,7 +152,7 @@ export default function TransactionCard({
                 active:translate-y-0
                 active:shadow-[0_2px_8px_rgba(15,23,42,0.08)]
                 ${hasBudget
-                    ? "border-slate-200 border-l-blue-300 hover:border-slate-300 hover:border-l-blue-400 hover:bg-white"
+                    ? `border-slate-200 ${categoryColorTheme?.txBorderL || "border-l-blue-300"} hover:border-slate-300 ${categoryColorTheme?.txBorderLHover || "hover:border-l-blue-400"} hover:bg-white`
                     : "border-dashed border-amber-300 border-l-amber-400 bg-amber-50/40 hover:border-amber-400 hover:bg-amber-50/70"
                 }
             `}

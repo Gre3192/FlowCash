@@ -495,7 +495,7 @@ function TransactionsSide({
                     <LoadingState />
                 ) : filteredCategories.length > 0 ? (
                     <div className="space-y-4">
-                        {filteredCategories.map((category) => {
+                        {filteredCategories.map((category, categoryIndex) => {
                             const transactions = category.transactions ?? [];
 
                             const isOpen = isSearching
@@ -525,11 +525,14 @@ function TransactionsSide({
                                         ? "green"
                                         : "red";
 
+                            const colorTheme = CATEGORY_COLORS[categoryIndex % CATEGORY_COLORS.length];
+
                             return (
                                 <CategorySection
                                     key={category.id}
                                     category={category}
                                     isOpen={isOpen}
+                                    colorTheme={colorTheme}
                                     dotColor={dotColor}
                                     progress={progress}
                                     categoryCurrentTotal={categoryCurrentTotal}
@@ -575,9 +578,117 @@ const DOT_COLORS = {
     gray: "bg-slate-300",
 };
 
+const CATEGORY_COLORS = [
+    {
+        border: "border-l-indigo-400",
+        borderHover: "hover:border-l-indigo-500",
+        bg: "bg-indigo-50",
+        bgLight: "bg-indigo-50/60",
+        iconBg: "bg-indigo-100",
+        iconColor: "text-indigo-600",
+        progressBar: "bg-indigo-500",
+        addBtnText: "text-indigo-600",
+        addBtnHover: "hover:bg-indigo-50",
+        txBorderL: "border-l-indigo-300",
+        txBorderLHover: "hover:border-l-indigo-400",
+    },
+    {
+        border: "border-l-emerald-400",
+        borderHover: "hover:border-l-emerald-500",
+        bg: "bg-emerald-50",
+        bgLight: "bg-emerald-50/60",
+        iconBg: "bg-emerald-100",
+        iconColor: "text-emerald-600",
+        progressBar: "bg-emerald-500",
+        addBtnText: "text-emerald-600",
+        addBtnHover: "hover:bg-emerald-50",
+        txBorderL: "border-l-emerald-300",
+        txBorderLHover: "hover:border-l-emerald-400",
+    },
+    {
+        border: "border-l-rose-400",
+        borderHover: "hover:border-l-rose-500",
+        bg: "bg-rose-50",
+        bgLight: "bg-rose-50/60",
+        iconBg: "bg-rose-100",
+        iconColor: "text-rose-600",
+        progressBar: "bg-rose-500",
+        addBtnText: "text-rose-600",
+        addBtnHover: "hover:bg-rose-50",
+        txBorderL: "border-l-rose-300",
+        txBorderLHover: "hover:border-l-rose-400",
+    },
+    {
+        border: "border-l-amber-400",
+        borderHover: "hover:border-l-amber-500",
+        bg: "bg-amber-50",
+        bgLight: "bg-amber-50/60",
+        iconBg: "bg-amber-100",
+        iconColor: "text-amber-600",
+        progressBar: "bg-amber-500",
+        addBtnText: "text-amber-600",
+        addBtnHover: "hover:bg-amber-50",
+        txBorderL: "border-l-amber-300",
+        txBorderLHover: "hover:border-l-amber-400",
+    },
+    {
+        border: "border-l-cyan-400",
+        borderHover: "hover:border-l-cyan-500",
+        bg: "bg-cyan-50",
+        bgLight: "bg-cyan-50/60",
+        iconBg: "bg-cyan-100",
+        iconColor: "text-cyan-600",
+        progressBar: "bg-cyan-500",
+        addBtnText: "text-cyan-600",
+        addBtnHover: "hover:bg-cyan-50",
+        txBorderL: "border-l-cyan-300",
+        txBorderLHover: "hover:border-l-cyan-400",
+    },
+    {
+        border: "border-l-violet-400",
+        borderHover: "hover:border-l-violet-500",
+        bg: "bg-violet-50",
+        bgLight: "bg-violet-50/60",
+        iconBg: "bg-violet-100",
+        iconColor: "text-violet-600",
+        progressBar: "bg-violet-500",
+        addBtnText: "text-violet-600",
+        addBtnHover: "hover:bg-violet-50",
+        txBorderL: "border-l-violet-300",
+        txBorderLHover: "hover:border-l-violet-400",
+    },
+    {
+        border: "border-l-orange-400",
+        borderHover: "hover:border-l-orange-500",
+        bg: "bg-orange-50",
+        bgLight: "bg-orange-50/60",
+        iconBg: "bg-orange-100",
+        iconColor: "text-orange-600",
+        progressBar: "bg-orange-500",
+        addBtnText: "text-orange-600",
+        addBtnHover: "hover:bg-orange-50",
+        txBorderL: "border-l-orange-300",
+        txBorderLHover: "hover:border-l-orange-400",
+    },
+    {
+        border: "border-l-teal-400",
+        borderHover: "hover:border-l-teal-500",
+        bg: "bg-teal-50",
+        bgLight: "bg-teal-50/60",
+        iconBg: "bg-teal-100",
+        iconColor: "text-teal-600",
+        progressBar: "bg-teal-500",
+        addBtnText: "text-teal-600",
+        addBtnHover: "hover:bg-teal-50",
+        txBorderL: "border-l-teal-300",
+        txBorderLHover: "hover:border-l-teal-400",
+    },
+];
+
 function CategorySection({
     category,
     isOpen,
+    colorTheme,
     dotColor,
     progress,
     categoryCurrentTotal,
@@ -603,13 +714,13 @@ function CategorySection({
     const dotClassName = DOT_COLORS[dotColor] || "bg-slate-300";
 
     return (
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+        <div className={`overflow-hidden rounded-xl border border-l-4 border-slate-200 ${colorTheme.border} bg-white shadow-sm transition-shadow hover:shadow-md ${colorTheme.borderHover}`}>
             <button
                 type="button"
                 onClick={onToggle}
                 className="flex w-full cursor-pointer items-center gap-3 px-3 py-3 text-left transition-colors hover:bg-slate-50 sm:px-4"
             >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${colorTheme.iconBg} ${colorTheme.iconColor}`}>
                     <FolderOpen size={17} />
                 </div>
 
@@ -621,7 +732,7 @@ function CategorySection({
                         <span className="truncate text-sm font-semibold text-slate-900">
                             {category.name}
                         </span>
-                        <span className="shrink-0 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">
+                        <span className={`shrink-0 rounded-full ${colorTheme.bg} px-1.5 py-0.5 text-[10px] font-medium ${colorTheme.iconColor}`}>
                             {transactions.length}
                         </span>
                     </div>
@@ -629,7 +740,7 @@ function CategorySection({
                     <div className="mt-1.5 flex items-center gap-2">
                         <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-slate-100">
                             <div
-                                className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                                className={`h-full rounded-full ${colorTheme.progressBar} transition-all duration-500`}
                                 style={{ width: `${progress}%` }}
                             />
                         </div>
@@ -662,7 +773,7 @@ function CategorySection({
                 <button
                     type="button"
                     onClick={() => onCreateTransaction(category.id)}
-                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-blue-600 transition hover:bg-blue-50"
+                    className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium ${colorTheme.addBtnText} transition ${colorTheme.addBtnHover}`}
                     title="Aggiungi transazione"
                 >
                     <Plus size={13} />
@@ -681,7 +792,7 @@ function CategorySection({
                         }}
                         className="overflow-hidden"
                     >
-                        <div className="rounded-b-xl bg-slate-50/80 px-3 py-2.5 sm:px-4">
+                        <div className={`rounded-b-xl ${colorTheme.bgLight} px-3 py-2.5 sm:px-4`}>
                             <div className="space-y-1.5">
                                 {transactions.length > 0 ? (
                                     transactions.map((transaction) => {
@@ -701,6 +812,7 @@ function CategorySection({
                                                 transaction={transaction}
                                                 categories={categories}
                                                 selectedCategoryId={category.id}
+                                                categoryColorTheme={colorTheme}
                                                 onClick={() =>
                                                     onTransactionCardClick(
                                                         transaction
