@@ -75,12 +75,7 @@ export default function CategoriesTransactionsPage() {
         setSearchParams(nextParams, { replace: true });
     }, [selectedYear, selectedMonth, selectedCategoryId, setSearchParams]);
 
-    const {
-        data,
-        loading,
-        error,
-        reload: reloadMonthlyOverview,
-    } = useGet(
+    const { data, loading, error, reload: reloadMonthlyOverview, } = useGet(
         API_ENDPOINTS.monthlyOverview({
             month: selectedMonth,
             year: selectedYear,
@@ -327,8 +322,8 @@ function CategorySide({
                                     const progress =
                                         category.budget_total > 0
                                             ? (category.current_total /
-                                                  category.budget_total) *
-                                              100
+                                                category.budget_total) *
+                                            100
                                             : 0;
 
                                     return (
