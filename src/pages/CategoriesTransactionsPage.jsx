@@ -531,7 +531,7 @@ function TransactionsSide({
                             return (
                                 <CategorySection
                                     key={category.id}
-                                    category={category}
+                                    // category={category}
                                     isOpen={isOpen}
                                     colorTheme={colorTheme}
                                     dotColor={dotColor}
