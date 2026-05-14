@@ -1,5 +1,14 @@
 import { useGet } from "../hooks/useGet";
-import { Search, Plus, X } from "lucide-react";
+import {
+    Search,
+    Plus,
+    X,
+    TrendingUp,
+    TrendingDown,
+    Scale,
+    FolderOpen,
+    ChevronRight,
+} from "lucide-react";
 import TransactionCard from "../components/TransactionCard";
 import { API_ENDPOINTS } from "../api/endpoint";
 import React, { useMemo, useState, useEffect, useRef } from "react";
@@ -7,13 +16,12 @@ import formatCurrency from "../utils/formatCurrency";
 import ModalWrapper from "../components/ModalWrapper";
 import CreateCategoryModal from "../components/Modals/CreateCategoryModal";
 import CreateTransactionModal from "../components/Modals/CreateTransactionModal";
-import DividerSection from "../components/DividerSection";
-import getMonthByNum from "../utils/getMonthByNum";
 import TransactionMovementsModal from "../components/Modals/TransactionMovementsModal";
 import MonthNavigator from "../components/MonthNavigator";
 import { useSearchParams } from "react-router-dom";
 import saveToStorage from "../utils/saveToStorage";
 import getFromStorage from "../utils/getFromStorage";
+import { AnimatePresence, motion } from "framer-motion";
 
 function getValidYear(value, fallbackYear) {
     const year = Number(value);
@@ -106,34 +114,65 @@ export default function CategoriesTransactionsPage() {
         setIsCreateTransactionModalOpen(true);
     }
 
+    const totals = useMemo(() => {
+        let income = 0;
+        let expense = 0;
+
+        categories.forEach((category) => {
+            (category.transactions ?? []).forEach((t) => {
+                const current = Number(t.current || 0);
+                if (t.type === "Income") {
+                    income += current;
+                } else {
+                    expense += current;
+                }
+            });
+        });
+
+        return { income, expense, balance: income - expense };
+    }, [categories]);
+
     return (
-        <div className="h-full min-h-0 box-border overflow-hidden bg-slate-50 p-2 sm:p-3">
-            <div className="flex h-full min-h-0 flex-col">
-                <div className="mb-3 grid min-h-0 grid-cols-1 gap-3 overflow-hidden lg:grid-cols-4">
-                    <div className="min-h-0 overflow-hidden lg:col-span-1">
-                        <h1 className="truncate text-xl font-semibold text-slate-900 sm:text-xl">
-                            Categorie e transazioni
-                        </h1>
+        <div className="h-full min-h-0 box-border overflow-hidden bg-slate-50 p-2 sm:p-4">
+            <div className="flex h-full min-h-0 flex-col gap-3">
+                <div className="shrink-0">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="min-w-0">
+                            <h1 className="truncate text-lg font-bold text-slate-900 sm:text-xl">
+                                Categorie e transazioni
+                            </h1>
+                            <p className="truncate text-xs text-slate-500">
+                                Gestisci le transazioni per categoria
+                            </p>
+                        </div>
 
-                        <p className="truncate text-[11px] text-slate-500 sm:text-xs">
-                            Gestisci le transazioni per categoria
-                        </p>
-                    </div>
-
-                    <div className="min-h-0 overflow-hidden lg:col-span-3">
-                        <MonthNavigator
-                            selectedMonth={selectedMonth}
-                            setSelectedMonth={setSelectedMonth}
-                            selectedYear={selectedYear}
-                            setSelectedYear={setSelectedYear}
-                            availableYears={data?.available_budget_years}
-                            currentYear={currentYear}
-                        />
+                        <div className="w-full sm:w-auto sm:min-w-[340px]">
+                            <MonthNavigator
+                                selectedMonth={selectedMonth}
+                                setSelectedMonth={setSelectedMonth}
+                                selectedYear={selectedYear}
+                                setSelectedYear={setSelectedYear}
+                                availableYears={data?.available_budget_years}
+                                currentYear={currentYear}
+                            />
+                        </div>
                     </div>
                 </div>
 
+                {!loading && categories.length > 0 && (
+                    <div className="shrink-0">
+                        <SummaryStats
+                            income={totals.income}
+                            expense={totals.expense}
+                            balance={totals.balance}
+                            categoriesCount={categories.length}
+                        />
+                    </div>
+                )}
+
                 {error && (
-                    <div className="mb-2 shrink-0 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600">
+                    <div className="shrink-0 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                        <div className="h-2 w-2 shrink-0 rounded-full bg-red-400" />
                         Errore durante il caricamento dei dati
                     </div>
                 )}
@@ -200,6 +239,68 @@ export default function CategoriesTransactionsPage() {
                     reloadMonthlyOverview={reloadMonthlyOverview}
                 />
             </ModalWrapper>
+        </div>
+    );
+}
+
+function SummaryStats({ income, expense, balance, categoriesCount }) {
+    const stats = [
+        {
+            label: "Entrate",
+            value: formatCurrency(income),
+            icon: TrendingUp,
+            iconBg: "bg-emerald-100",
+            iconColor: "text-emerald-600",
+            valueBorder: "border-emerald-100",
+        },
+        {
+            label: "Uscite",
+            value: formatCurrency(expense),
+            icon: TrendingDown,
+            iconBg: "bg-red-100",
+            iconColor: "text-red-600",
+            valueBorder: "border-red-100",
+        },
+        {
+            label: "Bilancio",
+            value: formatCurrency(balance),
+            icon: Scale,
+            iconBg: balance >= 0 ? "bg-blue-100" : "bg-amber-100",
+            iconColor: balance >= 0 ? "text-blue-600" : "text-amber-600",
+            valueBorder: balance >= 0 ? "border-blue-100" : "border-amber-100",
+        },
+        {
+            label: "Categorie",
+            value: String(categoriesCount),
+            icon: FolderOpen,
+            iconBg: "bg-violet-100",
+            iconColor: "text-violet-600",
+            valueBorder: "border-violet-100",
+        },
+    ];
+
+    return (
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
+            {stats.map((stat) => (
+                <div
+                    key={stat.label}
+                    className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 shadow-sm transition-shadow hover:shadow-md"
+                >
+                    <div
+                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${stat.iconBg}`}
+                    >
+                        <stat.icon size={18} className={stat.iconColor} />
+                    </div>
+                    <div className="min-w-0">
+                        <p className="truncate text-[11px] font-medium text-slate-500">
+                            {stat.label}
+                        </p>
+                        <p className="truncate text-sm font-bold text-slate-900">
+                            {stat.value}
+                        </p>
+                    </div>
+                </div>
+            ))}
         </div>
     );
 }
@@ -356,26 +457,44 @@ function TransactionsSide({
 
     return (
         <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:h-full">
-            <HeadOfSide
-                title="Transazioni"
-                subtitle={`${categoriesTotal} categorie • ${transactionsTotal} transazioni`}
-                iconCTA={Plus}
-                hoverTitle="Aggiungi categoria"
-                search={search}
-                setSearch={setSearch}
-                onCTAClick={() => setIsCreateCategoryModalOpen(true)}
-                valuePill={formatCurrency(currentTotal)}
-            />
+            <div className="flex shrink-0 flex-col gap-3 border-b border-slate-200 p-3 sm:p-4">
+                <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                        <h2 className="truncate text-sm font-bold text-slate-900">
+                            Transazioni
+                        </h2>
+                        <p className="truncate text-xs text-slate-500">
+                            {`${categoriesTotal} categorie · ${transactionsTotal} transazioni`}
+                        </p>
+                    </div>
+
+                    <div className="flex shrink-0 items-center gap-2">
+                        <span className="hidden rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700 sm:inline-block">
+                            {formatCurrency(currentTotal)}
+                        </span>
+                        <button
+                            type="button"
+                            title="Aggiungi categoria"
+                            onClick={() => setIsCreateCategoryModalOpen(true)}
+                            className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600"
+                        >
+                            <Plus size={15} />
+                        </button>
+                    </div>
+                </div>
+
+                <SearchBar search={search} setSearch={setSearch} />
+            </div>
 
             <div
                 ref={scrollContainerRef}
                 onScroll={handleScroll}
-                className="min-h-0 flex-1 overflow-y-auto p-2"
+                className="min-h-0 flex-1 overflow-y-auto p-2 sm:p-3"
             >
                 {loading ? (
                     <LoadingState />
                 ) : filteredCategories.length > 0 ? (
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                         {filteredCategories.map((category) => {
                             const transactions = category.transactions ?? [];
 
@@ -391,6 +510,14 @@ function TransactionsSide({
                                 category.budget_total || 0
                             );
 
+                            const progress =
+                                categoryBudgetTotal > 0
+                                    ? Math.min(
+                                          (categoryCurrentTotal / categoryBudgetTotal) * 100,
+                                          100
+                                      )
+                                    : 0;
+
                             const dotColor =
                                 !category.has_transactions
                                     ? "gray"
@@ -399,129 +526,37 @@ function TransactionsSide({
                                         : "red";
 
                             return (
-                                <DividerSection
+                                <CategorySection
                                     key={category.id}
-                                    label={`${category.name} • ${getMonthByNum(
-                                        selectedMonth,
-                                        3
-                                    )} ${selectedYear}`}
-                                    numItems={transactions.length}
-                                    show={isOpen}
+                                    category={category}
+                                    isOpen={isOpen}
                                     dotColor={dotColor}
-                                    onClick={() => toggleCategory(category.id)}
-                                >
-                                    <div className="space-y-2">
-                                        <div className="flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                                            <div className="min-w-0">
-                                                <p className="truncate text-xs font-semibold text-slate-700">
-                                                    {formatCurrency(
-                                                        categoryCurrentTotal
-                                                    )}
-                                                    {" / "}
-                                                    {formatCurrency(
-                                                        categoryBudgetTotal
-                                                    )}
-                                                </p>
-
-                                                <p className="truncate text-[11px] text-slate-500">
-                                                    Totale corrente / budget
-                                                    categoria
-                                                </p>
-                                            </div>
-
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    onCreateTransaction(
-                                                        category.id
-                                                    )
-                                                }
-                                                className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white px-2 text-xs font-medium text-slate-700 transition hover:bg-slate-100"
-                                            >
-                                                <Plus size={13} />
-                                                Transazione
-                                            </button>
-                                        </div>
-
-                                        {transactions.length > 0 ? (
-                                            transactions.map((transaction) => {
-                                                const current = Number(
-                                                    transaction.current || 0
-                                                );
-
-                                                const target = Number(
-                                                    transaction.target || 0
-                                                );
-
-                                                return (
-                                                    <TransactionCard
-                                                        key={transaction.id}
-                                                        budget={target}
-                                                        current={current}
-                                                        transaction={
-                                                            transaction
-                                                        }
-                                                        categories={categories}
-                                                        selectedCategoryId={
-                                                            category.id
-                                                        }
-                                                        onClick={() =>
-                                                            onTransactionCardClick(
-                                                                transaction
-                                                            )
-                                                        }
-                                                        openTransactionMenuId={
-                                                            openTransactionMenuId
-                                                        }
-                                                        setOpenTransactionMenuId={
-                                                            setOpenTransactionMenuId
-                                                        }
-                                                        transactionMenuAnchor={
-                                                            transactionMenuAnchor
-                                                        }
-                                                        setTransactionMenuAnchor={
-                                                            setTransactionMenuAnchor
-                                                        }
-                                                        transactionContextPosition={
-                                                            transactionContextPosition
-                                                        }
-                                                        setTransactionContextPosition={
-                                                            setTransactionContextPosition
-                                                        }
-                                                        reloadMonthlyOverview={
-                                                            reloadMonthlyOverview
-                                                        }
-                                                        setSelectedDay={
-                                                            setSelectedDay
-                                                        }
-                                                        selectedDay={
-                                                            selectedDay
-                                                        }
-                                                        selectedMonth={
-                                                            selectedMonth
-                                                        }
-                                                        selectedYear={
-                                                            selectedYear
-                                                        }
-                                                    />
-                                                );
-                                            })
-                                        ) : (
-                                            <ItemEmpty
-                                                text={
-                                                    normalizedSearch
-                                                        ? "Nessuna transazione trovata"
-                                                        : "Nessuna transazione disponibile"
-                                                }
-                                            />
-                                        )}
-                                    </div>
-                                </DividerSection>
+                                    progress={progress}
+                                    categoryCurrentTotal={categoryCurrentTotal}
+                                    categoryBudgetTotal={categoryBudgetTotal}
+                                    transactions={transactions}
+                                    selectedMonth={selectedMonth}
+                                    selectedYear={selectedYear}
+                                    onToggle={() => toggleCategory(category.id)}
+                                    onCreateTransaction={onCreateTransaction}
+                                    onTransactionCardClick={onTransactionCardClick}
+                                    categories={categories}
+                                    openTransactionMenuId={openTransactionMenuId}
+                                    setOpenTransactionMenuId={setOpenTransactionMenuId}
+                                    transactionMenuAnchor={transactionMenuAnchor}
+                                    setTransactionMenuAnchor={setTransactionMenuAnchor}
+                                    transactionContextPosition={transactionContextPosition}
+                                    setTransactionContextPosition={setTransactionContextPosition}
+                                    reloadMonthlyOverview={reloadMonthlyOverview}
+                                    setSelectedDay={setSelectedDay}
+                                    selectedDay={selectedDay}
+                                    normalizedSearch={normalizedSearch}
+                                />
                             );
                         })}
                     </div>
                 ) : (
-                    <ItemEmpty
+                    <EmptyState
                         text={
                             normalizedSearch
                                 ? "Nessun risultato trovato"
@@ -534,34 +569,217 @@ function TransactionsSide({
     );
 }
 
-function IconButton({ icon: Icon, onClick, hoverTitle }) {
+const DOT_COLORS = {
+    green: "bg-emerald-400",
+    red: "bg-red-400",
+    gray: "bg-slate-300",
+};
+
+function CategorySection({
+    category,
+    isOpen,
+    dotColor,
+    progress,
+    categoryCurrentTotal,
+    categoryBudgetTotal,
+    transactions,
+    selectedMonth,
+    selectedYear,
+    onToggle,
+    onCreateTransaction,
+    onTransactionCardClick,
+    categories,
+    openTransactionMenuId,
+    setOpenTransactionMenuId,
+    transactionMenuAnchor,
+    setTransactionMenuAnchor,
+    transactionContextPosition,
+    setTransactionContextPosition,
+    reloadMonthlyOverview,
+    setSelectedDay,
+    selectedDay,
+    normalizedSearch,
+}) {
+    const dotClassName = DOT_COLORS[dotColor] || "bg-slate-300";
+
     return (
-        <button
-            type="button"
-            title={hoverTitle || undefined}
-            onClick={onClick}
-            className="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"
-        >
-            <Icon size={14} />
-        </button>
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white transition-shadow hover:shadow-sm">
+            <button
+                type="button"
+                onClick={onToggle}
+                className="flex w-full cursor-pointer items-center gap-3 px-3 py-3 text-left transition-colors hover:bg-slate-50 sm:px-4"
+            >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                    <FolderOpen size={17} />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                        <span
+                            className={`h-2 w-2 shrink-0 rounded-full ${dotClassName}`}
+                        />
+                        <span className="truncate text-sm font-semibold text-slate-900">
+                            {category.name}
+                        </span>
+                        <span className="shrink-0 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">
+                            {transactions.length}
+                        </span>
+                    </div>
+
+                    <div className="mt-1.5 flex items-center gap-2">
+                        <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-slate-100">
+                            <div
+                                className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                                style={{ width: `${progress}%` }}
+                            />
+                        </div>
+                        <span className="shrink-0 text-[10px] font-medium text-slate-500">
+                            {progress.toFixed(0)}%
+                        </span>
+                    </div>
+                </div>
+
+                <div className="ml-2 flex shrink-0 items-center gap-2">
+                    <div className="hidden text-right sm:block">
+                        <p className="text-xs font-bold text-slate-900">
+                            {formatCurrency(categoryCurrentTotal)}
+                        </p>
+                        <p className="text-[10px] text-slate-500">
+                            / {formatCurrency(categoryBudgetTotal)}
+                        </p>
+                    </div>
+                    <ChevronRight
+                        size={16}
+                        className={`text-slate-400 transition-transform duration-200 ${isOpen ? "rotate-90" : ""}`}
+                    />
+                </div>
+            </button>
+
+            <AnimatePresence initial={false}>
+                {isOpen && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{
+                            height: { duration: 0.25, ease: "easeOut" },
+                            opacity: { duration: 0.18 },
+                        }}
+                        className="overflow-hidden"
+                    >
+                        <div className="border-t border-slate-100 px-3 py-3 sm:px-4">
+                            <div className="mb-3 flex items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2">
+                                <div className="min-w-0">
+                                    <p className="truncate text-xs font-semibold text-slate-700">
+                                        {formatCurrency(categoryCurrentTotal)}
+                                        {" / "}
+                                        {formatCurrency(categoryBudgetTotal)}
+                                    </p>
+                                    <p className="truncate text-[11px] text-slate-500">
+                                        Totale corrente / budget categoria
+                                    </p>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        onCreateTransaction(category.id)
+                                    }
+                                    className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600"
+                                >
+                                    <Plus size={13} />
+                                    Transazione
+                                </button>
+                            </div>
+
+                            <div className="space-y-2">
+                                {transactions.length > 0 ? (
+                                    transactions.map((transaction) => {
+                                        const current = Number(
+                                            transaction.current || 0
+                                        );
+
+                                        const target = Number(
+                                            transaction.target || 0
+                                        );
+
+                                        return (
+                                            <TransactionCard
+                                                key={transaction.id}
+                                                budget={target}
+                                                current={current}
+                                                transaction={transaction}
+                                                categories={categories}
+                                                selectedCategoryId={category.id}
+                                                onClick={() =>
+                                                    onTransactionCardClick(
+                                                        transaction
+                                                    )
+                                                }
+                                                openTransactionMenuId={
+                                                    openTransactionMenuId
+                                                }
+                                                setOpenTransactionMenuId={
+                                                    setOpenTransactionMenuId
+                                                }
+                                                transactionMenuAnchor={
+                                                    transactionMenuAnchor
+                                                }
+                                                setTransactionMenuAnchor={
+                                                    setTransactionMenuAnchor
+                                                }
+                                                transactionContextPosition={
+                                                    transactionContextPosition
+                                                }
+                                                setTransactionContextPosition={
+                                                    setTransactionContextPosition
+                                                }
+                                                reloadMonthlyOverview={
+                                                    reloadMonthlyOverview
+                                                }
+                                                setSelectedDay={setSelectedDay}
+                                                selectedDay={selectedDay}
+                                                selectedMonth={selectedMonth}
+                                                selectedYear={selectedYear}
+                                            />
+                                        );
+                                    })
+                                ) : (
+                                    <EmptyState
+                                        text={
+                                            normalizedSearch
+                                                ? "Nessuna transazione trovata"
+                                                : "Nessuna transazione disponibile"
+                                        }
+                                    />
+                                )}
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
     );
 }
 
 function LoadingState() {
     return (
         <div className="flex h-full min-h-45 items-center justify-center">
-            <div className="flex flex-col items-center gap-2">
-                <div className="h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-slate-700" />
-                <span className="text-xs text-slate-500">Caricamento...</span>
+            <div className="flex flex-col items-center gap-3">
+                <div className="h-8 w-8 animate-spin rounded-full border-[3px] border-slate-200 border-t-blue-600" />
+                <span className="text-xs font-medium text-slate-500">
+                    Caricamento...
+                </span>
             </div>
         </div>
     );
 }
 
-function ItemEmpty({ text = "Nessun dato disponibile" }) {
+function EmptyState({ text = "Nessun dato disponibile" }) {
     return (
-        <div className="rounded-lg border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500">
-            {text}
+        <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50/50 px-4 py-8 text-center">
+            <FolderOpen size={24} className="text-slate-300" />
+            <p className="text-xs text-slate-500">{text}</p>
         </div>
     );
 }
@@ -570,8 +788,8 @@ function SearchBar({ search, setSearch }) {
     return (
         <div className="relative">
             <Search
-                size={14}
-                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
+                size={15}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
             />
 
             <input
@@ -579,68 +797,19 @@ function SearchBar({ search, setSearch }) {
                 placeholder="Cerca categoria o transazione..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="h-8 w-full rounded-lg border border-slate-200 bg-white py-1 pl-8 pr-8 text-xs outline-none transition focus:border-slate-400"
+                className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 py-1 pl-9 pr-9 text-xs outline-none transition-all focus:border-blue-300 focus:bg-white focus:ring-2 focus:ring-blue-100"
             />
 
             {search && (
                 <button
                     type="button"
                     onClick={() => setSearch("")}
-                    className="absolute right-2 top-1/2 flex h-5 w-5 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                    className="absolute right-2.5 top-1/2 flex h-5 w-5 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-200 hover:text-slate-600"
                     aria-label="Cancella ricerca"
                 >
                     <X size={13} />
                 </button>
             )}
-        </div>
-    );
-}
-
-function HeadOfSide({
-    title,
-    subtitle,
-    iconCTA,
-    hoverTitle,
-    search,
-    setSearch,
-    onCTAClick,
-    valuePill,
-}) {
-    return (
-        <div className="flex shrink-0 flex-col border-b border-slate-200 p-2.5 sm:p-3">
-            <div className="mb-2 flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                    <h2 className="truncate text-sm font-semibold text-slate-900">
-                        {title}
-                    </h2>
-
-                    <p className="truncate text-[11px] text-slate-500">
-                        {subtitle}
-                    </p>
-                </div>
-
-                <div className="flex shrink-0 items-center gap-2">
-                    {valuePill ? <ValuePill value={valuePill} /> : null}
-
-                    {iconCTA ? (
-                        <IconButton
-                            icon={iconCTA}
-                            hoverTitle={hoverTitle}
-                            onClick={onCTAClick}
-                        />
-                    ) : null}
-                </div>
-            </div>
-
-            <SearchBar search={search} setSearch={setSearch} />
-        </div>
-    );
-}
-
-function ValuePill({ value }) {
-    return (
-        <div className="hidden rounded-md bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-700 sm:block">
-            {value}
         </div>
     );
 }
