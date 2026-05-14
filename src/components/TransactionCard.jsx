@@ -143,17 +143,16 @@ export default function TransactionCard({
             onContextMenu={onCtxMenuClick}
             className={`
                 group relative z-0 flex cursor-pointer items-center justify-between overflow-visible rounded-lg
-                border bg-white px-3 py-2.5
+                border border-l-[3px] bg-white px-3 py-2.5
                 shadow-[0_1px_2px_rgba(15,23,42,0.04)]
                 transition-all duration-200 ease-out
                 hover:-translate-y-0.5
-                hover:bg-slate-50
-                hover:shadow-[0_8px_24px_rgba(15,23,42,0.10)]
+                hover:shadow-[0_4px_12px_rgba(15,23,42,0.08)]
                 active:translate-y-0
                 active:shadow-[0_2px_8px_rgba(15,23,42,0.08)]
                 ${hasBudget
-                    ? "border-slate-200 hover:border-slate-300"
-                    : "border-dashed border-amber-300 bg-amber-50/40 hover:border-amber-400 hover:bg-amber-50/70"
+                    ? "border-slate-200 border-l-blue-300 hover:border-slate-300 hover:border-l-blue-400 hover:bg-white"
+                    : "border-dashed border-amber-300 border-l-amber-400 bg-amber-50/40 hover:border-amber-400 hover:bg-amber-50/70"
                 }
             `}
         >

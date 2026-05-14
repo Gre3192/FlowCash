@@ -494,7 +494,7 @@ function TransactionsSide({
                 {loading ? (
                     <LoadingState />
                 ) : filteredCategories.length > 0 ? (
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         {filteredCategories.map((category) => {
                             const transactions = category.transactions ?? [];
 
@@ -603,7 +603,7 @@ function CategorySection({
     const dotClassName = DOT_COLORS[dotColor] || "bg-slate-300";
 
     return (
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white transition-shadow hover:shadow-sm">
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
             <button
                 type="button"
                 onClick={onToggle}
@@ -681,7 +681,7 @@ function CategorySection({
                         }}
                         className="overflow-hidden"
                     >
-                        <div className="px-3 py-2 sm:px-4">
+                        <div className="rounded-b-xl bg-slate-50/80 px-3 py-2.5 sm:px-4">
                             <div className="space-y-1.5">
                                 {transactions.length > 0 ? (
                                     transactions.map((transaction) => {
