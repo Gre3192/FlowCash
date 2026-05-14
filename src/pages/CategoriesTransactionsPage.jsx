@@ -2,7 +2,7 @@ import { useGet } from "../hooks/useGet";
 import { Search, Plus, X } from "lucide-react";
 import TransactionCard from "../components/TransactionCard";
 import { API_ENDPOINTS } from "../api/endpoint";
-import React, { useMemo, useState, useEffect, useCallback } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import formatCurrency from "../utils/formatCurrency";
 import CategoryCard from "../components/CategoryCard";
 import ModalWrapper from "../components/ModalWrapper";
@@ -14,22 +14,46 @@ import TransactionMovementsModal from "../components/Modals/TransactionMovements
 import MonthNavigator from "../components/MonthNavigator";
 import { useSearchFilter } from "../hooks/useSearchFilter";
 import { useSelectedItem } from "../hooks/useSelectedItem";
+import { useSearchParams } from "react-router-dom";
+
+function getValidYear(value, fallbackYear) {
+    const year = Number(value);
+
+    if (!Number.isInteger(year)) return fallbackYear;
+    if (year < 1900 || year > 3000) return fallbackYear;
+
+    return year;
+}
+
+function getValidMonth(value, fallbackMonth) {
+    const month = Number(value);
+
+    if (!Number.isInteger(month)) return fallbackMonth;
+    if (month < 1 || month > 12) return fallbackMonth;
+
+    return month;
+}
 
 export default function CategoriesTransactionsPage() {
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const currentDate = new Date();
     const currentDay = currentDate.getDate();
     const currentMonth = currentDate.getMonth() + 1;
     const currentYear = currentDate.getFullYear();
 
+    const initialYear = getValidYear(searchParams.get("year"), currentYear);
+    const initialMonth = getValidMonth(searchParams.get("month"), currentMonth);
+    const initialCategoryId = searchParams.get("categoryId") || null;
+
     const [selectedDay, setSelectedDay] = useState(currentDay);
-    const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-    const [selectedYear, setSelectedYear] = useState(currentYear);
+    const [selectedMonth, setSelectedMonth] = useState(initialMonth);
+    const [selectedYear, setSelectedYear] = useState(initialYear);
 
     const [searchedCategory, setSearchedCategory] = useState("");
     const [searchedTransaction, setSearchedTransaction] = useState("");
 
-    const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+    const [selectedCategoryId, setSelectedCategoryId] = useState(initialCategoryId);
     const [openCategoryMenuId, setOpenCategoryMenuId] = useState(null);
 
     const [isCreateCategoryModalOpen, setIsCreateCategoryModalOpen] = useState(false);
@@ -38,8 +62,26 @@ export default function CategoriesTransactionsPage() {
     const [showMovementsModal, setShowMovementsModal] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState(null);
 
-    const { data, loading, error, reload: reloadMonthlyOverview } = useGet(API_ENDPOINTS.monthlyOverview(
-        {
+    useEffect(() => {
+        const nextParams = new URLSearchParams();
+
+        nextParams.set("year", String(selectedYear));
+        nextParams.set("month", String(selectedMonth));
+
+        if (selectedCategoryId) {
+            nextParams.set("categoryId", selectedCategoryId);
+        }
+
+        setSearchParams(nextParams, { replace: true });
+    }, [selectedYear, selectedMonth, selectedCategoryId, setSearchParams]);
+
+    const {
+        data,
+        loading,
+        error,
+        reload: reloadMonthlyOverview,
+    } = useGet(
+        API_ENDPOINTS.monthlyOverview({
             month: selectedMonth,
             year: selectedYear,
         }),
@@ -56,7 +98,16 @@ export default function CategoriesTransactionsPage() {
 
     const transactions = selectedCategory?.transactions ?? [];
 
-    const filteredTransactions = useSearchFilter(transactions, searchedTransaction, ["name", "note", "type"]);
+    const filteredTransactions = useSearchFilter(transactions, searchedTransaction, [
+        "name",
+        "note",
+        "type",
+    ]);
+
+    function handleSelectedCategoryId(categoryId) {
+        setSelectedCategoryId(categoryId);
+        setSearchedTransaction("");
+    }
 
     function handleTransactionCard(transaction) {
         setSelectedTransaction(transaction);
@@ -104,7 +155,7 @@ export default function CategoriesTransactionsPage() {
                             selectedCategory={selectedCategory}
                             openCategoryMenuId={openCategoryMenuId}
                             setOpenCategoryMenuId={setOpenCategoryMenuId}
-                            setSelectedCategoryId={setSelectedCategoryId}
+                            setSelectedCategoryId={handleSelectedCategoryId}
                             setIsCreateCategoryModalOpen={setIsCreateCategoryModalOpen}
                             selectedYear={selectedYear}
                             selectedMonth={selectedMonth}
@@ -133,8 +184,6 @@ export default function CategoriesTransactionsPage() {
                     </div>
                 </div>
             </div>
-
-
 
             <ModalWrapper
                 height="h-fit"
@@ -184,11 +233,6 @@ export default function CategoriesTransactionsPage() {
     );
 }
 
-
-
-
-
-
 function CategorySide({
     loading,
     categories,
@@ -203,26 +247,26 @@ function CategorySide({
     selectedMonth,
     reloadMonthlyOverview,
 }) {
-
-    const [showCategoriesWithTransactions, setShowCategoriesWithTransactions] = useState(true);
-    const [showCategoriesEmptyInSelectedPeriod, setShowCategoriesEmptyInSelectedPeriod] = useState(false);
-    const [showCategoriesWithoutTransactions, setShowCategoriesWithoutTransactions] = useState(false);
+    const [showCategoriesWithTransactions, setShowCategoriesWithTransactions] =
+        useState(true);
+    const [
+        showCategoriesEmptyInSelectedPeriod,
+        setShowCategoriesEmptyInSelectedPeriod,
+    ] = useState(false);
+    const [
+        showCategoriesWithoutTransactions,
+        setShowCategoriesWithoutTransactions,
+    ] = useState(false);
 
     const categoriesWithTransactions = useMemo(() => {
         return categories.filter((category) => {
-            return (
-                category.has_transactions &&
-                Number(category.budget_total || 0) > 0
-            );
+            return category.has_transactions && Number(category.budget_total || 0) > 0;
         });
     }, [categories]);
 
     const categoriesEmptyInSelectedPeriod = useMemo(() => {
         return categories.filter((category) => {
-            return (
-                category.has_transactions &&
-                Number(category.budget_total || 0) === 0
-            );
+            return category.has_transactions && Number(category.budget_total || 0) === 0;
         });
     }, [categories]);
 
@@ -236,7 +280,9 @@ function CategorySide({
         if (!hasSearch) return;
 
         setShowCategoriesWithTransactions(categoriesWithTransactions.length > 0);
-        setShowCategoriesEmptyInSelectedPeriod(categoriesEmptyInSelectedPeriod.length > 0);
+        setShowCategoriesEmptyInSelectedPeriod(
+            categoriesEmptyInSelectedPeriod.length > 0
+        );
         setShowCategoriesWithoutTransactions(categoriesWithoutTransactions.length > 0);
     }, [
         searchedCategory,
@@ -263,7 +309,10 @@ function CategorySide({
                 ) : categories.length > 0 ? (
                     <div className="space-y-2">
                         <DividerSection
-                            label={`Categorie attive • ${getMonthByNum(selectedMonth, 3)} ${selectedYear}`}
+                            label={`Categorie attive • ${getMonthByNum(
+                                selectedMonth,
+                                3
+                            )} ${selectedYear}`}
                             numItems={categoriesWithTransactions.length}
                             show={showCategoriesWithTransactions}
                             dotColor="green"
@@ -273,11 +322,15 @@ function CategorySide({
                         >
                             {categoriesWithTransactions.length > 0 ? (
                                 categoriesWithTransactions.map((category) => {
+                                    const isSelected =
+                                        category.id === selectedCategory?.id;
+                                    const progress =
+                                        category.budget_total > 0
+                                            ? (category.current_total /
+                                                  category.budget_total) *
+                                              100
+                                            : 0;
 
-                                    const isSelected = category.id === selectedCategory?.id;
-                                    const progress = category.budget_total > 0 ? (category.current_total / category.budget_total) * 100 : 0;
-    
-                                    
                                     return (
                                         <CategoryCard
                                             key={category.id}
@@ -285,9 +338,15 @@ function CategorySide({
                                             progress={progress}
                                             category={category}
                                             openCategoryMenuId={openCategoryMenuId}
-                                            setOpenCategoryMenuId={setOpenCategoryMenuId}
-                                            setSelectedCategoryId={setSelectedCategoryId}
-                                            reloadMonthlyOverview={reloadMonthlyOverview}
+                                            setOpenCategoryMenuId={
+                                                setOpenCategoryMenuId
+                                            }
+                                            setSelectedCategoryId={
+                                                setSelectedCategoryId
+                                            }
+                                            reloadMonthlyOverview={
+                                                reloadMonthlyOverview
+                                            }
                                             currentTotal={category?.current_total}
                                             budgetTotal={category?.budget_total}
                                         />
@@ -299,17 +358,23 @@ function CategorySide({
                         </DividerSection>
 
                         <DividerSection
-                            label={`Categorie inattive • ${getMonthByNum(selectedMonth, 3)} ${selectedYear}`}
+                            label={`Categorie inattive • ${getMonthByNum(
+                                selectedMonth,
+                                3
+                            )} ${selectedYear}`}
                             numItems={categoriesEmptyInSelectedPeriod.length}
                             show={showCategoriesEmptyInSelectedPeriod}
                             dotColor="red"
                             onClick={() =>
-                                setShowCategoriesEmptyInSelectedPeriod((prev) => !prev)
+                                setShowCategoriesEmptyInSelectedPeriod(
+                                    (prev) => !prev
+                                )
                             }
                         >
                             {categoriesEmptyInSelectedPeriod.length > 0 ? (
                                 categoriesEmptyInSelectedPeriod.map((category) => {
-                                    const isSelected = category.id === selectedCategory?.id;
+                                    const isSelected =
+                                        category.id === selectedCategory?.id;
 
                                     return (
                                         <CategoryCard
@@ -318,9 +383,15 @@ function CategorySide({
                                             progress={0}
                                             category={category}
                                             openCategoryMenuId={openCategoryMenuId}
-                                            setOpenCategoryMenuId={setOpenCategoryMenuId}
-                                            setSelectedCategoryId={setSelectedCategoryId}
-                                            reloadMonthlyOverview={reloadMonthlyOverview}
+                                            setOpenCategoryMenuId={
+                                                setOpenCategoryMenuId
+                                            }
+                                            setSelectedCategoryId={
+                                                setSelectedCategoryId
+                                            }
+                                            reloadMonthlyOverview={
+                                                reloadMonthlyOverview
+                                            }
                                             total={0}
                                         />
                                     );
@@ -336,12 +407,15 @@ function CategorySide({
                             show={showCategoriesWithoutTransactions}
                             dotColor="gray"
                             onClick={() =>
-                                setShowCategoriesWithoutTransactions((prev) => !prev)
+                                setShowCategoriesWithoutTransactions(
+                                    (prev) => !prev
+                                )
                             }
                         >
                             {categoriesWithoutTransactions.length > 0 ? (
                                 categoriesWithoutTransactions.map((category) => {
-                                    const isSelected = category.id === selectedCategory?.id;
+                                    const isSelected =
+                                        category.id === selectedCategory?.id;
 
                                     return (
                                         <CategoryCard
@@ -350,9 +424,15 @@ function CategorySide({
                                             progress={0}
                                             category={category}
                                             openCategoryMenuId={openCategoryMenuId}
-                                            setOpenCategoryMenuId={setOpenCategoryMenuId}
-                                            setSelectedCategoryId={setSelectedCategoryId}
-                                            reloadMonthlyOverview={reloadMonthlyOverview}
+                                            setOpenCategoryMenuId={
+                                                setOpenCategoryMenuId
+                                            }
+                                            setSelectedCategoryId={
+                                                setSelectedCategoryId
+                                            }
+                                            reloadMonthlyOverview={
+                                                reloadMonthlyOverview
+                                            }
                                             total={0}
                                         />
                                     );
@@ -431,14 +511,28 @@ function TransactionsSide({
                                         transaction={transaction}
                                         categories={categories}
                                         selectedCategoryId={selectedCategoryId}
-                                        setOpenCategoryMenuId={setOpenCategoryMenuId}
-                                        onClick={() => onTransactionCardClick(transaction)}
+                                        setOpenCategoryMenuId={
+                                            setOpenCategoryMenuId
+                                        }
+                                        onClick={() =>
+                                            onTransactionCardClick(transaction)
+                                        }
                                         openTransactionMenuId={openTransactionMenuId}
-                                        setOpenTransactionMenuId={setOpenTransactionMenuId}
-                                        transactionMenuAnchor={transactionMenuAnchor}
-                                        setTransactionMenuAnchor={setTransactionMenuAnchor}
-                                        transactionContextPosition={transactionContextPosition}
-                                        setTransactionContextPosition={setTransactionContextPosition}
+                                        setOpenTransactionMenuId={
+                                            setOpenTransactionMenuId
+                                        }
+                                        transactionMenuAnchor={
+                                            transactionMenuAnchor
+                                        }
+                                        setTransactionMenuAnchor={
+                                            setTransactionMenuAnchor
+                                        }
+                                        transactionContextPosition={
+                                            transactionContextPosition
+                                        }
+                                        setTransactionContextPosition={
+                                            setTransactionContextPosition
+                                        }
                                         reloadMonthlyOverview={reloadMonthlyOverview}
                                         setSelectedDay={setSelectedDay}
                                         selectedDay={selectedDay}
@@ -464,10 +558,6 @@ function TransactionsSide({
         </div>
     );
 }
-
-
-
-
 
 function IconButton({ icon: Icon, onClick, hoverTitle }) {
     return (
