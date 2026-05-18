@@ -146,7 +146,35 @@ export const CATEGORY_COLORS_MAP = {
         txBorderL: "border-l-teal-300",
         txBorderLHover: "hover:border-l-teal-400",
     },
+    slate: {
+        key: "slate",
+        label: "Grigio",
+        swatch: "bg-slate-500",
+        swatchRing: "ring-slate-300",
+        border: "border-l-slate-400",
+        borderHover: "hover:border-l-slate-500",
+        bg: "bg-slate-100",
+        bgLight: "bg-slate-50/60",
+        iconBg: "bg-slate-100",
+        iconColor: "text-slate-600",
+        progressBar: "bg-slate-500",
+        addBtnText: "text-slate-600",
+        addBtnHover: "hover:bg-slate-50",
+        txBorderL: "border-l-slate-300",
+        txBorderLHover: "hover:border-l-slate-400",
+    },
 };
+
+const CATEGORY_TYPE_COLOR_MAP = {
+    income: "emerald",
+    expense: "rose",
+    mixed: "slate",
+};
+
+export function getCategoryColorByType(type) {
+    const colorKey = CATEGORY_TYPE_COLOR_MAP[type] || "slate";
+    return CATEGORY_COLORS_MAP[colorKey] || CATEGORY_COLORS_MAP.slate;
+}
 
 export function getCategoryColor(colorKey, fallbackIndex = 0) {
     if (colorKey && CATEGORY_COLORS_MAP[colorKey]) {

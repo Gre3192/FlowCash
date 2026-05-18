@@ -23,7 +23,7 @@ import { useSearchParams } from "react-router-dom";
 import saveToStorage from "../utils/saveToStorage";
 import getFromStorage from "../utils/getFromStorage";
 import { motion } from "framer-motion";
-import { getCategoryColor } from "../constants/categoryColors";
+import { getCategoryColorByType } from "../constants/categoryColors";
 import useHeroAnimation from "../hooks/useHeroAnimation";
 import HeroOverlay from "../components/HeroOverlay";
 
@@ -478,7 +478,7 @@ function TransactionsSide({
         const categoryBudgetTotal = Number(cat.budget_total || 0);
         const progress = categoryBudgetTotal > 0 ? Math.min((categoryCurrentTotal / categoryBudgetTotal) * 100, 100) : 0;
         const dotColor = !cat.has_transactions ? "gray" : categoryBudgetTotal > 0 ? "green" : "red";
-        const colorTheme = getCategoryColor(cat.color, catIndex);
+        const colorTheme = getCategoryColorByType(cat.type);
         return { category: cat, transactions, categoryCurrentTotal, categoryBudgetTotal, progress, dotColor, colorTheme };
     }, [hero.selectedId, categories]);
 
@@ -488,7 +488,7 @@ function TransactionsSide({
                 <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
                         <h2 className="truncate text-sm font-bold text-slate-900">
-                            Transazioni
+                            Categorie
                         </h2>
                         <span className="text-xs text-slate-400">
                             {`${categoriesTotal} · ${transactionsTotal}`}
@@ -551,7 +551,7 @@ function TransactionsSide({
                                         ? "green"
                                         : "red";
 
-                            const colorTheme = getCategoryColor(category.color, categoryIndex);
+                            const colorTheme = getCategoryColorByType(category.type);
 
                             if (hero.selectedId === category.id) {
                                 return <div key={category.id} className="h-16 rounded-xl bg-slate-100/50" />;
@@ -658,12 +658,11 @@ function CategorySection({
                     <span className={`shrink-0 rounded-full ${colorTheme.bg} px-1.5 py-0.5 text-[10px] font-medium ${colorTheme.iconColor}`}>
                         {transactions.length}
                     </span>
-                </div>
-
-                <div className="mt-1 flex items-center gap-2 text-[11px] text-slate-500">
-                    <span>{formatCurrency(categoryCurrentTotal)}</span>
-                    <span className="text-slate-300">/</span>
-                    <span>{formatCurrency(categoryBudgetTotal)}</span>
+                    <span className="ml-auto flex shrink-0 items-center gap-1 text-[11px] text-slate-500">
+                        <span>{formatCurrency(categoryCurrentTotal)}</span>
+                        <span className="text-slate-300">/</span>
+                        <span>{formatCurrency(categoryBudgetTotal)}</span>
+                    </span>
                 </div>
 
                 <div className="mt-1.5 flex items-center gap-2">
