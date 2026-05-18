@@ -136,8 +136,8 @@ export default function CategoriesTransactionsPage() {
     }, [categories]);
 
     return (
-        <div className="h-full min-h-0 box-border overflow-hidden bg-slate-50 p-2 sm:p-4">
-            <div className="flex h-full min-h-0 flex-col gap-3">
+        <div className="box-border overflow-y-auto bg-slate-50 p-2 sm:p-4 lg:h-full lg:min-h-0 lg:overflow-hidden">
+            <div className="flex min-h-0 flex-col gap-3 lg:h-full">
                 <div className="shrink-0">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div className="min-w-0">
@@ -180,7 +180,7 @@ export default function CategoriesTransactionsPage() {
                     </div>
                 )}
 
-                <div className="min-h-0 flex-1 overflow-hidden">
+                <div className="min-h-0 flex-1 lg:overflow-hidden">
                     <TransactionsSide
                         loading={loading}
                         categories={categories}
@@ -482,7 +482,7 @@ function TransactionsSide({
     }, [expandedCategoryId, categories]);
 
     return (
-        <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:h-full">
+        <div className="flex min-h-0 flex-col rounded-xl border border-slate-200 bg-white shadow-sm lg:h-full lg:overflow-hidden">
             <div className="flex shrink-0 flex-col gap-3 border-b border-slate-200 p-3 sm:p-4">
                 <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
