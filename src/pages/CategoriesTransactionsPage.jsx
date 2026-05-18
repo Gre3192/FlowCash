@@ -601,7 +601,7 @@ function TransactionsSide({
                         <motion.div
                             key="hero-expanded"
                             layoutId={`category-hero-${expandedCategoryId}`}
-                            className="fixed inset-2 z-50 flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl sm:inset-4 md:inset-8 lg:inset-16"
+                            className="fixed inset-0 z-50 m-auto flex h-[calc(100vh-2rem)] max-h-[800px] w-[calc(100%-2rem)] max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl sm:h-[calc(100vh-4rem)] sm:w-[calc(100%-4rem)]"
                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
                         >
                             <ExpandedCategoryView
