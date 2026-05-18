@@ -348,6 +348,7 @@ function TransactionsSide({
     const [statusFilter, setStatusFilter] = useState("all");
 
     const [expandedCategoryId, setExpandedCategoryId] = useState(null);
+    const [heroWidth, setHeroWidth] = useState(() => getFromStorage("hero-width-preference", "md"));
 
     const normalizedSearch = search.trim().toLowerCase();
     const isSearching = normalizedSearch.length > 0;
@@ -602,7 +603,7 @@ function TransactionsSide({
                             <motion.div
                                 key="hero-expanded"
                                 layoutId={`category-hero-${expandedCategoryId}`}
-                                className="fixed inset-0 z-[9999] m-auto flex h-[calc(100vh-2rem)] max-h-[800px] w-[calc(100%-2rem)] max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl sm:h-[calc(100vh-4rem)] sm:w-[calc(100%-4rem)]"
+                                className={`fixed inset-0 z-[9999] m-auto flex h-[calc(100vh-2rem)] max-h-[800px] w-[calc(100%-2rem)] ${HERO_WIDTHS[heroWidth]?.maxW || "max-w-2xl"} flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl sm:h-[calc(100vh-4rem)] sm:w-[calc(100%-4rem)]`}
                                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                             >
                                 <ExpandedCategoryView
@@ -628,6 +629,8 @@ function TransactionsSide({
                                     reloadMonthlyOverview={reloadMonthlyOverview}
                                     setSelectedDay={setSelectedDay}
                                     selectedDay={selectedDay}
+                                    heroWidth={heroWidth}
+                                    setHeroWidth={setHeroWidth}
                                 />
                             </motion.div>
                         </>
@@ -645,7 +648,13 @@ const DOT_COLORS = {
     gray: "bg-slate-300",
 };
 
-
+const HERO_WIDTHS = {
+    sm: { label: "S", maxW: "max-w-md" },
+    md: { label: "M", maxW: "max-w-2xl" },
+    lg: { label: "L", maxW: "max-w-4xl" },
+    xl: { label: "XL", maxW: "max-w-6xl" },
+    full: { label: "Full", maxW: "max-w-[calc(100%-2rem)]" },
+};
 
 function CategorySection({
     category,
@@ -730,9 +739,16 @@ function ExpandedCategoryView({
     reloadMonthlyOverview,
     setSelectedDay,
     selectedDay,
+    heroWidth,
+    setHeroWidth,
 }) {
     const dotClassName = DOT_COLORS[dotColor] || "bg-slate-300";
     const [transactionSearch, setTransactionSearch] = useState("");
+
+    function handleWidthChange(key) {
+        setHeroWidth(key);
+        saveToStorage("hero-width-preference", key);
+    }
 
     const filteredTransactions = useMemo(() => {
         const query = transactionSearch.trim().toLowerCase();
@@ -791,8 +807,26 @@ function ExpandedCategoryView({
                     </div>
                 </div>
 
-                <div className="px-4 pb-3 sm:px-6">
-                    <SearchBar search={transactionSearch} setSearch={setTransactionSearch} />
+                <div className="flex items-center gap-2 px-4 pb-3 sm:px-6">
+                    <div className="min-w-0 flex-1">
+                        <SearchBar search={transactionSearch} setSearch={setTransactionSearch} />
+                    </div>
+                    <div className="hidden shrink-0 items-center gap-0.5 rounded-lg border border-slate-200 bg-slate-50 p-0.5 sm:flex">
+                        {Object.entries(HERO_WIDTHS).map(([key, { label }]) => (
+                            <button
+                                key={key}
+                                type="button"
+                                onClick={() => handleWidthChange(key)}
+                                className={`rounded-md px-2 py-1 text-[11px] font-medium transition ${
+                                    heroWidth === key
+                                        ? "bg-white text-slate-900 shadow-sm"
+                                        : "text-slate-400 hover:text-slate-600"
+                                }`}
+                            >
+                                {label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
 
