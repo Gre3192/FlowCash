@@ -732,6 +732,13 @@ function ExpandedCategoryView({
     selectedDay,
 }) {
     const dotClassName = DOT_COLORS[dotColor] || "bg-slate-300";
+    const [transactionSearch, setTransactionSearch] = useState("");
+
+    const filteredTransactions = useMemo(() => {
+        const query = transactionSearch.trim().toLowerCase();
+        if (!query) return transactions;
+        return transactions.filter((t) => t.name?.toLowerCase().includes(query));
+    }, [transactions, transactionSearch]);
 
     return (
         <>
@@ -783,12 +790,16 @@ function ExpandedCategoryView({
                         />
                     </div>
                 </div>
+
+                <div className="px-4 pb-3 sm:px-6">
+                    <SearchBar search={transactionSearch} setSearch={setTransactionSearch} />
+                </div>
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4">
                 <div className="space-y-2">
-                    {transactions.length > 0 ? (
-                        transactions.map((transaction) => {
+                    {filteredTransactions.length > 0 ? (
+                        filteredTransactions.map((transaction) => {
                             const current = Number(transaction.current || 0);
                             const target = Number(transaction.target || 0);
 
@@ -817,7 +828,7 @@ function ExpandedCategoryView({
                             );
                         })
                     ) : (
-                        <EmptyState text="Nessuna transazione disponibile" />
+                        <EmptyState text={transactionSearch ? "Nessun risultato trovato" : "Nessuna transazione disponibile"} />
                     )}
                 </div>
             </div>
