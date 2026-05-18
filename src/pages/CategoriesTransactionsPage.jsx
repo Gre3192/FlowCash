@@ -8,6 +8,7 @@ import {
     Scale,
     FolderOpen,
     ChevronRight,
+    ArrowLeft,
 } from "lucide-react";
 import TransactionCard from "../components/TransactionCard";
 import { API_ENDPOINTS } from "../api/endpoint";
@@ -345,6 +346,8 @@ function TransactionsSide({
     const [typeFilter, setTypeFilter] = useState("all");
     const [statusFilter, setStatusFilter] = useState("all");
 
+    const [expandedCategoryId, setExpandedCategoryId] = useState(null);
+
     const normalizedSearch = search.trim().toLowerCase();
     const isSearching = normalizedSearch.length > 0;
 
@@ -457,20 +460,25 @@ function TransactionsSide({
     }, [categories]);
 
 
-    function toggleCategory(categoryId) {
-        if (isSearching) return;
-
-        setOpenCategoryMap((prev) => ({
-            ...prev,
-            [categoryId]: !prev[categoryId],
-        }));
-    }
-
     function handleScroll(e) {
         if (isSearching) return;
 
         saveToStorage(scrollStorageKey, e.currentTarget.scrollTop);
     }
+
+    const expandedCategoryData = useMemo(() => {
+        if (!expandedCategoryId) return null;
+        const catIndex = categories.findIndex((c) => c.id === expandedCategoryId);
+        if (catIndex === -1) return null;
+        const cat = categories[catIndex];
+        const transactions = cat.transactions ?? [];
+        const categoryCurrentTotal = Number(cat.current_total || 0);
+        const categoryBudgetTotal = Number(cat.budget_total || 0);
+        const progress = categoryBudgetTotal > 0 ? Math.min((categoryCurrentTotal / categoryBudgetTotal) * 100, 100) : 0;
+        const dotColor = !cat.has_transactions ? "gray" : categoryBudgetTotal > 0 ? "green" : "red";
+        const colorTheme = getCategoryColor(cat.color, catIndex);
+        return { category: cat, transactions, categoryCurrentTotal, categoryBudgetTotal, progress, dotColor, colorTheme };
+    }, [expandedCategoryId, categories]);
 
     return (
         <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:h-full">
@@ -518,10 +526,6 @@ function TransactionsSide({
                         {filteredCategories.map((category, categoryIndex) => {
                             const transactions = category.transactions ?? [];
 
-                            const isOpen = isSearching
-                                ? true
-                                : openCategoryMap[category.id] ?? false;
-
                             const categoryCurrentTotal = Number(
                                 category.current_total || 0
                             );
@@ -547,34 +551,27 @@ function TransactionsSide({
 
                             const colorTheme = getCategoryColor(category.color, categoryIndex);
 
+                            if (expandedCategoryId === category.id) {
+                                return <div key={category.id} className="h-16 rounded-xl bg-slate-100/50" />;
+                            }
+
                             return (
-                                <CategorySection
+                                <motion.div
                                     key={category.id}
-                                    category={category}
-                                    isOpen={isOpen}
-                                    colorTheme={colorTheme}
-                                    dotColor={dotColor}
-                                    progress={progress}
-                                    categoryCurrentTotal={categoryCurrentTotal}
-                                    categoryBudgetTotal={categoryBudgetTotal}
-                                    transactions={transactions}
-                                    selectedMonth={selectedMonth}
-                                    selectedYear={selectedYear}
-                                    onToggle={() => toggleCategory(category.id)}
-                                    onCreateTransaction={onCreateTransaction}
-                                    onTransactionCardClick={onTransactionCardClick}
-                                    categories={categories}
-                                    openTransactionMenuId={openTransactionMenuId}
-                                    setOpenTransactionMenuId={setOpenTransactionMenuId}
-                                    transactionMenuAnchor={transactionMenuAnchor}
-                                    setTransactionMenuAnchor={setTransactionMenuAnchor}
-                                    transactionContextPosition={transactionContextPosition}
-                                    setTransactionContextPosition={setTransactionContextPosition}
-                                    reloadMonthlyOverview={reloadMonthlyOverview}
-                                    setSelectedDay={setSelectedDay}
-                                    selectedDay={selectedDay}
-                                    normalizedSearch={normalizedSearch}
-                                />
+                                    layoutId={`category-hero-${category.id}`}
+                                >
+                                    <CategorySection
+                                        category={category}
+                                        colorTheme={colorTheme}
+                                        dotColor={dotColor}
+                                        progress={progress}
+                                        categoryCurrentTotal={categoryCurrentTotal}
+                                        categoryBudgetTotal={categoryBudgetTotal}
+                                        transactions={transactions}
+                                        onExpand={() => setExpandedCategoryId(category.id)}
+                                        onCreateTransaction={onCreateTransaction}
+                                    />
+                                </motion.div>
                             );
                         })}
                     </div>
@@ -588,6 +585,53 @@ function TransactionsSide({
                     />
                 )}
             </div>
+
+            <AnimatePresence>
+                {expandedCategoryId && expandedCategoryData && (
+                    <>
+                        <motion.div
+                            key="hero-backdrop"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+                            onClick={() => setExpandedCategoryId(null)}
+                        />
+                        <motion.div
+                            key="hero-expanded"
+                            layoutId={`category-hero-${expandedCategoryId}`}
+                            className="fixed inset-2 z-50 flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl sm:inset-4 md:inset-8 lg:inset-16"
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        >
+                            <ExpandedCategoryView
+                                category={expandedCategoryData.category}
+                                colorTheme={expandedCategoryData.colorTheme}
+                                dotColor={expandedCategoryData.dotColor}
+                                progress={expandedCategoryData.progress}
+                                categoryCurrentTotal={expandedCategoryData.categoryCurrentTotal}
+                                categoryBudgetTotal={expandedCategoryData.categoryBudgetTotal}
+                                transactions={expandedCategoryData.transactions}
+                                selectedMonth={selectedMonth}
+                                selectedYear={selectedYear}
+                                onClose={() => setExpandedCategoryId(null)}
+                                onCreateTransaction={onCreateTransaction}
+                                onTransactionCardClick={onTransactionCardClick}
+                                categories={categories}
+                                openTransactionMenuId={openTransactionMenuId}
+                                setOpenTransactionMenuId={setOpenTransactionMenuId}
+                                transactionMenuAnchor={transactionMenuAnchor}
+                                setTransactionMenuAnchor={setTransactionMenuAnchor}
+                                transactionContextPosition={transactionContextPosition}
+                                setTransactionContextPosition={setTransactionContextPosition}
+                                reloadMonthlyOverview={reloadMonthlyOverview}
+                                setSelectedDay={setSelectedDay}
+                                selectedDay={selectedDay}
+                            />
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
@@ -602,29 +646,14 @@ const DOT_COLORS = {
 
 function CategorySection({
     category,
-    isOpen,
     colorTheme,
     dotColor,
     progress,
     categoryCurrentTotal,
     categoryBudgetTotal,
     transactions,
-    selectedMonth,
-    selectedYear,
-    onToggle,
+    onExpand,
     onCreateTransaction,
-    onTransactionCardClick,
-    categories,
-    openTransactionMenuId,
-    setOpenTransactionMenuId,
-    transactionMenuAnchor,
-    setTransactionMenuAnchor,
-    transactionContextPosition,
-    setTransactionContextPosition,
-    reloadMonthlyOverview,
-    setSelectedDay,
-    selectedDay,
-    normalizedSearch,
 }) {
     const dotClassName = DOT_COLORS[dotColor] || "bg-slate-300";
 
@@ -632,7 +661,7 @@ function CategorySection({
         <div className={`overflow-hidden rounded-xl border border-l-4 border-slate-200 ${colorTheme.border} bg-white shadow-sm transition-shadow hover:shadow-md ${colorTheme.borderHover}`}>
             <button
                 type="button"
-                onClick={onToggle}
+                onClick={onExpand}
                 className="flex w-full cursor-pointer items-center gap-3 px-3 py-3 text-left transition-colors hover:bg-slate-50 sm:px-4"
             >
                 <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${colorTheme.iconBg} ${colorTheme.iconColor}`}>
@@ -676,7 +705,7 @@ function CategorySection({
                     </div>
                     <ChevronRight
                         size={16}
-                        className={`text-slate-400 transition-transform duration-200 ${isOpen ? "rotate-90" : ""}`}
+                        className="text-slate-400"
                     />
                 </div>
             </button>
@@ -687,7 +716,7 @@ function CategorySection({
                 </span>
                 <button
                     type="button"
-                    onClick={() => onCreateTransaction(category.id)}
+                    onClick={(e) => { e.stopPropagation(); onCreateTransaction(category.id); }}
                     className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium ${colorTheme.addBtnText} transition ${colorTheme.addBtnHover}`}
                     title="Aggiungi transazione"
                 >
@@ -695,87 +724,125 @@ function CategorySection({
                     <span className="hidden sm:inline">Aggiungi</span>
                 </button>
             </div>
-            <AnimatePresence initial={false}>
-                {isOpen && (
-                    <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{
-                            height: { duration: 0.25, ease: "easeOut" },
-                            opacity: { duration: 0.18 },
-                        }}
-                        className="overflow-hidden"
-                    >
-                        <div className={`rounded-b-xl ${colorTheme.bgLight} px-3 py-2.5 sm:px-4`}>
-                            <div className="space-y-1.5">
-                                {transactions.length > 0 ? (
-                                    transactions.map((transaction) => {
-                                        const current = Number(
-                                            transaction.current || 0
-                                        );
-
-                                        const target = Number(
-                                            transaction.target || 0
-                                        );
-
-                                        return (
-                                            <TransactionCard
-                                                key={transaction.id}
-                                                budget={target}
-                                                current={current}
-                                                transaction={transaction}
-                                                categories={categories}
-                                                selectedCategoryId={category.id}
-                                                categoryColorTheme={colorTheme}
-                                                onClick={() =>
-                                                    onTransactionCardClick(
-                                                        transaction
-                                                    )
-                                                }
-                                                openTransactionMenuId={
-                                                    openTransactionMenuId
-                                                }
-                                                setOpenTransactionMenuId={
-                                                    setOpenTransactionMenuId
-                                                }
-                                                transactionMenuAnchor={
-                                                    transactionMenuAnchor
-                                                }
-                                                setTransactionMenuAnchor={
-                                                    setTransactionMenuAnchor
-                                                }
-                                                transactionContextPosition={
-                                                    transactionContextPosition
-                                                }
-                                                setTransactionContextPosition={
-                                                    setTransactionContextPosition
-                                                }
-                                                reloadMonthlyOverview={
-                                                    reloadMonthlyOverview
-                                                }
-                                                setSelectedDay={setSelectedDay}
-                                                selectedDay={selectedDay}
-                                                selectedMonth={selectedMonth}
-                                                selectedYear={selectedYear}
-                                            />
-                                        );
-                                    })
-                                ) : (
-                                    <EmptyState
-                                        text={
-                                            normalizedSearch
-                                                ? "Nessuna transazione trovata"
-                                                : "Nessuna transazione disponibile"
-                                        }
-                                    />
-                                )}
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
         </div>
+    );
+}
+
+function ExpandedCategoryView({
+    category,
+    colorTheme,
+    dotColor,
+    progress,
+    categoryCurrentTotal,
+    categoryBudgetTotal,
+    transactions,
+    selectedMonth,
+    selectedYear,
+    onClose,
+    onCreateTransaction,
+    onTransactionCardClick,
+    categories,
+    openTransactionMenuId,
+    setOpenTransactionMenuId,
+    transactionMenuAnchor,
+    setTransactionMenuAnchor,
+    transactionContextPosition,
+    setTransactionContextPosition,
+    reloadMonthlyOverview,
+    setSelectedDay,
+    selectedDay,
+}) {
+    const dotClassName = DOT_COLORS[dotColor] || "bg-slate-300";
+
+    return (
+        <>
+            <div className={`shrink-0 border-b border-l-4 ${colorTheme.border} border-slate-200 ${colorTheme.bgLight}`}>
+                <div className="flex items-center gap-3 px-4 py-4 sm:px-6">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50"
+                    >
+                        <ArrowLeft size={18} />
+                    </button>
+
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${colorTheme.iconBg} ${colorTheme.iconColor}`}>
+                        <FolderOpen size={20} />
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                            <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${dotClassName}`} />
+                            <h2 className="truncate text-base font-bold text-slate-900 sm:text-lg">
+                                {category.name}
+                            </h2>
+                            <span className={`shrink-0 rounded-full ${colorTheme.bg} px-2 py-0.5 text-xs font-medium ${colorTheme.iconColor}`}>
+                                {transactions.length}
+                            </span>
+                        </div>
+                        <div className="mt-1 flex items-center gap-3 text-sm text-slate-500">
+                            <span>{formatCurrency(categoryCurrentTotal)} / {formatCurrency(categoryBudgetTotal)}</span>
+                            <span>{progress.toFixed(0)}%</span>
+                        </div>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={() => onCreateTransaction(category.id)}
+                        className={`inline-flex items-center gap-1.5 rounded-lg border ${colorTheme.border} px-3 py-2 text-xs font-medium ${colorTheme.addBtnText} transition ${colorTheme.addBtnHover}`}
+                    >
+                        <Plus size={15} />
+                        <span className="hidden sm:inline">Aggiungi</span>
+                    </button>
+                </div>
+
+                <div className="px-4 pb-3 sm:px-6">
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200/60">
+                        <div
+                            className={`h-full rounded-full ${colorTheme.progressBar} transition-all duration-500`}
+                            style={{ width: `${progress}%` }}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4">
+                <div className="space-y-2">
+                    {transactions.length > 0 ? (
+                        transactions.map((transaction) => {
+                            const current = Number(transaction.current || 0);
+                            const target = Number(transaction.target || 0);
+
+                            return (
+                                <TransactionCard
+                                    key={transaction.id}
+                                    budget={target}
+                                    current={current}
+                                    transaction={transaction}
+                                    categories={categories}
+                                    selectedCategoryId={category.id}
+                                    categoryColorTheme={colorTheme}
+                                    onClick={() => onTransactionCardClick(transaction)}
+                                    openTransactionMenuId={openTransactionMenuId}
+                                    setOpenTransactionMenuId={setOpenTransactionMenuId}
+                                    transactionMenuAnchor={transactionMenuAnchor}
+                                    setTransactionMenuAnchor={setTransactionMenuAnchor}
+                                    transactionContextPosition={transactionContextPosition}
+                                    setTransactionContextPosition={setTransactionContextPosition}
+                                    reloadMonthlyOverview={reloadMonthlyOverview}
+                                    setSelectedDay={setSelectedDay}
+                                    selectedDay={selectedDay}
+                                    selectedMonth={selectedMonth}
+                                    selectedYear={selectedYear}
+                                />
+                            );
+                        })
+                    ) : (
+                        <EmptyState text="Nessuna transazione disponibile" />
+                    )}
+                </div>
+            </div>
+        </>
     );
 }
 
