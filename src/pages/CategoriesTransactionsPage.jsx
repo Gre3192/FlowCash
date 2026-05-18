@@ -13,7 +13,6 @@ import {
 import TransactionCard from "../components/TransactionCard";
 import { API_ENDPOINTS } from "../api/endpoint";
 import React, { useMemo, useState, useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
 import formatCurrency from "../utils/formatCurrency";
 import ModalWrapper from "../components/ModalWrapper";
 import CreateCategoryModal from "../components/Modals/CreateCategoryModal";
@@ -23,8 +22,10 @@ import MonthNavigator from "../components/MonthNavigator";
 import { useSearchParams } from "react-router-dom";
 import saveToStorage from "../utils/saveToStorage";
 import getFromStorage from "../utils/getFromStorage";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { getCategoryColor } from "../constants/categoryColors";
+import useHeroAnimation from "../hooks/useHeroAnimation";
+import HeroOverlay from "../components/HeroOverlay";
 
 function getValidYear(value, fallbackYear) {
     const year = Number(value);
@@ -347,8 +348,7 @@ function TransactionsSide({
     const [typeFilter, setTypeFilter] = useState("all");
     const [statusFilter, setStatusFilter] = useState("all");
 
-    const [expandedCategoryId, setExpandedCategoryId] = useState(null);
-    const [heroWidth, setHeroWidth] = useState(() => getFromStorage("hero-width-preference", "md"));
+    const hero = useHeroAnimation("category-hero");
 
     const normalizedSearch = search.trim().toLowerCase();
     const isSearching = normalizedSearch.length > 0;
@@ -469,8 +469,8 @@ function TransactionsSide({
     }
 
     const expandedCategoryData = useMemo(() => {
-        if (!expandedCategoryId) return null;
-        const catIndex = categories.findIndex((c) => c.id === expandedCategoryId);
+        if (!hero.selectedId) return null;
+        const catIndex = categories.findIndex((c) => c.id === hero.selectedId);
         if (catIndex === -1) return null;
         const cat = categories[catIndex];
         const transactions = cat.transactions ?? [];
@@ -480,7 +480,7 @@ function TransactionsSide({
         const dotColor = !cat.has_transactions ? "gray" : categoryBudgetTotal > 0 ? "green" : "red";
         const colorTheme = getCategoryColor(cat.color, catIndex);
         return { category: cat, transactions, categoryCurrentTotal, categoryBudgetTotal, progress, dotColor, colorTheme };
-    }, [expandedCategoryId, categories]);
+    }, [hero.selectedId, categories]);
 
     return (
         <div className="flex min-h-0 flex-col rounded-xl border border-slate-200 bg-white shadow-sm lg:h-full lg:overflow-hidden">
@@ -553,14 +553,14 @@ function TransactionsSide({
 
                             const colorTheme = getCategoryColor(category.color, categoryIndex);
 
-                            if (expandedCategoryId === category.id) {
+                            if (hero.selectedId === category.id) {
                                 return <div key={category.id} className="h-16 rounded-xl bg-slate-100/50" />;
                             }
 
                             return (
                                 <motion.div
                                     key={category.id}
-                                    layoutId={`category-hero-${category.id}`}
+                                    layoutId={hero.getLayoutId(category.id)}
                                 >
                                     <CategorySection
                                         category={category}
@@ -570,7 +570,7 @@ function TransactionsSide({
                                         categoryCurrentTotal={categoryCurrentTotal}
                                         categoryBudgetTotal={categoryBudgetTotal}
                                         transactions={transactions}
-                                        onExpand={() => setExpandedCategoryId(category.id)}
+                                        onExpand={() => hero.open(category.id)}
                                     />
                                 </motion.div>
                             );
@@ -587,57 +587,35 @@ function TransactionsSide({
                 )}
             </div>
 
-            {createPortal(
-                <AnimatePresence>
-                    {expandedCategoryId && expandedCategoryData && (
-                        <>
-                            <motion.div
-                                key="hero-backdrop"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.2 }}
-                                className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm"
-                                onClick={() => setExpandedCategoryId(null)}
-                            />
-                            <motion.div
-                                key="hero-expanded"
-                                layoutId={`category-hero-${expandedCategoryId}`}
-                                className={`fixed inset-0 z-[9999] m-auto flex h-[calc(100vh-2rem)] max-h-[800px] w-[calc(100%-2rem)] ${HERO_WIDTHS[heroWidth]?.maxW || "max-w-2xl"} flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl sm:h-[calc(100vh-4rem)] sm:w-[calc(100%-4rem)]`}
-                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                            >
-                                <ExpandedCategoryView
-                                    category={expandedCategoryData.category}
-                                    colorTheme={expandedCategoryData.colorTheme}
-                                    dotColor={expandedCategoryData.dotColor}
-                                    progress={expandedCategoryData.progress}
-                                    categoryCurrentTotal={expandedCategoryData.categoryCurrentTotal}
-                                    categoryBudgetTotal={expandedCategoryData.categoryBudgetTotal}
-                                    transactions={expandedCategoryData.transactions}
-                                    selectedMonth={selectedMonth}
-                                    selectedYear={selectedYear}
-                                    onClose={() => setExpandedCategoryId(null)}
-                                    onCreateTransaction={onCreateTransaction}
-                                    onTransactionCardClick={onTransactionCardClick}
-                                    categories={categories}
-                                    openTransactionMenuId={openTransactionMenuId}
-                                    setOpenTransactionMenuId={setOpenTransactionMenuId}
-                                    transactionMenuAnchor={transactionMenuAnchor}
-                                    setTransactionMenuAnchor={setTransactionMenuAnchor}
-                                    transactionContextPosition={transactionContextPosition}
-                                    setTransactionContextPosition={setTransactionContextPosition}
-                                    reloadMonthlyOverview={reloadMonthlyOverview}
-                                    setSelectedDay={setSelectedDay}
-                                    selectedDay={selectedDay}
-                                    heroWidth={heroWidth}
-                                    setHeroWidth={setHeroWidth}
-                                />
-                            </motion.div>
-                        </>
-                    )}
-                </AnimatePresence>,
-                document.getElementById("modal-root")
-            )}
+            <HeroOverlay hero={hero}>
+                {expandedCategoryData && (
+                    <ExpandedCategoryView
+                        category={expandedCategoryData.category}
+                        colorTheme={expandedCategoryData.colorTheme}
+                        dotColor={expandedCategoryData.dotColor}
+                        progress={expandedCategoryData.progress}
+                        categoryCurrentTotal={expandedCategoryData.categoryCurrentTotal}
+                        categoryBudgetTotal={expandedCategoryData.categoryBudgetTotal}
+                        transactions={expandedCategoryData.transactions}
+                        selectedMonth={selectedMonth}
+                        selectedYear={selectedYear}
+                        onClose={hero.close}
+                        onCreateTransaction={onCreateTransaction}
+                        onTransactionCardClick={onTransactionCardClick}
+                        categories={categories}
+                        openTransactionMenuId={openTransactionMenuId}
+                        setOpenTransactionMenuId={setOpenTransactionMenuId}
+                        transactionMenuAnchor={transactionMenuAnchor}
+                        setTransactionMenuAnchor={setTransactionMenuAnchor}
+                        transactionContextPosition={transactionContextPosition}
+                        setTransactionContextPosition={setTransactionContextPosition}
+                        reloadMonthlyOverview={reloadMonthlyOverview}
+                        setSelectedDay={setSelectedDay}
+                        selectedDay={selectedDay}
+                        hero={hero}
+                    />
+                )}
+            </HeroOverlay>
         </div>
     );
 }
@@ -648,13 +626,6 @@ const DOT_COLORS = {
     gray: "bg-slate-300",
 };
 
-const HERO_WIDTHS = {
-    sm: { label: "S", maxW: "max-w-md" },
-    md: { label: "M", maxW: "max-w-2xl" },
-    lg: { label: "L", maxW: "max-w-4xl" },
-    xl: { label: "XL", maxW: "max-w-6xl" },
-    full: { label: "Full", maxW: "max-w-[calc(100%-2rem)]" },
-};
 
 function CategorySection({
     category,
@@ -739,16 +710,10 @@ function ExpandedCategoryView({
     reloadMonthlyOverview,
     setSelectedDay,
     selectedDay,
-    heroWidth,
-    setHeroWidth,
+    hero,
 }) {
     const dotClassName = DOT_COLORS[dotColor] || "bg-slate-300";
     const [transactionSearch, setTransactionSearch] = useState("");
-
-    function handleWidthChange(key) {
-        setHeroWidth(key);
-        saveToStorage("hero-width-preference", key);
-    }
 
     const filteredTransactions = useMemo(() => {
         const query = transactionSearch.trim().toLowerCase();
@@ -811,22 +776,7 @@ function ExpandedCategoryView({
                     <div className="min-w-0 flex-1">
                         <SearchBar search={transactionSearch} setSearch={setTransactionSearch} />
                     </div>
-                    <div className="hidden shrink-0 items-center gap-0.5 rounded-lg border border-slate-200 bg-slate-50 p-0.5 sm:flex">
-                        {Object.entries(HERO_WIDTHS).map(([key, { label }]) => (
-                            <button
-                                key={key}
-                                type="button"
-                                onClick={() => handleWidthChange(key)}
-                                className={`rounded-md px-2 py-1 text-[11px] font-medium transition ${
-                                    heroWidth === key
-                                        ? "bg-white text-slate-900 shadow-sm"
-                                        : "text-slate-400 hover:text-slate-600"
-                                }`}
-                            >
-                                {label}
-                            </button>
-                        ))}
-                    </div>
+                    <HeroOverlay.WidthSelector width={hero.width} onChange={hero.changeWidth} />
                 </div>
             </div>
 
