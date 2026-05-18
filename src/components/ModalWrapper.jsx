@@ -19,6 +19,29 @@ const MODAL_SIZES = {
 };
 
 const MODAL_ANIMATIONS = {
+    hero: {
+        initial: {
+            opacity: 0,
+            scale: 0.9,
+            y: 20,
+        },
+        animate: {
+            opacity: 1,
+            scale: 1,
+            y: 0,
+        },
+        exit: {
+            opacity: 0,
+            scale: 0.9,
+            y: 20,
+        },
+        transition: {
+            type: "spring",
+            stiffness: 300,
+            damping: 28,
+        },
+    },
+
     fade: {
         initial: {
             opacity: 0,
@@ -139,7 +162,7 @@ export default function ModalWrapper({
     size = "md",
     width,
     height,
-    animation = "scale",
+    animation = "hero",
 }) {
     useEffect(() => {
         if (!isOpen) return;
@@ -169,19 +192,19 @@ export default function ModalWrapper({
     const modalHeight = height || modalSize.height;
 
     const modalAnimation =
-        MODAL_ANIMATIONS[animation] || MODAL_ANIMATIONS.scale;
+        MODAL_ANIMATIONS[animation] || MODAL_ANIMATIONS.hero;
 
     return createPortal(
         <AnimatePresence>
             {isOpen && (
                 <motion.div
-                    className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4"
+                    className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm"
                     onMouseDown={onClose}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{
-                        duration: 0.18,
+                        duration: 0.2,
                         ease: "easeOut",
                     }}
                 >
@@ -197,7 +220,7 @@ export default function ModalWrapper({
                             overflow-hidden
                             rounded-2xl
                             bg-white
-                            shadow-xl
+                            shadow-2xl
                         `}
                         onMouseDown={(e) => e.stopPropagation()}
                         initial={modalAnimation.initial}
