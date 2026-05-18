@@ -13,6 +13,7 @@ import {
 import TransactionCard from "../components/TransactionCard";
 import { API_ENDPOINTS } from "../api/endpoint";
 import React, { useMemo, useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import formatCurrency from "../utils/formatCurrency";
 import ModalWrapper from "../components/ModalWrapper";
 import CreateCategoryModal from "../components/Modals/CreateCategoryModal";
@@ -569,7 +570,6 @@ function TransactionsSide({
                                         categoryBudgetTotal={categoryBudgetTotal}
                                         transactions={transactions}
                                         onExpand={() => setExpandedCategoryId(category.id)}
-                                        onCreateTransaction={onCreateTransaction}
                                     />
                                 </motion.div>
                             );
@@ -586,52 +586,55 @@ function TransactionsSide({
                 )}
             </div>
 
-            <AnimatePresence>
-                {expandedCategoryId && expandedCategoryData && (
-                    <>
-                        <motion.div
-                            key="hero-backdrop"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
-                            onClick={() => setExpandedCategoryId(null)}
-                        />
-                        <motion.div
-                            key="hero-expanded"
-                            layoutId={`category-hero-${expandedCategoryId}`}
-                            className="fixed inset-0 z-50 m-auto flex h-[calc(100vh-2rem)] max-h-[800px] w-[calc(100%-2rem)] max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl sm:h-[calc(100vh-4rem)] sm:w-[calc(100%-4rem)]"
-                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        >
-                            <ExpandedCategoryView
-                                category={expandedCategoryData.category}
-                                colorTheme={expandedCategoryData.colorTheme}
-                                dotColor={expandedCategoryData.dotColor}
-                                progress={expandedCategoryData.progress}
-                                categoryCurrentTotal={expandedCategoryData.categoryCurrentTotal}
-                                categoryBudgetTotal={expandedCategoryData.categoryBudgetTotal}
-                                transactions={expandedCategoryData.transactions}
-                                selectedMonth={selectedMonth}
-                                selectedYear={selectedYear}
-                                onClose={() => setExpandedCategoryId(null)}
-                                onCreateTransaction={onCreateTransaction}
-                                onTransactionCardClick={onTransactionCardClick}
-                                categories={categories}
-                                openTransactionMenuId={openTransactionMenuId}
-                                setOpenTransactionMenuId={setOpenTransactionMenuId}
-                                transactionMenuAnchor={transactionMenuAnchor}
-                                setTransactionMenuAnchor={setTransactionMenuAnchor}
-                                transactionContextPosition={transactionContextPosition}
-                                setTransactionContextPosition={setTransactionContextPosition}
-                                reloadMonthlyOverview={reloadMonthlyOverview}
-                                setSelectedDay={setSelectedDay}
-                                selectedDay={selectedDay}
+            {createPortal(
+                <AnimatePresence>
+                    {expandedCategoryId && expandedCategoryData && (
+                        <>
+                            <motion.div
+                                key="hero-backdrop"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm"
+                                onClick={() => setExpandedCategoryId(null)}
                             />
-                        </motion.div>
-                    </>
-                )}
-            </AnimatePresence>
+                            <motion.div
+                                key="hero-expanded"
+                                layoutId={`category-hero-${expandedCategoryId}`}
+                                className="fixed inset-0 z-[9999] m-auto flex h-[calc(100vh-2rem)] max-h-[800px] w-[calc(100%-2rem)] max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl sm:h-[calc(100vh-4rem)] sm:w-[calc(100%-4rem)]"
+                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            >
+                                <ExpandedCategoryView
+                                    category={expandedCategoryData.category}
+                                    colorTheme={expandedCategoryData.colorTheme}
+                                    dotColor={expandedCategoryData.dotColor}
+                                    progress={expandedCategoryData.progress}
+                                    categoryCurrentTotal={expandedCategoryData.categoryCurrentTotal}
+                                    categoryBudgetTotal={expandedCategoryData.categoryBudgetTotal}
+                                    transactions={expandedCategoryData.transactions}
+                                    selectedMonth={selectedMonth}
+                                    selectedYear={selectedYear}
+                                    onClose={() => setExpandedCategoryId(null)}
+                                    onCreateTransaction={onCreateTransaction}
+                                    onTransactionCardClick={onTransactionCardClick}
+                                    categories={categories}
+                                    openTransactionMenuId={openTransactionMenuId}
+                                    setOpenTransactionMenuId={setOpenTransactionMenuId}
+                                    transactionMenuAnchor={transactionMenuAnchor}
+                                    setTransactionMenuAnchor={setTransactionMenuAnchor}
+                                    transactionContextPosition={transactionContextPosition}
+                                    setTransactionContextPosition={setTransactionContextPosition}
+                                    reloadMonthlyOverview={reloadMonthlyOverview}
+                                    setSelectedDay={setSelectedDay}
+                                    selectedDay={selectedDay}
+                                />
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>,
+                document.getElementById("modal-root")
+            )}
         </div>
     );
 }
@@ -653,78 +656,54 @@ function CategorySection({
     categoryBudgetTotal,
     transactions,
     onExpand,
-    onCreateTransaction,
 }) {
     const dotClassName = DOT_COLORS[dotColor] || "bg-slate-300";
 
     return (
-        <div className={`overflow-hidden rounded-xl border border-l-4 border-slate-200 ${colorTheme.border} bg-white shadow-sm transition-shadow hover:shadow-md ${colorTheme.borderHover}`}>
-            <button
-                type="button"
-                onClick={onExpand}
-                className="flex w-full cursor-pointer items-center gap-3 px-3 py-3 text-left transition-colors hover:bg-slate-50 sm:px-4"
-            >
-                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${colorTheme.iconBg} ${colorTheme.iconColor}`}>
-                    <FolderOpen size={17} />
-                </div>
-
-                <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                        <span
-                            className={`h-2 w-2 shrink-0 rounded-full ${dotClassName}`}
-                        />
-                        <span className="truncate text-sm font-semibold text-slate-900">
-                            {category.name}
-                        </span>
-                        <span className={`shrink-0 rounded-full ${colorTheme.bg} px-1.5 py-0.5 text-[10px] font-medium ${colorTheme.iconColor}`}>
-                            {transactions.length}
-                        </span>
-                    </div>
-
-                    <div className="mt-1.5 flex items-center gap-2">
-                        <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-slate-100">
-                            <div
-                                className={`h-full rounded-full ${colorTheme.progressBar} transition-all duration-500`}
-                                style={{ width: `${progress}%` }}
-                            />
-                        </div>
-                        <span className="shrink-0 text-[10px] font-medium text-slate-500">
-                            {progress.toFixed(0)}%
-                        </span>
-                    </div>
-                </div>
-
-                <div className="ml-2 flex shrink-0 items-center gap-2">
-                    <div className="hidden text-right sm:block">
-                        <p className="text-xs font-bold text-slate-900">
-                            {formatCurrency(categoryCurrentTotal)}
-                        </p>
-                        <p className="text-[10px] text-slate-500">
-                            / {formatCurrency(categoryBudgetTotal)}
-                        </p>
-                    </div>
-                    <ChevronRight
-                        size={16}
-                        className="text-slate-400"
-                    />
-                </div>
-            </button>
-
-            <div className="flex items-center justify-between border-t border-slate-100 px-3 py-1.5 sm:px-4">
-                <span className="text-[11px] font-medium text-slate-400">
-                    {formatCurrency(categoryCurrentTotal)} / {formatCurrency(categoryBudgetTotal)}
-                </span>
-                <button
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); onCreateTransaction(category.id); }}
-                    className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium ${colorTheme.addBtnText} transition ${colorTheme.addBtnHover}`}
-                    title="Aggiungi transazione"
-                >
-                    <Plus size={13} />
-                    <span className="hidden sm:inline">Aggiungi</span>
-                </button>
+        <button
+            type="button"
+            onClick={onExpand}
+            className={`group flex w-full cursor-pointer items-center gap-3 rounded-xl border border-l-4 border-slate-200 ${colorTheme.border} bg-white px-3 py-3 text-left shadow-sm transition-all hover:shadow-md ${colorTheme.borderHover} sm:px-4`}
+        >
+            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${colorTheme.iconBg} ${colorTheme.iconColor} transition-transform group-hover:scale-105`}>
+                <FolderOpen size={18} />
             </div>
-        </div>
+
+            <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                    <span className={`h-2 w-2 shrink-0 rounded-full ${dotClassName}`} />
+                    <span className="truncate text-sm font-semibold text-slate-900">
+                        {category.name}
+                    </span>
+                    <span className={`shrink-0 rounded-full ${colorTheme.bg} px-1.5 py-0.5 text-[10px] font-medium ${colorTheme.iconColor}`}>
+                        {transactions.length}
+                    </span>
+                </div>
+
+                <div className="mt-1 flex items-center gap-2 text-[11px] text-slate-500">
+                    <span>{formatCurrency(categoryCurrentTotal)}</span>
+                    <span className="text-slate-300">/</span>
+                    <span>{formatCurrency(categoryBudgetTotal)}</span>
+                </div>
+
+                <div className="mt-1.5 flex items-center gap-2">
+                    <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-slate-100">
+                        <div
+                            className={`h-full rounded-full ${colorTheme.progressBar} transition-all duration-500`}
+                            style={{ width: `${progress}%` }}
+                        />
+                    </div>
+                    <span className="shrink-0 text-[10px] font-medium text-slate-500">
+                        {progress.toFixed(0)}%
+                    </span>
+                </div>
+            </div>
+
+            <ChevronRight
+                size={18}
+                className="shrink-0 text-slate-300 transition-transform group-hover:translate-x-0.5 group-hover:text-slate-500"
+            />
+        </button>
     );
 }
 
