@@ -10,8 +10,7 @@ export default function IconButton({
     type = "button",
     ...props
 }) {
-    const currentSize =
-        UI_VARIANTS.iconButtonSize[size] || UI_VARIANTS.iconButtonSize.md;
+    const currentSize =  UI_VARIANTS.iconButtonSize[size] || UI_VARIANTS.iconButtonSize.md;
 
     return (
         <button

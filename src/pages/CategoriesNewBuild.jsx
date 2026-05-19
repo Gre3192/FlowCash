@@ -1,8 +1,12 @@
 import { useGet } from "../hooks/useGet";
 import { API_ENDPOINTS } from "../api/endpoint";
+import InfoBanner from "../components/InfoBanner";
 import getCurrentDate from "../utils/getCurrentDate";
-import React, { useMemo, useState, useEffect, useRef } from "react";
+import ModalWrapper from "../components/ModalWrapper";
 import MonthNavigator from "../components/MonthNavigator";
+import { useSearchFilter } from "../hooks/useSearchFilter";
+import React, { useMemo, useState, useEffect, useRef } from "react";
+import CategoriesList from "../components/CategoriesList";
 import { Search, Plus, X, TrendingUp, TrendingDown, Scale, FolderOpen, ChevronRight, ArrowLeft } from "lucide-react";
 
 export default function CategoriesNewBuild(params) {
@@ -30,7 +34,11 @@ export default function CategoriesNewBuild(params) {
         }
     );
 
+    console.log(data);
+
     const categories = data?.categories ?? [];
+
+
 
 
     return (
@@ -47,11 +55,53 @@ export default function CategoriesNewBuild(params) {
                 currentYear={currentYear}
             />
 
+            <InfoBanner text={"Errore durante il caricamento dei dati"} show={error} />
+
+            <div className="min-h-0 flex-1 lg:overflow-hidden">
+
+                <CategoriesList
+                    categories={categories}
+                    loading={loading}
+                    setShowCreateCategoryModal={setShowCreateCategoryModal}
+                />
+
+            </div>
 
 
+            {/* MODALE CREA CATEGORIA */}
+            <ModalWrapper
+                height="h-fit"
+                isOpen={showCreateCategoryModal}
+                onClose={() => setShowCreateCategoryModal(false)}
+                title="Nuova categoria"
+            >
+
+
+
+            </ModalWrapper>
+
+            {/* MODALE CREA TRANSAZIONE */}
+            <ModalWrapper
+                height="h-fit"
+                isOpen={showCreateTransactionModal}
+                onClose={() => setShowCreateTransactionModal(false)}
+                title="Nuova transazione"
+            >
+
+            </ModalWrapper>
+
+            {/* MODALE MOVIMENTI*/}
+            <ModalWrapper
+                // title={selectedTransaction?.name}
+                height="h-[800px]"
+                width="w-[80%]"
+                isOpen={showMovementsModal}
+                onClose={() => setShowMovementsModal(false)}
+            >
+
+            </ModalWrapper>
 
         </div>
-
     )
 }
 
@@ -92,3 +142,5 @@ function Header({
         </div>
     )
 }
+
+
