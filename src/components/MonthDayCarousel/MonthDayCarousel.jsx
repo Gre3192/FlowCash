@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
-import getDaysOfMonth from "../utils/getDaysOfMonth";
-import getEasterHolidays from "../utils/getEasterHolidays";
+import getDaysOfMonth from "../../utils/getDaysOfMonth";
+import getEasterHolidays from "../../utils/getEasterHolidays";
 
 export default function MonthDaysCarousel({
     selectedMonth,

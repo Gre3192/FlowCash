@@ -1,12 +1,12 @@
 import { useGet } from "../hooks/useGet";
 import { API_ENDPOINTS } from "../api/endpoint";
-import InfoBanner from "../components/InfoBanner";
+import InfoBanner from "../components/InfoBanner/InfoBanner";
 import getCurrentDate from "../utils/getCurrentDate";
-import ModalWrapper from "../components/ModalWrapper";
-import MonthNavigator from "../components/MonthNavigator";
+import ModalWrapper from "../components/ModalWrapper/ModalWrapper";
+import MonthNavigator from "../components/MonthNavigator/MonthNavigator";
 import { useSearchFilter } from "../hooks/useSearchFilter";
 import React, { useMemo, useState, useEffect, useRef } from "react";
-import CategoriesList from "../components/CategoriesList";
+import CategoriesList from "../components/CategoriesList/CategoriesList";
 import { Search, Plus, X, TrendingUp, TrendingDown, Scale, FolderOpen, ChevronRight, ArrowLeft } from "lucide-react";
 
 export default function CategoriesNewBuild(params) {

@@ -1,6 +1,6 @@
-import EdgeProgressBar from "./EdgeProgressBar";
-import formatCurrency from "../utils/formatCurrency";
-import CardMenu from "./CardMenu";
+import EdgeProgressBar from "../EdgeProgressBar/EdgeProgressBar";
+import formatCurrency from "../../utils/formatCurrency";
+import CardMenu from "../CardMenu/CardMenu";
 import {
     Pencil,
     Trash2,
@@ -10,13 +10,13 @@ import {
     AlertCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { ROUTE_PAGE } from "../routes/routePage"
+import { ROUTE_PAGE } from "../../routes/routePage"
 
-import amazon from "../assets/logos/PrimeVideo.png";
-import AmountRatio from "./AmountRatio";
-import { useDelete } from "../hooks/useDelete";
-import TransactionTypeBadge from "./TransactionTypeBadge";
-import { API_ENDPOINTS } from "../api/endpoint";
+import amazon from "../../assets/logos/PrimeVideo.png";
+import AmountRatio from "../AmountRatio/AmountRatio";
+import { useDelete } from "../../hooks/useDelete";
+import TransactionTypeBadge from "../TransactionTypeBadge/TransactionTypeBadge";
+import { API_ENDPOINTS } from "../../api/endpoint";
 
 export default function TransactionCard({
     setOpenCategoryMenuId,

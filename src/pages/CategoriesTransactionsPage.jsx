@@ -1,22 +1,22 @@
 import { useGet } from "../hooks/useGet";
 import { Search, Plus, X, TrendingUp, TrendingDown, Scale, FolderOpen, ChevronRight, ArrowLeft } from "lucide-react";
-import TransactionCard from "../components/TransactionCard";
+import TransactionCard from "../components/TransactionCard/TransactionCard";
 import { API_ENDPOINTS } from "../api/endpoint";
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import formatCurrency from "../utils/formatCurrency";
-import ModalWrapper from "../components/ModalWrapper";
+import ModalWrapper from "../components/ModalWrapper/ModalWrapper";
 import CreateCategoryModal from "../components/Modals/CreateCategoryModal";
 import CreateTransactionModal from "../components/Modals/CreateTransactionModal";
 import TransactionMovementsModal from "../components/Modals/TransactionMovementsModal";
-import MonthNavigator from "../components/MonthNavigator";
+import MonthNavigator from "../components/MonthNavigator/MonthNavigator";
 import { useSearchParams } from "react-router-dom";
 import saveToStorage from "../utils/saveToStorage";
 import getFromStorage from "../utils/getFromStorage";
 import { motion } from "framer-motion";
 import { getCategoryColorByType } from "../constants/categoryColors";
 import useHeroAnimation from "../hooks/useHeroAnimation";
-import HeroOverlay from "../components/HeroOverlay";
-import ProgressBar from "../components/ProgressBar";
+import HeroOverlay from "../components/HeroOverlay/HeroOverlay";
+import ProgressBar from "../components/ProgressBar/ProgressBar";
 
 function getValidYear(value, fallbackYear) {
     const year = Number(value);

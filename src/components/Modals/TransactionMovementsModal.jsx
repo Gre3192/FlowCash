@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import MonthDaysCarousel from "../MonthDayCarousel";
+import MonthDaysCarousel from "../MonthDayCarousel/MonthDayCarousel";
 import formatCurrency from "../../utils/formatCurrency";
 import getMonthByNum from "../../utils/getMonthByNum";
-import MonthNavigator from "../MonthNavigator";
+import MonthNavigator from "../MonthNavigator/MonthNavigator";
 import { Button, Textarea, Input, IconButton } from "../../ui";
 import { API_ENDPOINTS } from "../../api/endpoint";
 import { useGet } from "../../hooks/useGet";

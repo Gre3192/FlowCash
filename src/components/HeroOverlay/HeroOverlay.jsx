@@ -1,7 +1,7 @@
 import React from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { HERO_WIDTHS } from "../hooks/useHeroAnimation";
+import { HERO_WIDTHS } from "../../hooks/useHeroAnimation";
 
 function WidthSelector({ width, onChange }) {
     return (

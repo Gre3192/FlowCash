@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
-import { MONTHS } from "../constants/month.js";
-import IconButton from "./../ui/IconButton.jsx";
+import { MONTHS } from "../../constants/month.js";
+import IconButton from "../../ui/IconButton.jsx";
 
 export default function MonthNavigator({
     selectedYear,

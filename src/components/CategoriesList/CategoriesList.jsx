@@ -1,18 +1,18 @@
 import { useState, useMemo } from "react";
 import { Plus, FolderOpen, ChevronRight, ArrowLeft, ArrowUpRight, WalletCards, MoreVertical } from "lucide-react";
-import { EmptyState, LoadingState, IconButton, Button } from "../ui";
-import SearchBar from "./SearchBar";
-import ProgressBar from "./ProgressBar";
-import formatCurrency from "../utils/formatCurrency";
-import ContentViewState from "./ContentViewState"
-import useHeroAnimation from "../hooks/useHeroAnimation";
+import { EmptyState, LoadingState, IconButton, Button } from "../../ui";
+import SearchBar from "../SearchBar/SearchBar";
+import ProgressBar from "../ProgressBar/ProgressBar";
+import formatCurrency from "../../utils/formatCurrency";
+import ContentViewState from "../ContentViewState/ContentViewState"
+import useHeroAnimation from "../../hooks/useHeroAnimation";
 import { motion } from "framer-motion";
-import { useSearchFilter } from "../hooks/useSearchFilter";
+import { useSearchFilter } from "../../hooks/useSearchFilter";
 import { div } from "framer-motion/m";
-import HeroOverlay from "./HeroOverlay";
+import HeroOverlay from "../HeroOverlay/HeroOverlay";
 import { useEffect } from "react";
-import TransactionTypeBadge from "./TransactionTypeBadge";
-import EdgeProgressBar from "./EdgeProgressBar";
+import TransactionTypeBadge from "../TransactionTypeBadge/TransactionTypeBadge";
+import EdgeProgressBar from "../EdgeProgressBar/EdgeProgressBar";
 
 
 
