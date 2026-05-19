@@ -1,159 +1,45 @@
-import { useState } from "react";
-import { FolderOpen, Pencil, Trash2 } from "lucide-react";
-import EdgeProgressBar from "./EdgeProgressBar";
-import CardMenu from "./CardMenu";
-import formatCurrency from "../utils/formatCurrency";
-import AmountRatio from "../components/AmountRatio"
-import { useDelete } from "../hooks/useDelete";
-import { API_ENDPOINTS } from "../api/endpoint";
-
-export default function CategoryCard({
+function CategoryCard({
     category,
-    isSelected,
-    progress = 0,
-    openCategoryMenuId,
-    setOpenCategoryMenuId,
-    setSelectedCategoryId,
-    reloadMonthlyOverview,
-    currentTotal,
-    budgetTotal,
-    
+    colorTheme,
+    progress,
+    categoryCurrentTotal,
+    categoryBudgetTotal,
+    transactions,
+    onExpand,
 }) {
 
-    console.log(currentTotal);
-    
-
-    const { deleteData } = useDelete();
-
-    const [categoryMenuAnchor, setCategoryMenuAnchor] = useState("button");
-    const [ctxMenuPosition, setCtxMenuPosition] = useState({ x: 0, y: 0 });
-
-    const transactionsCount = category?.transactions?.length ?? 0;
-
-    function handleSelect() {
-        setSelectedCategoryId(category.id);
-    }
-
-    function handleContextMenu(e) {
-        e.preventDefault();
-
-        setSelectedCategoryId(category.id);
-        setCategoryMenuAnchor("context");
-        setCtxMenuPosition({ x: e.clientX, y: e.clientY });
-        setOpenCategoryMenuId(category.id);
-    }
-
-async function handleDeleteCategory() {
-    if (!category?.id) return;
-
-    try {
-        setOpenCategoryMenuId(null);
-
-        await deleteData(
-            API_ENDPOINTS.categories({}, category.id)
-        );
-
-        reloadMonthlyOverview?.();
-    } catch (err) {
-        if (err.name !== "AbortError") {
-            console.error(err);
-        }
-    }
-}
-
     return (
-        <div
-            onClick={handleSelect}
-            onContextMenu={handleContextMenu}
-            className={`
-                group relative cursor-pointer overflow-visible rounded-xl transition-all duration-150
-                ${isSelected ? "bg-sky-50 shadow-[0_4px_14px_rgba(14,165,233,0.12)]" : "bg-white hover:bg-slate-50 hover:shadow-[0_4px_14px_rgba(15,23,42,0.08)]"}
-            `}
+        <button
+            type="button"
+            onClick={onExpand}
+            className={`group flex w-full cursor-pointer items-center gap-3 rounded-xl border border-l-4 border-slate-200 ${colorTheme.border} bg-white px-3 py-3 text-left shadow-sm transition-all hover:shadow-md ${colorTheme.borderHover} sm:px-4`}
         >
-            <div
-                className={`
-                    relative flex items-center justify-between overflow-hidden rounded-xl border px-3 py-3
-                    ${isSelected ? "border-sky-200 bg-sky-50" : "border-slate-200 bg-white group-hover:border-slate-300"}
-                `}
-            >
-                <EdgeProgressBar value={progress} />
-
-                <div className="flex min-w-0 items-center gap-3">
-                    <div
-                        className={`
-                            flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border shadow-sm
-                            ${isSelected ? "border-sky-200 bg-white text-sky-700" : "border-slate-200 bg-slate-50 text-slate-600"}
-                        `}
-                    >
-                        <FolderOpen size={18} />
-                    </div>
-
-                    <div className="min-w-0">
-                        <div className="truncate text-sm font-semibold leading-5 text-slate-900">
-                            {category.name}
-                        </div>
-
-                        <div className="truncate text-xs leading-4 text-slate-500">
-                            {transactionsCount === 1 ? "1 transazione" : `${transactionsCount} transazioni`}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="ml-3 flex shrink-0 items-center gap-2">
-                    <div className="text-right">
-                        <div className="mb-1 flex justify-end">
-                            <span
-                                className={`
-                                    rounded-md px-1.5 py-0.5 text-[10px] font-medium leading-none
-                                    ${isSelected ? "bg-sky-100 text-sky-700" : "bg-slate-100 text-slate-600"}
-                                `}
-                            >
-                                {progress.toFixed(0)}%
-                            </span>
-                        </div>
-
-                        <div
-                            className={`
-                                whitespace-nowrap text-sm font-semibold leading-4
-                                ${isSelected ? "text-sky-700" : "text-emerald-600"}
-                            `}
-                        >
-
-                            {/* {formatCurrency(total)} */}
-                            <AmountRatio firstNum={formatCurrency(currentTotal)} secondNum={formatCurrency(budgetTotal)} />
-                        </div>
-                    </div>
-
-                    <CardMenu
-                        isOpen={openCategoryMenuId === category.id}
-                        anchor={categoryMenuAnchor}
-                        contextPosition={ctxMenuPosition}
-                        onToggle={(next, options = {}) => {
-                            if (!next) {
-                                setOpenCategoryMenuId(null);
-                                return;
-                            }
-
-                            setSelectedCategoryId(category.id);
-                            setCategoryMenuAnchor(options.anchor || "button");
-                            setOpenCategoryMenuId(category.id);
-                        }}
-                        items={[
-                            {
-                                label: "Modifica",
-                                icon: Pencil,
-                                onClick: () => { },
-                            },
-                            {
-                                label: "Elimina",
-                                icon: Trash2,
-                                danger: true,
-                                onClick: handleDeleteCategory,
-                            },
-                        ]}
-                    />
-                </div>
+            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${colorTheme.iconBg} ${colorTheme.iconColor} transition-transform group-hover:scale-105`}>
+                <FolderOpen size={18} />
             </div>
-        </div>
+
+            <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                    <span className="truncate text-sm font-semibold text-slate-900">
+                        {category.name}
+                    </span>
+                    <span className={`shrink-0 rounded-full ${colorTheme.bg} px-1.5 py-0.5 text-[10px] font-medium ${colorTheme.iconColor}`}>
+                        {transactions.length}
+                    </span>
+                    <span className="ml-auto flex shrink-0 items-center gap-1 text-[11px] text-slate-500">
+                        <span>{formatCurrency(categoryCurrentTotal)}</span>
+                        <span className="text-slate-300">/</span>
+                        <span>{formatCurrency(categoryBudgetTotal)}</span>
+                    </span>
+                </div>
+
+                <ProgressBar currentValue={categoryCurrentTotal} totalValue={categoryBudgetTotal}/>
+                
+            </div>
+            <ChevronRight
+                size={18}
+                className="shrink-0 text-slate-300 transition-transform group-hover:translate-x-0.5 group-hover:text-slate-500"
+            />
+        </button>
     );
 }

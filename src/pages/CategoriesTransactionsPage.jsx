@@ -16,6 +16,7 @@ import { motion } from "framer-motion";
 import { getCategoryColorByType } from "../constants/categoryColors";
 import useHeroAnimation from "../hooks/useHeroAnimation";
 import HeroOverlay from "../components/HeroOverlay";
+import ProgressBar from "../components/ProgressBar";
 
 function getValidYear(value, fallbackYear) {
     const year = Number(value);
@@ -619,18 +620,8 @@ function CategoryCard({
                         <span>{formatCurrency(categoryBudgetTotal)}</span>
                     </span>
                 </div>
-
-                <div className="mt-1.5 flex items-center gap-2">
-                    <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-slate-100">
-                        <div
-                            className={`h-full rounded-full ${colorTheme.progressBar} transition-all duration-500`}
-                            style={{ width: `${progress}%` }}
-                        />
-                    </div>
-                    <span className="shrink-0 text-[10px] font-medium text-slate-500">
-                        {progress.toFixed(0)}%
-                    </span>
-                </div>
+                
+                <ProgressBar currentValue={categoryCurrentTotal} totalValue={categoryBudgetTotal}/>
             </div>
             <ChevronRight
                 size={18}
