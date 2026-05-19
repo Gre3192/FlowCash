@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Plus, FolderOpen, ChevronRight, ArrowLeft, ArrowUpRight, WalletCards, MoreVertical } from "lucide-react";
+import { Plus, FolderOpen, ChevronRight, ArrowLeft, ArrowUpRight, WalletCards, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { EmptyState, LoadingState, IconButton, Button } from "../../ui";
 import SearchBar from "../SearchBar/SearchBar";
 import ProgressBar from "../ProgressBar/ProgressBar";
@@ -13,7 +13,7 @@ import HeroOverlay from "../HeroOverlay/HeroOverlay";
 import { useEffect } from "react";
 import TransactionTypeBadge from "../TransactionTypeBadge/TransactionTypeBadge";
 import EdgeProgressBar from "../EdgeProgressBar/EdgeProgressBar";
-
+import MoreActionsMenu from "../MoreActionMenu/MoreActionMenu"
 
 
 
@@ -240,11 +240,7 @@ function TransactionCard({
     logo,
     type = "Expense",
     onClick,
-    onMenuClick,
 }) {
-
-    console.log(transaction);
-
 
     const currentValue = Number(current || 0);
     const budgetValue = Number(budget || 0);
@@ -252,6 +248,26 @@ function TransactionCard({
     const remaining = budgetValue - currentValue;
 
     const isExpense = type === "Expense";
+
+    const moreActions = [
+        {
+            label: "Modifica",
+            icon: Pencil,
+            onClick: (transaction) => {
+                onEdit?.(transaction);
+            },
+        },
+        {
+            label: "Elimina",
+            icon: Trash2,
+            variant: "danger",
+            onClick: (transaction) => {
+                onDelete?.(transaction);
+            },
+        },
+    ];
+
+
 
     return (
         <div
@@ -324,17 +340,10 @@ function TransactionCard({
 
                 <EdgeProgressBar value={transaction.progress} />
             </div>
-
-            <button
-                type="button"
-                onClick={(e) => {
-                    e.stopPropagation();
-                    onMenuClick?.(transaction);
-                }}
-                className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
-            >
-                <MoreVertical size={17} />
-            </button>
+            <MoreActionsMenu
+                item={transaction}
+                actions={moreActions}
+            />
         </div>
     );
 }
