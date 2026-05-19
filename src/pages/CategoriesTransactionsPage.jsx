@@ -1,15 +1,5 @@
 import { useGet } from "../hooks/useGet";
-import {
-    Search,
-    Plus,
-    X,
-    TrendingUp,
-    TrendingDown,
-    Scale,
-    FolderOpen,
-    ChevronRight,
-    ArrowLeft,
-} from "lucide-react";
+import { Search, Plus, X, TrendingUp, TrendingDown, Scale, FolderOpen, ChevronRight, ArrowLeft } from "lucide-react";
 import TransactionCard from "../components/TransactionCard";
 import { API_ENDPOINTS } from "../api/endpoint";
 import React, { useMemo, useState, useEffect, useRef } from "react";
@@ -54,6 +44,7 @@ function getScrollStorageKey(year, month) {
 }
 
 export default function CategoriesTransactionsPage() {
+
     const [searchParams, setSearchParams] = useSearchParams();
 
     const currentDate = new Date();
@@ -70,14 +61,9 @@ export default function CategoriesTransactionsPage() {
 
     const [search, setSearch] = useState("");
 
-    const [isCreateCategoryModalOpen, setIsCreateCategoryModalOpen] =
-        useState(false);
-
-    const [isCreateTransactionModalOpen, setIsCreateTransactionModalOpen] =
-        useState(false);
-
-    const [categoryIdForNewTransaction, setCategoryIdForNewTransaction] =
-        useState(null);
+    const [isCreateCategoryModalOpen, setIsCreateCategoryModalOpen] = useState(false);
+    const [isCreateTransactionModalOpen, setIsCreateTransactionModalOpen] = useState(false);
+    const [categoryIdForNewTransaction, setCategoryIdForNewTransaction] = useState(null);
 
     const [showMovementsModal, setShowMovementsModal] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState(null);
@@ -91,13 +77,8 @@ export default function CategoriesTransactionsPage() {
         setSearchParams(nextParams, { replace: true });
     }, [selectedYear, selectedMonth, setSearchParams]);
 
-    const {
-        data,
-        loading,
-        error,
-        reload: reloadMonthlyOverview,
-    } = useGet(
-        API_ENDPOINTS.monthlyOverview({
+    const { data, loading, error, reload: reloadMonthlyOverview, } = useGet(API_ENDPOINTS.monthlyOverview(
+        {
             month: selectedMonth,
             year: selectedYear,
         }),
@@ -139,6 +120,8 @@ export default function CategoriesTransactionsPage() {
     return (
         <div className="box-border overflow-y-auto bg-slate-50 p-2 sm:p-4 lg:h-full lg:min-h-0 lg:overflow-hidden">
             <div className="flex min-h-0 flex-col gap-3 lg:h-full">
+
+                
                 <div className="shrink-0">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div className="min-w-0">
@@ -163,7 +146,7 @@ export default function CategoriesTransactionsPage() {
                     </div>
                 </div>
 
-                {!loading && categories.length > 0 && (
+                {/* {!loading && categories.length > 0 && (
                     <div className="shrink-0">
                         <SummaryStats
                             income={totals.income}
@@ -172,7 +155,7 @@ export default function CategoriesTransactionsPage() {
                             categoriesCount={categories.length}
                         />
                     </div>
-                )}
+                )} */}
 
                 {error && (
                     <div className="shrink-0 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
@@ -182,7 +165,7 @@ export default function CategoriesTransactionsPage() {
                 )}
 
                 <div className="min-h-0 flex-1 lg:overflow-hidden">
-                    <TransactionsSide
+                    <CategoriesList
                         loading={loading}
                         categories={categories}
                         search={search}
@@ -309,7 +292,8 @@ function SummaryStats({ income, expense, balance, categoriesCount }) {
     );
 }
 
-function TransactionsSide({
+function CategoriesList({
+
     loading,
     categories,
     search,
@@ -322,7 +306,9 @@ function TransactionsSide({
     reloadMonthlyOverview,
     setIsCreateCategoryModalOpen,
     onCreateTransaction,
+
 }) {
+
     const scrollContainerRef = useRef(null);
 
     const accordionStorageKey = useMemo(() => {
@@ -340,10 +326,7 @@ function TransactionsSide({
     const [openTransactionMenuId, setOpenTransactionMenuId] = useState(null);
     const [transactionMenuAnchor, setTransactionMenuAnchor] = useState("button");
 
-    const [transactionContextPosition, setTransactionContextPosition] = useState({
-        x: 0,
-        y: 0,
-    });
+    const [transactionContextPosition, setTransactionContextPosition] = useState({ x: 0, y: 0 });
 
     const [typeFilter, setTypeFilter] = useState("all");
     const [statusFilter, setStatusFilter] = useState("all");
@@ -404,7 +387,7 @@ function TransactionsSide({
                     transactions,
                     isSearchMatch: normalizedSearch
                         ? String(category.name || "").toLowerCase().includes(normalizedSearch) ||
-                          transactions.length > 0
+                        transactions.length > 0
                         : true,
                 };
             })
@@ -464,7 +447,6 @@ function TransactionsSide({
 
     function handleScroll(e) {
         if (isSearching) return;
-
         saveToStorage(scrollStorageKey, e.currentTarget.scrollTop);
     }
 
@@ -501,6 +483,8 @@ function TransactionsSide({
                         >
                             <Plus size={14} />
                         </button>
+
+                        
                     </div>
                 </div>
 
@@ -526,31 +510,12 @@ function TransactionsSide({
                 ) : filteredCategories.length > 0 ? (
                     <div className="space-y-4">
                         {filteredCategories.map((category, categoryIndex) => {
+
                             const transactions = category.transactions ?? [];
-
-                            const categoryCurrentTotal = Number(
-                                category.current_total || 0
-                            );
-
-                            const categoryBudgetTotal = Number(
-                                category.budget_total || 0
-                            );
-
-                            const progress =
-                                categoryBudgetTotal > 0
-                                    ? Math.min(
-                                          (categoryCurrentTotal / categoryBudgetTotal) * 100,
-                                          100
-                                      )
-                                    : 0;
-
-                            const dotColor =
-                                !category.has_transactions
-                                    ? "gray"
-                                    : categoryBudgetTotal > 0
-                                        ? "green"
-                                        : "red";
-
+                            const categoryCurrentTotal = Number(category.current_total || 0);
+                            const categoryBudgetTotal = Number(category.budget_total || 0);
+                            const progress = categoryBudgetTotal > 0 ? Math.min((categoryCurrentTotal / categoryBudgetTotal) * 100, 100) : 0;
+                            const dotColor = !category.has_transactions ? "gray" : categoryBudgetTotal > 0 ? "green" : "red";
                             const colorTheme = getCategoryColorByType(category.type);
 
                             if (hero.selectedId === category.id) {
@@ -562,7 +527,7 @@ function TransactionsSide({
                                     key={category.id}
                                     layoutId={hero.getLayoutId(category.id)}
                                 >
-                                    <CategorySection
+                                    <CategoryCard
                                         category={category}
                                         colorTheme={colorTheme}
                                         dotColor={dotColor}
@@ -620,24 +585,15 @@ function TransactionsSide({
     );
 }
 
-const DOT_COLORS = {
-    green: "bg-emerald-400",
-    red: "bg-red-400",
-    gray: "bg-slate-300",
-};
-
-
-function CategorySection({
+function CategoryCard({
     category,
     colorTheme,
-    dotColor,
     progress,
     categoryCurrentTotal,
     categoryBudgetTotal,
     transactions,
     onExpand,
 }) {
-    const dotClassName = DOT_COLORS[dotColor] || "bg-slate-300";
 
     return (
         <button
@@ -651,7 +607,6 @@ function CategorySection({
 
             <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                    <span className={`h-2 w-2 shrink-0 rounded-full ${dotClassName}`} />
                     <span className="truncate text-sm font-semibold text-slate-900">
                         {category.name}
                     </span>
@@ -677,7 +632,6 @@ function CategorySection({
                     </span>
                 </div>
             </div>
-
             <ChevronRight
                 size={18}
                 className="shrink-0 text-slate-300 transition-transform group-hover:translate-x-0.5 group-hover:text-slate-500"
@@ -711,7 +665,7 @@ function ExpandedCategoryView({
     selectedDay,
     hero,
 }) {
-    const dotClassName = DOT_COLORS[dotColor] || "bg-slate-300";
+
     const [transactionSearch, setTransactionSearch] = useState("");
 
     const filteredTransactions = useMemo(() => {
@@ -738,7 +692,7 @@ function ExpandedCategoryView({
 
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                            <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${dotClassName}`} />
+
                             <h2 className="truncate text-base font-bold text-slate-900 sm:text-lg">
                                 {category.name}
                             </h2>
@@ -885,11 +839,10 @@ function TypeToggle({ value, onChange }) {
                     key={opt.key}
                     type="button"
                     onClick={() => onChange(opt.key)}
-                    className={`cursor-pointer rounded-md px-2.5 py-1.5 text-[11px] font-medium transition-all ${
-                        value === opt.key
-                            ? "bg-white text-slate-900 shadow-sm"
-                            : "text-slate-500 hover:text-slate-700"
-                    }`}
+                    className={`cursor-pointer rounded-md px-2.5 py-1.5 text-[11px] font-medium transition-all ${value === opt.key
+                        ? "bg-white text-slate-900 shadow-sm"
+                        : "text-slate-500 hover:text-slate-700"
+                        }`}
                 >
                     {opt.label}
                 </button>

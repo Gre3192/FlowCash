@@ -15,6 +15,7 @@ const STORAGE_KEY = "hero-width-preference";
 export { HERO_WIDTHS };
 
 export default function useHeroAnimation(prefix = "hero", defaultWidth = "md") {
+    
     const [selectedId, setSelectedId] = useState(null);
     const [width, setWidth] = useState(() => getFromStorage(STORAGE_KEY, defaultWidth));
 
