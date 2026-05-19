@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Plus, FolderOpen, ChevronRight, ArrowLeft } from "lucide-react";
+import { Plus, FolderOpen, ChevronRight, ArrowLeft, ArrowUpRight, WalletCards, MoreVertical } from "lucide-react";
 import { EmptyState, LoadingState, IconButton, Button } from "../ui";
 import SearchBar from "./SearchBar";
 import ProgressBar from "./ProgressBar";
@@ -11,6 +11,11 @@ import { useSearchFilter } from "../hooks/useSearchFilter";
 import { div } from "framer-motion/m";
 import HeroOverlay from "./HeroOverlay";
 import { useEffect } from "react";
+import TransactionTypeBadge from "./TransactionTypeBadge";
+import EdgeProgressBar from "./EdgeProgressBar";
+
+
+
 
 export default function CategoriesList({
     categories,
@@ -110,7 +115,7 @@ function CategoriesListBody({
             </div>
 
             <HeroOverlay hero={hero}  >
-                <ExpandedCategoryCard
+                <ExpandedCategoryView
                     category={selectedCategory}
                     onClose={hero.close}
                 />
@@ -159,7 +164,7 @@ function CategoryCard({
     );
 }
 
-function ExpandedCategoryCard({
+function ExpandedCategoryView({
     category,
     onClose
 }) {
@@ -169,14 +174,11 @@ function ExpandedCategoryCard({
     const [searchedTransactions, setSearchedTransactions] = useState("");
     const filteredTransactions = useSearchFilter(transactions, searchedTransactions, ["name"]);
 
-    console.log(filteredTransactions);
-
-
     return (
         <>
 
             {/* HEADER */}
-            <div className={`shrink-0 border-b border-l-4  border-slate-200 `}>
+            <div className={`shrink-0 border-b border-slate-200 `}>
                 <div className="flex items-center gap-3 px-4 py-4 sm:px-6">
                     <IconButton icon={ArrowLeft} size={'md'} onClick={onClose} />
                     <div className={`flex h-10 w-10 bg-slate-100 shrink-0 items-center justify-center rounded-lg `}>
@@ -211,16 +213,128 @@ function ExpandedCategoryCard({
                 isEmpty={filteredTransactions.length === 0}
                 emptyComponent={<EmptyState text={searchedTransactions ? "Nessun risultato trovato" : "Nessuna categoria disponibile"} />}
             >
-                {filteredTransactions.map((transaction, i) => {
+                <div className="space-y-2">
+                    {filteredTransactions.map((transaction, i) => {
 
-                    return (
-                        <div>
-                            ciao
-                        </div>
-                    )
-                })}
+                        return (
+                            <TransactionCard transaction={transaction} />
+                        )
+                    })}
+                </div>
             </ContentViewState>
         </>
     )
 
+}
+
+
+
+
+
+
+
+function TransactionCard({
+    transaction,
+    current = 0,
+    budget = 0,
+    logo,
+    type = "Expense",
+    onClick,
+    onMenuClick,
+}) {
+
+    console.log(transaction);
+
+
+    const currentValue = Number(current || 0);
+    const budgetValue = Number(budget || 0);
+
+    const remaining = budgetValue - currentValue;
+
+    const isExpense = type === "Expense";
+
+    return (
+        <div
+            onClick={onClick}
+            className="
+             group relative z-0 flex cursor-pointer items-center justify-between overflow-visible rounded-lg transition-all duration-200 ease-out bg-white px-3 py-2.5
+             border border-slate-200 hover:border-slate-300
+             shadow-[0_1px_2px_rgba(15,23,42,0.04)]
+             hover:-translate-y-0.5
+             hover:shadow-[0_4px_12px_rgba(15,23,42,0.08)]
+             active:translate-y-0
+             active:shadow-[0_2px_8px_rgba(15,23,42,0.08)]
+            "
+        >
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-100 shadow-sm">
+                {logo ? (
+                    <img
+                        src={logo}
+                        alt={transaction?.name ?? "Logo"}
+                        className="h-full w-full object-cover"
+                    />
+                ) : (
+                    <WalletCards size={20} className="text-slate-400" />
+                )}
+            </div>
+
+            <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                    <h3 className="truncate text-sm font-semibold text-slate-900">
+                        {transaction?.name ?? "Transazione"}
+                    </h3>
+                </div>
+
+                <div className="mt-1 flex items-center gap-1.5">
+                    <TransactionTypeBadge type={transaction.type} />
+
+                    <span
+                        className="
+                                        inline-flex shrink-0 items-center rounded-full border border-slate-200 bg-slate-50
+                                        px-1.5 py-0.5 text-[10px] font-medium leading-none text-slate-600
+                                        transition-colors duration-200 group-hover:bg-white
+                                    "
+                    >
+                        {transaction.progress.toFixed(0)}%
+                    </span>
+
+
+                    <IconButton icon={WalletCards} size={'sm'} />
+
+                </div>
+            </div>
+
+            <div className="hidden min-w-40 flex-col items-end sm:flex">
+                {/* <div className="text-sm font-bold">
+                    <span className={typeConfig.amountClass}>
+                        {formatCurrency(currentValue)}
+                    </span>
+                    <span className="mx-1 text-slate-300">/</span>
+                    <span className="text-slate-500">
+                        {formatCurrency(budgetValue)}
+                    </span>
+                </div> */}
+
+                <div className="mt-1 text-xs font-semibold text-slate-500">
+                    Rimanenti:{" "}
+                    <span className="font-bold text-slate-900">
+                        {formatCurrency(remaining)}
+                    </span>
+                </div>
+
+                <EdgeProgressBar value={transaction.progress} />
+            </div>
+
+            <button
+                type="button"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onMenuClick?.(transaction);
+                }}
+                className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+            >
+                <MoreVertical size={17} />
+            </button>
+        </div>
+    );
 }

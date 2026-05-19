@@ -53,15 +53,12 @@ export default function CategoriesNewBuild(params) {
             <InfoBanner text={"Errore durante il caricamento dei dati"} show={error} />
 
             <div className="min-h-0 flex-1 lg:overflow-hidden">
-
                 <CategoriesList
                     categories={categories}
                     loading={loading}
                     setShowCreateCategoryModal={setShowCreateCategoryModal}
                 />
-
             </div>
-
 
             {/* MODALE CREA CATEGORIA */}
             <ModalWrapper

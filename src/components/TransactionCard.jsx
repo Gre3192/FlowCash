@@ -135,7 +135,7 @@ export default function TransactionCard({
     }
 
     console.log(transaction);
-    
+
 
     return (
         <div
