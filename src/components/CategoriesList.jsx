@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
-import { IconButton } from "../ui";
 import { Plus, FolderOpen, ChevronRight, ArrowLeft } from "lucide-react";
-import { EmptyState, LoadingState } from "../ui";
+import { EmptyState, LoadingState, IconButton, Button } from "../ui";
 import SearchBar from "./SearchBar";
 import ProgressBar from "./ProgressBar";
 import formatCurrency from "../utils/formatCurrency";
@@ -44,8 +43,6 @@ export default function CategoriesList({
     )
 }
 
-
-
 function CategoryListHeader({
     searchedCategories,
     setSearchedCategories,
@@ -76,13 +73,11 @@ function CategoryListHeader({
     )
 }
 
-
-
 function CategoriesListBody({
     filteredCategories,
 }) {
 
-    const hero = useHeroAnimation("category-hero");
+    const hero = useHeroAnimation("category-hero", "xl");
     const [selectedCategory, setSelectedCategory] = useState(null)
 
     useEffect(() => {
@@ -99,7 +94,6 @@ function CategoriesListBody({
             <div className="space-y-4">
                 {filteredCategories.map((category, i) => {
 
-
                     if (hero.selectedId === category.id) {
                         return <div key={category.id} className="h-16 rounded-xl bg-slate-100/50" />;
                     }
@@ -115,7 +109,7 @@ function CategoriesListBody({
                 })}
             </div>
 
-            <HeroOverlay hero={hero} >
+            <HeroOverlay hero={hero}  >
                 <ExpandedCategoryCard
                     category={selectedCategory}
                     onClose={hero.close}
@@ -124,8 +118,6 @@ function CategoriesListBody({
         </>
     )
 }
-
-
 
 function CategoryCard({
     category,
@@ -167,73 +159,68 @@ function CategoryCard({
     );
 }
 
-
 function ExpandedCategoryCard({
-
     category,
     onClose
-
 }) {
 
+    const transactions = category?.transactions ?? [];
+
+    const [searchedTransactions, setSearchedTransactions] = useState("");
+    const filteredTransactions = useSearchFilter(transactions, searchedTransactions, ["name"]);
+
+    console.log(filteredTransactions);
 
 
     return (
-        <div className={`shrink-0 border-b border-l-4  border-slate-200 `}>
-            <div className="flex items-center gap-3 px-4 py-4 sm:px-6">
-                <button
-                    type="button"
-                    onClick={onClose}
-                    className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50"
-                >
-                    <ArrowLeft size={18} />
-                </button>
+        <>
 
-                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg `}>
-                    <FolderOpen size={20} />
-                </div>
-
-                <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-
-                        <h2 className="truncate text-base font-bold text-slate-900 sm:text-lg">
-                            {category.name}
-                        </h2>
-                        <span className={`shrink-0 rounded-full  px-2 py-0.5 text-xs font-medium `}>
-                            {category.transactions.length}
-                        </span>
+            {/* HEADER */}
+            <div className={`shrink-0 border-b border-l-4  border-slate-200 `}>
+                <div className="flex items-center gap-3 px-4 py-4 sm:px-6">
+                    <IconButton icon={ArrowLeft} size={'md'} onClick={onClose} />
+                    <div className={`flex h-10 w-10 bg-slate-100 shrink-0 items-center justify-center rounded-lg `}>
+                        <FolderOpen size={20} />
                     </div>
-                    {/* <div className="mt-1 flex items-center gap-3 text-sm text-slate-500">
-                            <span>{formatCurrency(categoryCurrentTotal)} / {formatCurrency(categoryBudgetTotal)}</span>
-                            <span>{progress.toFixed(0)}%</span>
-                        </div> */}
-                </div>
-
-                <button
-                    type="button"
-                    onClick={() => { }}
-                    className={`inline-flex items-center gap-1.5 rounded-lg border  px-3 py-2 text-xs font-medium transition `}
-                >
-                    <Plus size={15} />
-                    <span className="hidden sm:inline">Aggiungi</span>
-                </button>
-            </div>
-
-            <div className="px-4 pb-3 sm:px-6">
-                {/* <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200/60">
-                        <div
-                            className={`h-full rounded-full ${colorTheme.progressBar} transition-all duration-500`}
-                            style={{ width: `${progress}%` }}
-                        />
-                    </div> */}
-            </div>
-            {/* 
-                <div className="flex items-center gap-2 px-4 pb-3 sm:px-6">
                     <div className="min-w-0 flex-1">
-                        <SearchBar search={transactionSearch} setSearch={setTransactionSearch} />
+                        <div className="flex items-center gap-2">
+
+                            <h2 className="truncate text-base font-bold text-slate-900 sm:text-lg">
+                                {category.name}
+                            </h2>
+                            <span className={`shrink-0 rounded-full  px-2 py-0.5 text-xs font-medium `}>
+                                {category.transactions.length}
+                            </span>
+                        </div>
+                        <div className="mt-1 flex items-center gap-3 text-sm text-slate-500">
+                            <span>{formatCurrency(category.current_total)} / {formatCurrency(category.budget_total)}</span>
+                        </div>
                     </div>
-                    <HeroOverlay.WidthSelector width={hero.width} onChange={hero.changeWidth} />
-                </div> */}
-        </div>
+                    <Button icon={Plus} label={'Transazione'} size={'md'} variant={"secondary"} onClick={() => { }} />
+                </div>
+                <div className="px-4 pb-3 sm:px-6">
+                    <ProgressBar currentValue={category.current_total} totalValue={category.budget_total} size="lg" />
+                </div>
+                <div className="min-w-0 flex-1 px-4 pb-3 sm:px-6">
+                    <SearchBar search={searchedTransactions} setSearch={setSearchedTransactions} />
+                </div>
+            </div>
+
+            {/* BODY */}
+            <ContentViewState
+                isEmpty={filteredTransactions.length === 0}
+                emptyComponent={<EmptyState text={searchedTransactions ? "Nessun risultato trovato" : "Nessuna categoria disponibile"} />}
+            >
+                {filteredTransactions.map((transaction, i) => {
+
+                    return (
+                        <div>
+                            ciao
+                        </div>
+                    )
+                })}
+            </ContentViewState>
+        </>
     )
 
 }

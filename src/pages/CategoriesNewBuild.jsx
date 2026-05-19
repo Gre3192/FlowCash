@@ -34,12 +34,7 @@ export default function CategoriesNewBuild(params) {
         }
     );
 
-    console.log(data);
-
     const categories = data?.categories ?? [];
-
-
-
 
     return (
         <div className="box-border overflow-y-auto flex min-h-0 flex-col gap-3 lg:h-full bg-slate-50 p-2 sm:p-4 lg:min-h-0 lg:overflow-hidden">
