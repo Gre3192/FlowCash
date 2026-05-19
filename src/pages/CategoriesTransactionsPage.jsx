@@ -183,6 +183,7 @@ export default function CategoriesTransactionsPage() {
                 </div>
             </div>
 
+
             <ModalWrapper
                 height="h-fit"
                 isOpen={isCreateCategoryModalOpen}
@@ -484,8 +485,6 @@ function CategoriesList({
                         >
                             <Plus size={14} />
                         </button>
-
-                        
                     </div>
                 </div>
 
