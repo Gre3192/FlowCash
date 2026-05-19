@@ -6,11 +6,13 @@ import ModalWrapper from "../components/ModalWrapper/ModalWrapper";
 import MonthNavigator from "../components/MonthNavigator/MonthNavigator";
 import { useSearchFilter } from "../hooks/useSearchFilter";
 import React, { useMemo, useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import CategoriesList from "../components/CategoriesList/CategoriesList";
 import { Search, Plus, X, TrendingUp, TrendingDown, Scale, FolderOpen, ChevronRight, ArrowLeft } from "lucide-react";
 
 export default function CategoriesNewBuild(params) {
 
+    const [searchParams, setSearchParams] = useSearchParams();
 
     // STATE TEMPORALI
     const { currentDay, currentMonth, currentYear } = getCurrentDate();
@@ -22,6 +24,13 @@ export default function CategoriesNewBuild(params) {
     const [showCreateCategoryModal, setShowCreateCategoryModal] = useState(false);
     const [showCreateTransactionModal, setShowCreateTransactionModal] = useState(false);
     const [showMovementsModal, setShowMovementsModal] = useState(false);
+
+    useEffect(() => {
+        const nextParams = new URLSearchParams();
+        nextParams.set("year", String(selectedYear));
+        nextParams.set("month", String(selectedMonth));
+        setSearchParams(nextParams, { replace: true });
+    }, [selectedYear, selectedMonth]);
 
     // CHIAMATE BE
     const { data, loading, error, reload: reloadMonthlyOverview, } = useGet(API_ENDPOINTS.monthlyOverview(
