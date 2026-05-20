@@ -30,7 +30,7 @@ export default function CategoriesNewBuild(params) {
     const [showMovementsModal, setShowMovementsModal] = useState(false);
 
     const [categoryIdForNewTransaction, setCategoryIdForNewTransaction] = useState(null);
-    const [transactionIdForNewMovement, setTransactionIdForNewMovement] = useState(null);
+    const [transactionForNewMovement, setTransactionForNewMovement] = useState(null);
 
 
     useEffect(() => {
@@ -79,7 +79,7 @@ export default function CategoriesNewBuild(params) {
                     reloadMonthlyOverview={reloadMonthlyOverview}
                     setCategoryIdForNewTransaction={setCategoryIdForNewTransaction}
                     setShowCreateTransactionModal={setShowCreateTransactionModal}
-                    setTransactionIdForNewMovement={setTransactionIdForNewMovement}
+                    setTransactionForNewMovement={setTransactionForNewMovement}
                     setShowMovementsModal={setShowMovementsModal}
                 />
             </div>
@@ -113,7 +113,7 @@ export default function CategoriesNewBuild(params) {
 
             {/* MODALE MOVIMENTI*/}
             <ModalWrapper
-                // title={selectedTransaction?.name}
+                title={transactionForNewMovement?.name}
                 height="h-[800px]"
                 width="w-[80%]"
                 isOpen={showMovementsModal}
@@ -123,7 +123,7 @@ export default function CategoriesNewBuild(params) {
                     selectedMonth={selectedMonth}
                     selectedYear={selectedYear}
                     selectedDay={selectedDay}
-                    transactionId={transactionIdForNewMovement}
+                    transaction={transactionForNewMovement}
                     onClose={() => setShowMovementsModal(false)}
                     onDayChange={setSelectedDay}
                     availableYears={data?.available_budget_years}

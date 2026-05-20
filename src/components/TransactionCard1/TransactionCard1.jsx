@@ -49,6 +49,7 @@ export default function TransactionCard({
             onClick: (transaction) => { handleDeleteTransaction(transaction) },
         },
     ];
+    
     function handleGoToBudgetPage() {
         navigate(ROUTE_PAGE.budgetPage.replace(":id", transaction.id));
     }

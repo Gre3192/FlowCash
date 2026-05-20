@@ -15,7 +15,7 @@ export default function TransactionMovementsModal({
     selectedMonth,
     selectedYear,
     selectedDay,
-    transactionId,
+    transaction,
     onClose,
     onDayChange,
     availableYears,
@@ -29,7 +29,7 @@ export default function TransactionMovementsModal({
     const [localSelectedDay, setLocalSelectedDay] = useState(selectedDay || new Date().getDate());
 
     const { data, loading, error, reload, } = useGet(API_ENDPOINTS.transactionMovements({
-        transaction_id: transactionId,
+        transaction_id: transaction?.id,
         year: localSelectedYear,
         month: localSelectedMonth,
     })
@@ -133,28 +133,42 @@ export default function TransactionMovementsModal({
 
     async function handleSubmit(e) {
         e.preventDefault();
-        const amount = Number(formData.amount);
-        if (!formData.name.trim()) return;
-        if (Number.isNaN(amount) || amount <= 0) return;
-        if (!transactionId?.id) return;
-        const movementDate = `${localSelectedYear}-${String(
-            localSelectedMonth
-        ).padStart(2, "0")}-${String(localSelectedDay).padStart(2, "0")}`;
-        const payload = {
-            transaction_id: transactionId,
-            name: formData.name.trim(),
-            amount,
-            movement_date: movementDate,
-            note: formData.note.trim(),
-        };
-        const createdMovement = await postData(API_ENDPOINTS.transactionMovements(), payload);
-        reload?.();
-        reloadMonthlyOverview?.();
-        setFormData({
-            name: "",
-            amount: "",
-            note: "",
-        });
+
+        try {
+
+            const amount = Number(formData.amount);
+            if (!formData.name.trim()) return;
+            if (Number.isNaN(amount) || amount <= 0) return;
+            if (!transaction?.id) return;
+
+            const movementDate = `${localSelectedYear}-${String(localSelectedMonth).padStart(2, "0")}-${String(localSelectedDay).padStart(2, "0")}`;
+
+            const payload = {
+                transaction_id: transaction?.id,
+                name: formData.name.trim(),
+                amount,
+                movement_date: movementDate,
+                note: formData.note.trim(),
+            };
+
+            console.log(payload);
+
+
+            await postData(API_ENDPOINTS.transactionMovements(), payload);
+
+            reload?.();
+            reloadMonthlyOverview?.();
+
+            setFormData({
+                name: "",
+                amount: "",
+                note: "",
+            });
+        } catch (error) {
+            if (error.name !== "AbortError") {
+                console.error("Errore durante la creazione del movimento:", error);
+            }
+        }
     }
 
     async function handleDeleteMovement(movement) {
@@ -179,6 +193,7 @@ export default function TransactionMovementsModal({
             return sum + Number(movement.amount || 0);
         }, 0);
     }, [filteredMovements]);
+
 
 
     return (

@@ -26,7 +26,7 @@ export default function CategoriesList({
     reloadMonthlyOverview,
     setCategoryIdForNewTransaction,
     setShowCreateTransactionModal,
-    setTransactionIdForNewMovement,
+    setTransactionForNewMovement,
     setShowMovementsModal
 }) {
 
@@ -50,7 +50,7 @@ export default function CategoriesList({
                 searchedCategories={searchedCategories}
                 setCategoryIdForNewTransaction={setCategoryIdForNewTransaction}
                 setShowCreateTransactionModal={setShowCreateTransactionModal}
-                setTransactionIdForNewMovement={setTransactionIdForNewMovement}
+                setTransactionForNewMovement={setTransactionForNewMovement}
                 setShowMovementsModal={setShowMovementsModal}
             />
         </div>
@@ -94,7 +94,7 @@ function CategoriesListBody({
     searchedCategories,
     setCategoryIdForNewTransaction,
     setShowCreateTransactionModal,
-    setTransactionIdForNewMovement,
+    setTransactionForNewMovement,
     setShowMovementsModal
 }) {
 
@@ -165,7 +165,7 @@ function CategoriesListBody({
                     selectedYear={selectedYear}
                     reloadMonthlyOverview={reloadMonthlyOverview}
                     setShowCreateTransactionModal={setShowCreateTransactionModal}
-                    setTransactionIdForNewMovement={setTransactionIdForNewMovement}
+                    setTransactionForNewMovement={setTransactionForNewMovement}
                     setShowMovementsModal={setShowMovementsModal}
                 />
             </HeroOverlay>
@@ -235,7 +235,7 @@ function ExpandedCategoryView({
     selectedYear,
     reloadMonthlyOverview,
     setShowCreateTransactionModal,
-    setTransactionIdForNewMovement,
+    setTransactionForNewMovement,
     setShowMovementsModal
 }) {
 
@@ -245,7 +245,7 @@ function ExpandedCategoryView({
     const filteredTransactions = useSearchFilter(transactions, searchedTransactions, ["name"]);
 
     function handleCardClick(transaction) {
-        setTransactionIdForNewMovement(transaction.id)
+        setTransactionForNewMovement(transaction)
         setShowMovementsModal(true)
     }
 
