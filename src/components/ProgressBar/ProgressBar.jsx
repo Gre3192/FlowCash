@@ -24,7 +24,7 @@ const PROGRESS_BAR_SIZES = {
 export default function ProgressBar({
     currentValue = 0,
     totalValue = 0,
-    color = "bg-blue-500",
+    color,
     size = "md",
     showPercentage = true,
     className = "",
@@ -32,27 +32,65 @@ export default function ProgressBar({
     const current = Number(currentValue || 0);
     const total = Number(totalValue || 0);
 
-    const progress =
-        total > 0
-            ? Math.min((current / total) * 100, 100)
-            : 0;
+    const rawProgress = total > 0 ? (current / total) * 100 : 0;
+    const progress = Math.max(0, Math.min(rawProgress, 100));
+
+    const isOver = rawProgress > 100;
+    const isComplete = current >= total && total > 0 && !isOver;
+
+    const displayedProgress = isComplete
+        ? 100
+        : Math.floor(rawProgress);
+
+    function getProgressColor(value) {
+        if (value > 100) return "bg-red-500";
+        if (isComplete) return "bg-emerald-500";
+        if (value >= 70) return "bg-blue-600";
+        if (value >= 40) return "bg-blue-400";
+
+        return "bg-sky-300";
+    }
+
+    function getTextColor(value) {
+        if (value > 100) return "text-red-600";
+        if (isComplete) return "text-emerald-600";
+        if (value >= 70) return "text-blue-700";
+        if (value >= 40) return "text-blue-500";
+
+        return "text-sky-500";
+    }
+
+    const progressColor = color || getProgressColor(rawProgress);
+    const percentageColor = getTextColor(rawProgress);
 
     const sizeClasses = PROGRESS_BAR_SIZES[size] || PROGRESS_BAR_SIZES.md;
 
     return (
         <div className={`${sizeClasses.wrapper} ${className}`}>
-            <div className={`${sizeClasses.track} min-w-0 flex-1 overflow-hidden rounded-full bg-slate-100`}  >
+            <div
+                className={`
+                    ${sizeClasses.track}
+                    min-w-0 flex-1 overflow-hidden rounded-full bg-slate-100
+                `}
+            >
                 <div
-                    className={`h-full rounded-full ${color} transition-all duration-500`}
+                    className={`
+                        h-full rounded-full transition-all duration-500
+                        ${progressColor}
+                    `}
                     style={{ width: `${progress}%` }}
                 />
             </div>
 
             {showPercentage && (
                 <span
-                    className={`shrink-0 font-medium text-slate-500 ${sizeClasses.text}`}
+                    className={`
+                        shrink-0 font-medium
+                        ${percentageColor}
+                        ${sizeClasses.text}
+                    `}
                 >
-                    {progress.toFixed(0)}%
+                    {displayedProgress}%
                 </span>
             )}
         </div>
