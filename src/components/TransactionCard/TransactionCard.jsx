@@ -32,7 +32,7 @@ export default function TransactionCard({
             label: "Movimenti",
             icon: ListChecks,
             onClick: (transaction) => {
-                onEdit?.(transaction);
+                onClick(transaction)
             },
         },
         {
