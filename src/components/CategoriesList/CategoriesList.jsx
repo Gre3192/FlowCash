@@ -11,11 +11,12 @@ import { useSearchFilter } from "../../hooks/useSearchFilter";
 import { div } from "framer-motion/m";
 import HeroOverlay from "../HeroOverlay/HeroOverlay";
 import { useEffect } from "react";
-import TransactionCard from "../TransactionCard1/TransactionCard1";
+import TransactionCard from "../TransactionCard/TransactionCard";
 import InfoBadge from "../Badges/InfoBadge/InfoBadge";
 import MoreActionsMenu from "../MoreActionMenu/MoreActionMenu";
 import AmountRatio from "../AmountRatio/AmountRatio";
 
+const OPENED_HERO_VIEW_KEY = "flowcash_openedHeroView";
 
 export default function CategoriesList({
     categories,
@@ -84,7 +85,6 @@ function CategoriesListHeader({
     )
 }
 
-const OPENED_HERO_KEY = "flowcash_openedHero";
 function CategoriesListBody({
     filteredCategories,
     selectedMonth,
@@ -109,7 +109,7 @@ function CategoriesListBody({
     }, [filteredCategories, hero.selectedId]);
 
     useEffect(() => {
-        const storedCategoryId = sessionStorage.getItem(OPENED_HERO_KEY);
+        const storedCategoryId = sessionStorage.getItem(OPENED_HERO_VIEW_KEY);
         if (!storedCategoryId) return;
         if (hero.isOpen) return;
         const categoryExists = filteredCategories.some(
@@ -120,13 +120,13 @@ function CategoriesListBody({
     }, [filteredCategories, hero]);
 
     function handleOpenHero(category) {
-        sessionStorage.setItem(OPENED_HERO_KEY, category.id);
+        sessionStorage.setItem(OPENED_HERO_VIEW_KEY, category.id);
         setCategoryIdForNewTransaction(category.id);
         hero.open(category.id);
     }
 
     function handleCloseHero() {
-        sessionStorage.removeItem(OPENED_HERO_KEY);
+        sessionStorage.removeItem(OPENED_HERO_VIEW_KEY);
         setCategoryIdForNewTransaction(null);
         hero.close();
     }
