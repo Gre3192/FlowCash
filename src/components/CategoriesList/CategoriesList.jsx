@@ -29,7 +29,7 @@ export default function CategoriesList({
 
     return (
         <div className="flex min-h-0 flex-col rounded-xl border border-slate-200 bg-white shadow-sm lg:h-full lg:overflow-hidden">
-            <CategoryListHeader
+            <CategoriesListHeader
                 searchedCategories={searchedCategories}
                 setSearchedCategories={setSearchedCategories}
                 setShowCreateCategoryModal={setShowCreateCategoryModal}
@@ -47,7 +47,7 @@ export default function CategoriesList({
     )
 }
 
-function CategoryListHeader({
+function CategoriesListHeader({
     searchedCategories,
     setSearchedCategories,
     setShowCreateCategoryModal

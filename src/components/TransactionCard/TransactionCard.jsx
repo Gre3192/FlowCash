@@ -134,7 +134,6 @@ export default function TransactionCard({
         onClick?.(e);
     }
 
-
     return (
         <div
             key={transaction.id}
