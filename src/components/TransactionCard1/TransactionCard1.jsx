@@ -22,7 +22,6 @@ export default function TransactionCard({
     selectedMonth,
     selectedYear,
     reloadMonthlyOverview
-
 }) {
 
     const navigate = useNavigate();

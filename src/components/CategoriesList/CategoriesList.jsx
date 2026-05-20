@@ -12,6 +12,7 @@ import { div } from "framer-motion/m";
 import HeroOverlay from "../HeroOverlay/HeroOverlay";
 import { useEffect } from "react";
 import TransactionCard from "../TransactionCard1/TransactionCard1";
+import InfoBadge from "../Badges/InfoBadge/InfoBadge";
 
 
 
@@ -183,9 +184,7 @@ function CategoryCard({
                     <span className="truncate text-sm font-semibold text-slate-900">
                         {category.name}
                     </span>
-                    <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium `}>
-                        {category.transactions.length}
-                    </span>
+                    <InfoBadge label={category.transactions.length} />
                     <span className="ml-auto flex shrink-0 items-center gap-1 text-[11px] text-slate-500">
                         <span>{formatCurrency(category.current_total)}</span>
                         <span className="text-slate-300">/</span>
@@ -217,10 +216,6 @@ function ExpandedCategoryView({
     const [searchedTransactions, setSearchedTransactions] = useState("");
     const filteredTransactions = useSearchFilter(transactions, searchedTransactions, ["name"]);
 
-    function handleCreateTransaction() {
-        setShowCreateTransactionModal(true);
-    }
-
     return (
         <>
 
@@ -237,9 +232,7 @@ function ExpandedCategoryView({
                             <h2 className="truncate text-base font-bold text-slate-900 sm:text-lg">
                                 {category.name}
                             </h2>
-                            <span className={`shrink-0 rounded-full  px-2 py-0.5 text-xs font-medium `}>
-                                {category.transactions.length}
-                            </span>
+                            <InfoBadge label={category.transactions.length} size="sm"/>
                         </div>
                         <div className="mt-1 flex items-center gap-3 text-sm text-slate-500">
                             <span>{formatCurrency(category.current_total)} / {formatCurrency(category.budget_total)}</span>

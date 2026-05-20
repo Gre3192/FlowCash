@@ -115,7 +115,17 @@ export default function CategoriesNewBuild(params) {
                 isOpen={showMovementsModal}
                 onClose={() => setShowMovementsModal(false)}
             >
-
+                <TransactionMovementsModal
+                    selectedMonth={selectedMonth}
+                    selectedYear={selectedYear}
+                    selectedDay={selectedDay}
+                    // transaction={selectedTransaction}
+                    onClose={() => setShowMovementsModal(false)}
+                    onDayChange={setSelectedDay}
+                    // availableYears={data?.available_budget_years}
+                    currentYear={currentYear}
+                    reloadMonthlyOverview={reloadMonthlyOverview}
+                />
             </ModalWrapper>
 
         </div>
