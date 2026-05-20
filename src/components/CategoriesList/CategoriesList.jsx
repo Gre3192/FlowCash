@@ -253,7 +253,7 @@ function ExpandedCategoryView({
                         </div>
                         <AmountRatio firstNum={formatCurrency(category.current_total)} secondNum={formatCurrency(category.budget_total)} />
                     </div>
-                    <Button icon={Plus} label={'Transazione'} size={'md'} variant={"secondary"} onClick={() => setShowCreateTransactionModal(true)} />
+                    <Button icon={Plus} label={'Transazione'} size={'sm'} variant={"secondary"} onClick={() => setShowCreateTransactionModal(true)} />
                 </div>
                 <div className="px-4 pb-3 sm:px-6">
                     <ProgressBar currentValue={category.current_total} totalValue={category.budget_total} size="lg" />
