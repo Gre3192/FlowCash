@@ -15,7 +15,7 @@ import { ROUTE_PAGE } from "../../routes/routePage"
 import amazon from "../../assets/logos/PrimeVideo.png";
 import AmountRatio from "../AmountRatio/AmountRatio";
 import { useDelete } from "../../hooks/useDelete";
-import TransactionTypeBadge from "../TransactionTypeBadge/TransactionTypeBadge";
+import TransactionTypeBadge from "../Badges/TransactionTypeBadge/TransactionTypeBadge";
 import { API_ENDPOINTS } from "../../api/endpoint";
 
 export default function TransactionCard({

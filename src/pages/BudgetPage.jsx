@@ -3,7 +3,7 @@ import { ArrowLeft, Save, PlusCircle, MinusCircle, CalendarRange, Eraser, Loader
 import { useNavigate, useParams } from "react-router-dom";
 import formatCurrency from "../utils/formatCurrency";
 import BulkUpdatePanel from "../components/BulkUpdatePanel/BulkUpdatePanel";
-import TransactionTypeBadge from "../components/TransactionTypeBadge/TransactionTypeBadge";
+import TransactionTypeBadge from "../components/Badges/TransactionTypeBadge/TransactionTypeBadge";
 import ModalWrapper from "../components/ModalWrapper/ModalWrapper";
 import { useGet } from "../hooks/useGet";
 import { API_ENDPOINTS } from "../api/endpoint";

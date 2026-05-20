@@ -11,9 +11,11 @@ import { useSearchFilter } from "../../hooks/useSearchFilter";
 import { div } from "framer-motion/m";
 import HeroOverlay from "../HeroOverlay/HeroOverlay";
 import { useEffect } from "react";
-import TransactionTypeBadge from "../TransactionTypeBadge/TransactionTypeBadge";
+import TransactionTypeBadge from "../Badges/TransactionTypeBadge/TransactionTypeBadge";
 import EdgeProgressBar from "../EdgeProgressBar/EdgeProgressBar";
 import MoreActionsMenu from "../MoreActionMenu/MoreActionMenu"
+import "./TransactionCard.scss";
+import LogoBox from "../LogoBox/LogoBox";
 
 
 
@@ -274,29 +276,9 @@ function TransactionCard({
 
 
     return (
-        <div
-            onClick={onClick}
-            className="
-             group relative z-0 flex cursor-pointer items-center justify-between overflow-visible rounded-lg transition-all duration-200 ease-out bg-white px-3 py-2.5
-             border border-slate-200 hover:border-slate-300
-             shadow-[0_1px_2px_rgba(15,23,42,0.04)]
-             hover:-translate-y-0.5
-             hover:shadow-[0_4px_12px_rgba(15,23,42,0.08)]
-             active:translate-y-0
-             active:shadow-[0_2px_8px_rgba(15,23,42,0.08)]
-            "
-        >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-100 shadow-sm">
-                {logo ? (
-                    <img
-                        src={logo}
-                        alt={transaction?.name ?? "Logo"}
-                        className="h-full w-full object-cover"
-                    />
-                ) : (
-                    <WalletCards size={20} className="text-slate-400" />
-                )}
-            </div>
+        <div onClick={onClick} className="transaction-card" >
+
+            <LogoBox src={logo} alt={transaction?.name ?? "Logo"} />
 
             <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
