@@ -315,22 +315,9 @@ export default function TransactionMovementsModal({
                                 </p>
                             )}
                         </div>
-
-                        <div className="flex shrink-0 items-center gap-2">
-                            <Button
-                                type="button"
-                                variant="secondary"
-                                size="sm"
-                                onClick={handleTodayClick}
-                                className="h-7 rounded-md px-2 text-[11px]"
-                            >
-                                Oggi
-                            </Button>
-
-                            <p className="text-sm font-semibold text-slate-900">
-                                {formatCurrency(total)}
-                            </p>
-                        </div>
+                        <p className="text-sm font-semibold text-slate-900">
+                            {formatCurrency(total)}
+                        </p>
                     </div>
 
                     <div className="min-h-0 flex-1 overflow-hidden p-3">
