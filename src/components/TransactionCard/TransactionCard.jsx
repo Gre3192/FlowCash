@@ -43,13 +43,18 @@ export default function TransactionCard({
             },
         },
         {
+            label: "Modifica",
+            icon: Pencil,
+            onClick: (transaction) => { },
+        },
+        {
             label: "Elimina",
             icon: Trash2,
             variant: "danger",
             onClick: (transaction) => { handleDeleteTransaction(transaction) },
         },
     ];
-    
+
     function handleGoToBudgetPage() {
         navigate(ROUTE_PAGE.budgetPage.replace(":id", transaction.id));
     }
@@ -109,7 +114,7 @@ export default function TransactionCard({
                 </div>
                 <div className="mt-1 flex items-center gap-1.5">
                     <KindBadge type={transaction.type} />
-                    <IconButton icon={WalletCards} size={'sm'} />
+                    <IconButton icon={WalletCards} size={'sm'} onClick={() => handleGoToBudgetPage(transaction)} />
                 </div>
             </div>
 

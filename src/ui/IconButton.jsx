@@ -8,14 +8,16 @@ export default function IconButton({
     title,
     className,
     type = "button",
+    onClick,
     ...props
 }) {
-    const currentSize =  UI_VARIANTS.iconButtonSize[size] || UI_VARIANTS.iconButtonSize.md;
+    const currentSize = UI_VARIANTS.iconButtonSize[size] || UI_VARIANTS.iconButtonSize.md;
 
     return (
         <button
             type={type}
             title={title}
+            onClick={onClick}
             className={cn(
                 "inline-flex cursor-pointer items-center justify-center rounded-lg transition disabled:cursor-not-allowed disabled:opacity-50",
                 UI_VARIANTS.iconButton[variant] ||
