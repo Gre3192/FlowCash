@@ -281,7 +281,7 @@ function ExpandedCategoryView({
             {/* BODY */}
             <ContentViewState
                 isEmpty={filteredTransactions.length === 0}
-                emptyComponent={<EmptyState text={searchedTransactions ? "Nessun risultato trovato" : "Nessuna categoria disponibile"} />}
+                emptyComponent={<EmptyState text={searchedTransactions ? "Nessun risultato trovato" : "Nessuna transazione disponibile"} />}
             >
                 <div className="space-y-2">
                     {filteredTransactions.map((transaction, i) => {
