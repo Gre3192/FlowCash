@@ -15,7 +15,7 @@ export default function TransactionMovementsModal({
     selectedMonth,
     selectedYear,
     selectedDay,
-    transaction,
+    transactionId,
     onClose,
     onDayChange,
     availableYears,
@@ -29,7 +29,7 @@ export default function TransactionMovementsModal({
     const [localSelectedDay, setLocalSelectedDay] = useState(selectedDay || new Date().getDate());
 
     const { data, loading, error, reload, } = useGet(API_ENDPOINTS.transactionMovements({
-        transaction_id: transaction.id,
+        transaction_id: transactionId,
         year: localSelectedYear,
         month: localSelectedMonth,
     })
@@ -136,12 +136,12 @@ export default function TransactionMovementsModal({
         const amount = Number(formData.amount);
         if (!formData.name.trim()) return;
         if (Number.isNaN(amount) || amount <= 0) return;
-        if (!transaction?.id) return;
+        if (!transactionId?.id) return;
         const movementDate = `${localSelectedYear}-${String(
             localSelectedMonth
         ).padStart(2, "0")}-${String(localSelectedDay).padStart(2, "0")}`;
         const payload = {
-            transaction_id: transaction.id,
+            transaction_id: transactionId,
             name: formData.name.trim(),
             amount,
             movement_date: movementDate,

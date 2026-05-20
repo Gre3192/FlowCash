@@ -25,7 +25,9 @@ export default function CategoriesList({
     selectedYear,
     reloadMonthlyOverview,
     setCategoryIdForNewTransaction,
-    setShowCreateTransactionModal
+    setShowCreateTransactionModal,
+    setTransactionIdForNewMovement,
+    setShowMovementsModal
 }) {
 
     const [searchedCategories, setSearchedCategories] = useState("");
@@ -48,6 +50,8 @@ export default function CategoriesList({
                 searchedCategories={searchedCategories}
                 setCategoryIdForNewTransaction={setCategoryIdForNewTransaction}
                 setShowCreateTransactionModal={setShowCreateTransactionModal}
+                setTransactionIdForNewMovement={setTransactionIdForNewMovement}
+                setShowMovementsModal={setShowMovementsModal}
             />
         </div>
     )
@@ -89,7 +93,9 @@ function CategoriesListBody({
     loading,
     searchedCategories,
     setCategoryIdForNewTransaction,
-    setShowCreateTransactionModal
+    setShowCreateTransactionModal,
+    setTransactionIdForNewMovement,
+    setShowMovementsModal
 }) {
 
     const hero = useHeroAnimation("category-hero", "xl");
@@ -159,6 +165,8 @@ function CategoriesListBody({
                     selectedYear={selectedYear}
                     reloadMonthlyOverview={reloadMonthlyOverview}
                     setShowCreateTransactionModal={setShowCreateTransactionModal}
+                    setTransactionIdForNewMovement={setTransactionIdForNewMovement}
+                    setShowMovementsModal={setShowMovementsModal}
                 />
             </HeroOverlay>
         </>
@@ -226,13 +234,20 @@ function ExpandedCategoryView({
     selectedMonth,
     selectedYear,
     reloadMonthlyOverview,
-    setShowCreateTransactionModal
+    setShowCreateTransactionModal,
+    setTransactionIdForNewMovement,
+    setShowMovementsModal
 }) {
 
     const transactions = category?.transactions ?? [];
 
     const [searchedTransactions, setSearchedTransactions] = useState("");
     const filteredTransactions = useSearchFilter(transactions, searchedTransactions, ["name"]);
+
+    function handleCardClick(transaction) {
+        setTransactionIdForNewMovement(transaction.id)
+        setShowMovementsModal(true)
+    }
 
     return (
         <>
@@ -277,6 +292,7 @@ function ExpandedCategoryView({
                                 selectedMonth={selectedMonth}
                                 selectedYear={selectedYear}
                                 reloadMonthlyOverview={reloadMonthlyOverview}
+                                onClick={() => handleCardClick(transaction)}
                             />
                         )
                     })}

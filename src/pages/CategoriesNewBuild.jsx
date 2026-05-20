@@ -30,6 +30,8 @@ export default function CategoriesNewBuild(params) {
     const [showMovementsModal, setShowMovementsModal] = useState(false);
 
     const [categoryIdForNewTransaction, setCategoryIdForNewTransaction] = useState(null);
+    const [transactionIdForNewMovement, setTransactionIdForNewMovement] = useState(null);
+
 
     useEffect(() => {
         const nextParams = new URLSearchParams();
@@ -77,6 +79,8 @@ export default function CategoriesNewBuild(params) {
                     reloadMonthlyOverview={reloadMonthlyOverview}
                     setCategoryIdForNewTransaction={setCategoryIdForNewTransaction}
                     setShowCreateTransactionModal={setShowCreateTransactionModal}
+                    setTransactionIdForNewMovement={setTransactionIdForNewMovement}
+                    setShowMovementsModal={setShowMovementsModal}
                 />
             </div>
 
@@ -119,10 +123,10 @@ export default function CategoriesNewBuild(params) {
                     selectedMonth={selectedMonth}
                     selectedYear={selectedYear}
                     selectedDay={selectedDay}
-                    // transaction={selectedTransaction}
+                    transactionId={transactionIdForNewMovement}
                     onClose={() => setShowMovementsModal(false)}
                     onDayChange={setSelectedDay}
-                    // availableYears={data?.available_budget_years}
+                    availableYears={data?.available_budget_years}
                     currentYear={currentYear}
                     reloadMonthlyOverview={reloadMonthlyOverview}
                 />
