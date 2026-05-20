@@ -185,7 +185,7 @@ function CategoryCard({
     ];
 
     return (
-        <button
+        <div
             type="button"
             onClick={onClick}
             className={`group flex w-full cursor-pointer items-center gap-3 rounded-xl border border-l-4 border-slate-200 bg-white px-3 py-3 text-left shadow-sm transition-all hover:shadow-md sm:px-4`}
@@ -216,7 +216,7 @@ function CategoryCard({
                 item={category}
                 actions={moreActions}
             />
-        </button>
+        </div>
     );
 }
 
@@ -246,15 +246,12 @@ function ExpandedCategoryView({
                     </div>
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-
                             <h2 className="truncate text-base font-bold text-slate-900 sm:text-lg">
                                 {category.name}
                             </h2>
                             <InfoBadge label={category.transactions.length} size="sm" />
                         </div>
-                        <div className="mt-1 flex items-center gap-3 text-sm text-slate-500">
-                            <span>{formatCurrency(category.current_total)} / {formatCurrency(category.budget_total)}</span>
-                        </div>
+                        <AmountRatio firstNum={formatCurrency(category.current_total)} secondNum={formatCurrency(category.budget_total)} />
                     </div>
                     <Button icon={Plus} label={'Transazione'} size={'md'} variant={"secondary"} onClick={() => setShowCreateTransactionModal(true)} />
                 </div>
