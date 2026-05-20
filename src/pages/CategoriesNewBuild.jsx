@@ -9,6 +9,10 @@ import React, { useMemo, useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import CategoriesList from "../components/CategoriesList/CategoriesList";
 import { Search, Plus, X, TrendingUp, TrendingDown, Scale, FolderOpen, ChevronRight, ArrowLeft } from "lucide-react";
+import CreateCategoryModal from "../components/Modals/CreateCategoryModal";
+import CreateTransactionModal from "../components/Modals/CreateTransactionModal";
+import TransactionMovementsModal from "../components/Modals/TransactionMovementsModal";
+
 
 export default function CategoriesNewBuild(params) {
 
@@ -24,6 +28,8 @@ export default function CategoriesNewBuild(params) {
     const [showCreateCategoryModal, setShowCreateCategoryModal] = useState(false);
     const [showCreateTransactionModal, setShowCreateTransactionModal] = useState(false);
     const [showMovementsModal, setShowMovementsModal] = useState(false);
+
+    const [categoryIdForNewTransaction, setCategoryIdForNewTransaction] = useState(null);
 
     useEffect(() => {
         const nextParams = new URLSearchParams();
@@ -69,6 +75,8 @@ export default function CategoriesNewBuild(params) {
                     selectedMonth={selectedMonth}
                     selectedYear={selectedYear}
                     reloadMonthlyOverview={reloadMonthlyOverview}
+                    setCategoryIdForNewTransaction={setCategoryIdForNewTransaction}
+                    setShowCreateTransactionModal={setShowCreateTransactionModal}
                 />
             </div>
 
@@ -79,9 +87,10 @@ export default function CategoriesNewBuild(params) {
                 onClose={() => setShowCreateCategoryModal(false)}
                 title="Nuova categoria"
             >
-
-
-
+                <CreateCategoryModal
+                    reload={reloadMonthlyOverview}
+                    onClose={() => setShowCreateCategoryModal(false)}
+                />
             </ModalWrapper>
 
             {/* MODALE CREA TRANSAZIONE */}
@@ -91,7 +100,11 @@ export default function CategoriesNewBuild(params) {
                 onClose={() => setShowCreateTransactionModal(false)}
                 title="Nuova transazione"
             >
-
+                <CreateTransactionModal
+                    selectedCategoryId={categoryIdForNewTransaction}
+                    reload={reloadMonthlyOverview}
+                    onClose={() => setShowCreateTransactionModal(false)}
+                />
             </ModalWrapper>
 
             {/* MODALE MOVIMENTI*/}

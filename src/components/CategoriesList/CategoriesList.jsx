@@ -21,7 +21,9 @@ export default function CategoriesList({
     setShowCreateCategoryModal,
     selectedMonth,
     selectedYear,
-    reloadMonthlyOverview
+    reloadMonthlyOverview,
+    setCategoryIdForNewTransaction,
+    setShowCreateTransactionModal
 }) {
 
     const [searchedCategories, setSearchedCategories] = useState("");
@@ -42,6 +44,8 @@ export default function CategoriesList({
                 reloadMonthlyOverview={reloadMonthlyOverview}
                 loading={loading}
                 searchedCategories={searchedCategories}
+                setCategoryIdForNewTransaction={setCategoryIdForNewTransaction}
+                setShowCreateTransactionModal={setShowCreateTransactionModal}
             />
         </div>
     )
@@ -81,7 +85,9 @@ function CategoriesListBody({
     selectedYear,
     reloadMonthlyOverview,
     loading,
-    searchedCategories
+    searchedCategories,
+    setCategoryIdForNewTransaction,
+    setShowCreateTransactionModal
 }) {
 
     const hero = useHeroAnimation("category-hero", "xl");
@@ -107,11 +113,13 @@ function CategoriesListBody({
 
     function handleOpenHero(category) {
         sessionStorage.setItem(OPENED_HERO_KEY, category.id);
+        setCategoryIdForNewTransaction(category.id);
         hero.open(category.id);
     }
 
     function handleCloseHero() {
         sessionStorage.removeItem(OPENED_HERO_KEY);
+        setCategoryIdForNewTransaction(null);
         hero.close();
     }
 
@@ -148,6 +156,7 @@ function CategoriesListBody({
                     selectedMonth={selectedMonth}
                     selectedYear={selectedYear}
                     reloadMonthlyOverview={reloadMonthlyOverview}
+                    setShowCreateTransactionModal={setShowCreateTransactionModal}
                 />
             </HeroOverlay>
         </>
@@ -199,13 +208,18 @@ function ExpandedCategoryView({
     onClose,
     selectedMonth,
     selectedYear,
-    reloadMonthlyOverview
+    reloadMonthlyOverview,
+    setShowCreateTransactionModal
 }) {
 
     const transactions = category?.transactions ?? [];
 
     const [searchedTransactions, setSearchedTransactions] = useState("");
     const filteredTransactions = useSearchFilter(transactions, searchedTransactions, ["name"]);
+
+    function handleCreateTransaction() {
+        setShowCreateTransactionModal(true);
+    }
 
     return (
         <>
@@ -231,7 +245,7 @@ function ExpandedCategoryView({
                             <span>{formatCurrency(category.current_total)} / {formatCurrency(category.budget_total)}</span>
                         </div>
                     </div>
-                    <Button icon={Plus} label={'Transazione'} size={'md'} variant={"secondary"} onClick={() => { }} />
+                    <Button icon={Plus} label={'Transazione'} size={'md'} variant={"secondary"} onClick={() => setShowCreateTransactionModal(true)} />
                 </div>
                 <div className="px-4 pb-3 sm:px-6">
                     <ProgressBar currentValue={category.current_total} totalValue={category.budget_total} size="lg" />
