@@ -25,8 +25,6 @@ export default function TransactionCard({
 
 }) {
 
-    console.log(transaction);
-
     const navigate = useNavigate();
     const { deleteData } = useDelete();
 
@@ -41,16 +39,17 @@ export default function TransactionCard({
         {
             label: "Budget",
             icon: Pencil,
-            onClick: (transaction) => { handleGoToBudgetPage() },
+            onClick: (transaction) => {
+                handleGoToBudgetPage(transaction);
+            },
         },
         {
             label: "Elimina",
             icon: Trash2,
             variant: "danger",
-            onClick: (transaction) => { handleDeleteTranstitions() },
+            onClick: (transaction) => { handleDeleteTransaction(transaction) },
         },
     ];
-
     function handleGoToBudgetPage() {
         navigate(ROUTE_PAGE.budgetPage.replace(":id", transaction.id));
     }
@@ -79,7 +78,7 @@ export default function TransactionCard({
         }
     }
 
-    async function handleDeleteTranstitions() {
+    async function handleDeleteTransaction() {
         if (!transaction?.id) return;
         try {
             await deleteData(API_ENDPOINTS.transactions(

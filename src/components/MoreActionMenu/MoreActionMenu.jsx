@@ -45,6 +45,7 @@ export default function MoreActionsMenu({
     }
 
     function handleButtonClick(e) {
+        e.preventDefault();
         e.stopPropagation();
 
         if (!isOpen) {
@@ -54,13 +55,17 @@ export default function MoreActionsMenu({
         setIsOpen((prev) => !prev);
     }
 
-    function handleActionClick(e, action) {
+    async function handleActionClick(e, action) {
+        e.preventDefault();
         e.stopPropagation();
 
         if (action.disabled) return;
 
-        action.onClick?.(item);
-        setIsOpen(false);
+        await action.onClick?.(item, e);
+
+        if (action.closeOnClick !== false) {
+            setIsOpen(false);
+        }
     }
 
     useEffect(() => {
@@ -68,10 +73,7 @@ export default function MoreActionsMenu({
             const button = buttonRef.current;
             const menu = menuRef.current;
 
-            if (
-                button?.contains(e.target) ||
-                menu?.contains(e.target)
-            ) {
+            if (button?.contains(e.target) || menu?.contains(e.target)) {
                 return;
             }
 
@@ -118,7 +120,10 @@ export default function MoreActionsMenu({
                         duration: 0.15,
                         ease: "easeOut",
                     }}
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }}
                     style={{
                         position: "fixed",
                         top: menuPosition.top,

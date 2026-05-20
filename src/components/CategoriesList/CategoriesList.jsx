@@ -34,20 +34,15 @@ export default function CategoriesList({
                 setSearchedCategories={setSearchedCategories}
                 setShowCreateCategoryModal={setShowCreateCategoryModal}
             />
-            <ContentViewState
+            <CategoriesListBody
+                filteredCategories={filteredCategories}
                 loading={loading}
-                loadingComponent={<LoadingState />}
-                isEmpty={filteredCategories.length === 0}
-                emptyComponent={<EmptyState text={searchedCategories ? "Nessun risultato trovato" : "Nessuna categoria disponibile"} />}
-            >
-                <CategoriesListBody
-                    filteredCategories={filteredCategories}
-                    loading={loading}
-                    selectedMonth={selectedMonth}
-                    selectedYear={selectedYear}
-                    reloadMonthlyOverview={reloadMonthlyOverview}
-                />
-            </ContentViewState>
+                selectedMonth={selectedMonth}
+                selectedYear={selectedYear}
+                reloadMonthlyOverview={reloadMonthlyOverview}
+                loading={loading}
+                searchedCategories={searchedCategories}
+            />
         </div>
     )
 }
@@ -83,41 +78,51 @@ function CategoriesListBody({
     filteredCategories,
     selectedMonth,
     selectedYear,
-    reloadMonthlyOverview
+    reloadMonthlyOverview,
+    loading,
+    searchedCategories
 }) {
 
     const hero = useHeroAnimation("category-hero", "xl");
-    const [selectedCategory, setSelectedCategory] = useState(null)
 
-    useEffect(() => {
-        if (!hero.isOpen) setSelectedCategory(null)
-    }, [hero])
+    const selectedCategory = useMemo(() => {
+        if (!hero.selectedId) return null;
+
+        return filteredCategories.find(
+            (category) => category.id === hero.selectedId
+        );
+    }, [filteredCategories, hero.selectedId]);
 
     function handleCardClick(category) {
-        setSelectedCategory(category)
         hero.open(category.id)
     }
 
     return (
         <>
-            <div className="space-y-4">
-                {filteredCategories.map((category, i) => {
+            <ContentViewState
+                loading={loading}
+                loadingComponent={<LoadingState />}
+                isEmpty={filteredCategories.length === 0}
+                emptyComponent={<EmptyState text={searchedCategories ? "Nessun risultato trovato" : "Nessuna categoria disponibile"} />}
+            >
+                <div className="space-y-4">
+                    {filteredCategories.map((category, i) => {
 
-                    if (hero.selectedId === category.id) {
-                        return <div key={category.id} className="h-16 rounded-xl bg-slate-100/50" />;
-                    }
+                        if (hero.selectedId === category.id) {
+                            return <div key={category.id} className="h-16 rounded-xl bg-slate-100/50" />;
+                        }
 
-                    return (
-                        <motion.div
-                            key={category.id}
-                            layoutId={hero.getLayoutId(category.id)}
-                        >
-                            <CategoryCard category={category} onClick={() => handleCardClick(category)} />
-                        </motion.div>
-                    )
-                })}
-            </div>
-
+                        return (
+                            <motion.div
+                                key={category.id}
+                                layoutId={hero.getLayoutId(category.id)}
+                            >
+                                <CategoryCard category={category} onClick={() => handleCardClick(category)} />
+                            </motion.div>
+                        )
+                    })}
+                </div>
+            </ContentViewState>
             <HeroOverlay hero={hero}  >
                 <ExpandedCategoryView
                     category={selectedCategory}
