@@ -28,10 +28,24 @@ function HeroOverlay({
     hero,
     children,
     className = "",
+    onClose,
     transition = { type: "spring", stiffness: 300, damping: 30 },
 }) {
     const portalTarget = document.getElementById("modal-root");
+
     if (!portalTarget) return null;
+
+    function handleClose(e) {
+        e?.preventDefault();
+        e?.stopPropagation();
+
+        if (onClose) {
+            onClose();
+            return;
+        }
+
+        hero.close();
+    }
 
     return createPortal(
         <AnimatePresence>
@@ -44,13 +58,23 @@ function HeroOverlay({
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
                         className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm"
-                        onClick={hero.close}
+                        onClick={handleClose}
                     />
+
                     <motion.div
                         key="hero-expanded"
                         layoutId={hero.getLayoutId(hero.selectedId)}
-                        className={`fixed inset-0 z-[9999] m-auto flex h-[calc(100vh-2rem)] max-h-[800px] w-[calc(100%-2rem)] ${hero.maxWClass} flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl sm:h-[calc(100vh-4rem)] sm:w-[calc(100%-4rem)] ${className}`}
+                        className={`
+                            fixed inset-0 z-[9999] m-auto flex
+                            h-[calc(100vh-2rem)] max-h-[800px]
+                            w-[calc(100%-2rem)] ${hero.maxWClass}
+                            flex-col overflow-hidden rounded-2xl
+                            border border-slate-200 bg-white shadow-2xl
+                            sm:h-[calc(100vh-4rem)] sm:w-[calc(100%-4rem)]
+                            ${className}
+                        `}
                         transition={transition}
+                        onClick={(e) => e.stopPropagation()}
                     >
                         {children}
                     </motion.div>

@@ -74,6 +74,7 @@ function CategoryListHeader({
     )
 }
 
+const OPENED_HERO_KEY = "flowcash_openedHero";
 function CategoriesListBody({
     filteredCategories,
     selectedMonth,
@@ -93,8 +94,25 @@ function CategoriesListBody({
         );
     }, [filteredCategories, hero.selectedId]);
 
-    function handleCardClick(category) {
-        hero.open(category.id)
+    useEffect(() => {
+        const storedCategoryId = sessionStorage.getItem(OPENED_HERO_KEY);
+        if (!storedCategoryId) return;
+        if (hero.isOpen) return;
+        const categoryExists = filteredCategories.some(
+            (category) => category.id === storedCategoryId
+        );
+        if (!categoryExists) return;
+        hero.open(storedCategoryId);
+    }, [filteredCategories, hero]);
+
+    function handleOpenHero(category) {
+        sessionStorage.setItem(OPENED_HERO_KEY, category.id);
+        hero.open(category.id);
+    }
+
+    function handleCloseHero() {
+        sessionStorage.removeItem(OPENED_HERO_KEY);
+        hero.close();
     }
 
     return (
@@ -117,16 +135,16 @@ function CategoriesListBody({
                                 key={category.id}
                                 layoutId={hero.getLayoutId(category.id)}
                             >
-                                <CategoryCard category={category} onClick={() => handleCardClick(category)} />
+                                <CategoryCard category={category} onClick={() => handleOpenHero(category)} />
                             </motion.div>
                         )
                     })}
                 </div>
             </ContentViewState>
-            <HeroOverlay hero={hero}  >
+            <HeroOverlay hero={hero} onClose={handleCloseHero}>
                 <ExpandedCategoryView
                     category={selectedCategory}
-                    onClose={hero.close}
+                    onClose={handleCloseHero}
                     selectedMonth={selectedMonth}
                     selectedYear={selectedYear}
                     reloadMonthlyOverview={reloadMonthlyOverview}
