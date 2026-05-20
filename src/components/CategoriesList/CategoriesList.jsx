@@ -11,10 +11,10 @@ import { useSearchFilter } from "../../hooks/useSearchFilter";
 import { div } from "framer-motion/m";
 import HeroOverlay from "../HeroOverlay/HeroOverlay";
 import { useEffect } from "react";
-import TransactionCard from "../TransactionCard/TransactionCard";
 import InfoBadge from "../Badges/InfoBadge/InfoBadge";
 import MoreActionsMenu from "../MoreActionMenu/MoreActionMenu";
 import AmountRatio from "../AmountRatio/AmountRatio";
+import TransactionCard from "../TransactionCard/TransactionCard";
 
 const OPENED_HERO_VIEW_KEY = "flowcash_openedHeroView";
 
@@ -73,7 +73,7 @@ function CategoriesListHeader({
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <div className="min-w-0 flex-1">
-                    <SearchBar search={searchedCategories} setSearch={setSearchedCategories} />
+                    <SearchBar search={searchedCategories} setSearch={setSearchedCategories} placeholder={"Cerca categoria..."} />
                 </div>
 
                 {/* <div className="flex items-center gap-2">
@@ -274,7 +274,7 @@ function ExpandedCategoryView({
                     <ProgressBar currentValue={category.current_total} totalValue={category.budget_total} size="lg" />
                 </div>
                 <div className="min-w-0 flex-1 px-4 pb-3 sm:px-6">
-                    <SearchBar search={searchedTransactions} setSearch={setSearchedTransactions} />
+                    <SearchBar search={searchedTransactions} setSearch={setSearchedTransactions} placeholder={"Cerca transazione..."}/>
                 </div>
             </div>
 

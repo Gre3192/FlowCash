@@ -1,7 +1,7 @@
 
 import { Search, X } from "lucide-react";
 
-export default function SearchBar({ search, setSearch }) {
+export default function SearchBar({ search, setSearch, placeholder = "Cerca..." }) {
     return (
         <div className="relative">
             <Search
@@ -11,7 +11,7 @@ export default function SearchBar({ search, setSearch }) {
 
             <input
                 type="text"
-                placeholder="Cerca categoria o transazione..."
+                placeholder={placeholder}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 py-1 pl-9 pr-9 text-xs outline-none transition-all focus:border-blue-300 focus:bg-white focus:ring-2 focus:ring-blue-100"
