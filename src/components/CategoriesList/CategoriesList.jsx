@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Plus, FolderOpen, ChevronRight, ArrowLeft, ArrowUpRight, WalletCards, MoreVertical } from "lucide-react";
+import { Plus, FolderOpen, ChevronRight, ArrowLeft, ArrowUpRight, WalletCards, MoreVertical, ListChecks, Pencil, Trash2 } from "lucide-react";
 import { EmptyState, LoadingState, IconButton, Button } from "../../ui";
 import SearchBar from "../SearchBar/SearchBar";
 import ProgressBar from "../ProgressBar/ProgressBar";
@@ -13,7 +13,8 @@ import HeroOverlay from "../HeroOverlay/HeroOverlay";
 import { useEffect } from "react";
 import TransactionCard from "../TransactionCard1/TransactionCard1";
 import InfoBadge from "../Badges/InfoBadge/InfoBadge";
-
+import MoreActionsMenu from "../MoreActionMenu/MoreActionMenu";
+import AmountRatio from "../AmountRatio/AmountRatio";
 
 
 export default function CategoriesList({
@@ -169,6 +170,20 @@ function CategoryCard({
     onClick,
 }) {
 
+    const moreActions = [
+        {
+            label: "Modifica",
+            icon: Pencil,
+            onClick: (category) => { },
+        },
+        {
+            label: "Elimina",
+            icon: Trash2,
+            variant: "danger",
+            onClick: (category) => { },
+        },
+    ];
+
     return (
         <button
             type="button"
@@ -180,23 +195,26 @@ function CategoryCard({
             </div>
 
             <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                    <span className="truncate text-sm font-semibold text-slate-900">
-                        {category.name}
-                    </span>
-                    <InfoBadge label={category.transactions.length} />
-                    <span className="ml-auto flex shrink-0 items-center gap-1 text-[11px] text-slate-500">
-                        <span>{formatCurrency(category.current_total)}</span>
-                        <span className="text-slate-300">/</span>
-                        <span>{formatCurrency(category.budget_total)}</span>
-                    </span>
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center  gap-2">
+                        <span className="truncate text-sm font-semibold text-slate-900">
+                            {category.name}
+                        </span>
+                        <InfoBadge label={category.transactions.length} />
+                    </div>
+                    <AmountRatio firstNum={formatCurrency(category.current_total)} secondNum={formatCurrency(category.budget_total)} />
                 </div>
 
                 <ProgressBar currentValue={category.current_total} totalValue={category.budget_total} />
             </div>
-            <ChevronRight
+            {/* <ChevronRight
                 size={18}
                 className="shrink-0 text-slate-300 transition-transform group-hover:translate-x-0.5 group-hover:text-slate-500"
+            /> */}
+
+            <MoreActionsMenu
+                item={category}
+                actions={moreActions}
             />
         </button>
     );
@@ -232,7 +250,7 @@ function ExpandedCategoryView({
                             <h2 className="truncate text-base font-bold text-slate-900 sm:text-lg">
                                 {category.name}
                             </h2>
-                            <InfoBadge label={category.transactions.length} size="sm"/>
+                            <InfoBadge label={category.transactions.length} size="sm" />
                         </div>
                         <div className="mt-1 flex items-center gap-3 text-sm text-slate-500">
                             <span>{formatCurrency(category.current_total)} / {formatCurrency(category.budget_total)}</span>
