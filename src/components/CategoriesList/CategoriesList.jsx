@@ -17,7 +17,7 @@ import AmountRatio from "../AmountRatio/AmountRatio";
 import TransactionCard from "../TransactionCard/TransactionCard";
 import { useDelete } from "../../hooks/useDelete";
 import { API_ENDPOINTS } from "../../api/endpoint";
-
+import ToggleButtonGroup from "../../ui/ToggleButtonGroup";
 
 const OPENED_HERO_VIEW_KEY = "flowcash_openedHeroView";
 
@@ -35,7 +35,25 @@ export default function CategoriesList({
 }) {
 
     const [searchedCategories, setSearchedCategories] = useState("");
-    const filteredCategories = useSearchFilter(categories, searchedCategories, ["name"]);
+    const [typeFilter, setTypeFilter] = useState("active");
+
+
+    const searchedFilteredCategories = useSearchFilter(categories, searchedCategories, ["name"]);
+
+    const filteredCategories = useMemo(() => {
+        return searchedFilteredCategories.filter((category) => {
+            const hasTransactions = category.transactions?.length > 0;
+
+            const matchesType =
+                (typeFilter === "all") ||
+                (typeFilter === "active" && hasTransactions && category.budget_total != 0) ||
+                (typeFilter === "inactive" && hasTransactions && category.budget_total === 0) ||
+                (typeFilter === "empty" && !hasTransactions);
+
+            return matchesType;
+        });
+    }, [searchedFilteredCategories, typeFilter]);
+
 
     return (
         <div className="flex min-h-0 flex-col rounded-xl border border-slate-200 bg-white shadow-sm lg:h-full lg:overflow-hidden">
@@ -43,6 +61,8 @@ export default function CategoriesList({
                 searchedCategories={searchedCategories}
                 setSearchedCategories={setSearchedCategories}
                 setShowCreateCategoryModal={setShowCreateCategoryModal}
+                typeFilter={typeFilter}
+                setTypeFilter={setTypeFilter}
             />
             <CategoriesListBody
                 filteredCategories={filteredCategories}
@@ -64,8 +84,29 @@ export default function CategoriesList({
 function CategoriesListHeader({
     searchedCategories,
     setSearchedCategories,
-    setShowCreateCategoryModal
+    setShowCreateCategoryModal,
+    typeFilter,
+    setTypeFilter
 }) {
+
+    const options = [
+        {
+            label: "Attive",
+            value: "active",
+            icon: null,
+        },
+        {
+            label: "Non attive",
+            value: "inactive",
+            icon: null,
+        },
+        {
+            label: "Vuote",
+            value: "empty",
+            icon: null,
+        },
+    ];
+
     return (
         <div className="flex shrink-0 flex-col gap-3 border-b border-slate-200 p-3 sm:p-4">
             <div className="flex justify-between items-center gap-2">
@@ -79,10 +120,11 @@ function CategoriesListHeader({
                     <SearchBar search={searchedCategories} setSearch={setSearchedCategories} placeholder={"Cerca categoria..."} />
                 </div>
 
-                {/* <div className="flex items-center gap-2">
-                    <TypeToggle value={typeFilter} onChange={setTypeFilter} />
-                    <StatusSelect value={statusFilter} onChange={setStatusFilter} />
-                </div> */}
+                <ToggleButtonGroup
+                    options={options}
+                    value={typeFilter}
+                    onChange={setTypeFilter}
+                />
             </div>
         </div>
     )
@@ -263,10 +305,30 @@ function ExpandedCategoryView({
     const [searchedTransactions, setSearchedTransactions] = useState("");
     const filteredTransactions = useSearchFilter(transactions, searchedTransactions, ["name"]);
 
+    const [typeFilter, setTypeFilter] = useState("all");
+
     function handleCardClick(transaction) {
         setTransactionForNewMovement(transaction)
         setShowMovementsModal(true)
     }
+
+    const options = [
+        {
+            label: "Tutte",
+            value: "all",
+            icon: null,
+        },
+        {
+            label: "Entrate",
+            value: "Income",
+            icon: null,
+        },
+        {
+            label: "Uscite",
+            value: "Expense",
+            icon: ArrowUpRight,
+        },
+    ];
 
     return (
         <>
@@ -292,9 +354,15 @@ function ExpandedCategoryView({
                 <div className="px-4 pb-3 sm:px-6">
                     <ProgressBar currentValue={category.current_total} totalValue={category.budget_total} size="lg" />
                 </div>
-                <div className="min-w-0 flex-1 px-4 pb-3 sm:px-6">
+                <div className="min-w-0 flex-1 px-4 pb-3 sm:px-6 flex items-center justify-between">
                     <SearchBar search={searchedTransactions} setSearch={setSearchedTransactions} placeholder={"Cerca transazione..."} />
+                    <ToggleButtonGroup
+                        options={options}
+                        value={typeFilter}
+                        onChange={setTypeFilter}
+                    />
                 </div>
+
             </div>
 
             {/* BODY */}

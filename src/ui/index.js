@@ -8,4 +8,4 @@ export { default as Panel } from "./Panel";
 export { default as EmptyState } from "./EmptyState";
 export { default as LoadingState } from "./LoadingState";
 export { default as ModalWrapper } from "./ModalWrapper";
-export { default as ToggleButton } from "./ToggleButton";
+export { default as ToggleButToggleButtonGroupton } from "./ToggleButtonGroup";
