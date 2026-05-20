@@ -3,7 +3,7 @@ import { ArrowLeft, Save, PlusCircle, MinusCircle, CalendarRange, Eraser, Loader
 import { useNavigate, useParams } from "react-router-dom";
 import formatCurrency from "../utils/formatCurrency";
 import BulkUpdatePanel from "../components/BulkUpdatePanel/BulkUpdatePanel";
-import TransactionTypeBadge from "../components/Badges/TransactionTypeBadge/TransactionTypeBadge";
+import KindBadge from "../components/Badges/KindBadge/KindBadge";
 import ModalWrapper from "../components/ModalWrapper/ModalWrapper";
 import { useGet } from "../hooks/useGet";
 import { API_ENDPOINTS } from "../api/endpoint";
@@ -419,7 +419,7 @@ function BudgetHeader({
                                     <span className="text-xs text-slate-300">
                                         •
                                     </span>
-                                    <TransactionTypeBadge type={type} />
+                                    <KindBadge type={type} />
                                 </>
                             )}
                         </div>

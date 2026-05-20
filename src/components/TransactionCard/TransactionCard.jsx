@@ -15,7 +15,7 @@ import { ROUTE_PAGE } from "../../routes/routePage"
 import amazon from "../../assets/logos/PrimeVideo.png";
 import AmountRatio from "../AmountRatio/AmountRatio";
 import { useDelete } from "../../hooks/useDelete";
-import TransactionTypeBadge from "../Badges/TransactionTypeBadge/TransactionTypeBadge";
+import KindBadge from "../Badges/KindBadge/KindBadge";
 import { API_ENDPOINTS } from "../../api/endpoint";
 
 export default function TransactionCard({
@@ -193,7 +193,7 @@ export default function TransactionCard({
                     </div>
 
                     <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                        <TransactionTypeBadge type={transaction.type} />
+                        <KindBadge type={transaction.type} />
                         {hasBudget ? (
                             <div className="inline-flex shrink-0 items-center gap-1">
                                 <span

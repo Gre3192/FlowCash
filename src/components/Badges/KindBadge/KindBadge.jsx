@@ -3,7 +3,7 @@ import {
     ArrowUpRight,
 } from "lucide-react";
 
-export default function TransactionTypeBadge({
+export default function KindBadge({
     type,
     className = "",
 }) {

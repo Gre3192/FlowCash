@@ -11,11 +11,13 @@ import { useSearchFilter } from "../../hooks/useSearchFilter";
 import { div } from "framer-motion/m";
 import HeroOverlay from "../HeroOverlay/HeroOverlay";
 import { useEffect } from "react";
-import TransactionTypeBadge from "../Badges/TransactionTypeBadge/TransactionTypeBadge";
+import KindBadge from "../Badges/KindBadge/KindBadge";
 import EdgeProgressBar from "../EdgeProgressBar/EdgeProgressBar";
 import MoreActionsMenu from "../MoreActionMenu/MoreActionMenu"
 import "./TransactionCard.scss";
 import LogoBox from "../LogoBox/LogoBox";
+import InfoBadge from "../Badges/InfoBadge/InfoBadge"
+import AmountRatio from "../AmountRatio/AmountRatio";
 
 
 
@@ -234,19 +236,9 @@ function ExpandedCategoryView({
 
 function TransactionCard({
     transaction,
-    current = 0,
-    budget = 0,
     logo,
-    type = "Expense",
     onClick,
 }) {
-
-    const currentValue = Number(current || 0);
-    const budgetValue = Number(budget || 0);
-
-    const remaining = budgetValue - currentValue;
-
-    const isExpense = type === "Expense";
 
     const moreActions = [
         {
@@ -273,8 +265,6 @@ function TransactionCard({
         },
     ];
 
-
-
     return (
         <div onClick={onClick} className="transaction-card" >
 
@@ -286,46 +276,24 @@ function TransactionCard({
                         {transaction?.name ?? "Transazione"}
                     </h3>
                 </div>
-
                 <div className="mt-1 flex items-center gap-1.5">
-                    <TransactionTypeBadge type={transaction.type} />
-
-                    <span
-                        className="
-                                        inline-flex shrink-0 items-center rounded-full border border-slate-200 bg-slate-50
-                                        px-1.5 py-0.5 text-[10px] font-medium leading-none text-slate-600
-                                        transition-colors duration-200 group-hover:bg-white
-                                    "
-                    >
-                        {transaction.progress.toFixed(0)}%
-                    </span>
-
-
+                    <KindBadge type={transaction.type} />
+                    <InfoBadge label={transaction.progress.toFixed(0) + "%"} />
                     <IconButton icon={WalletCards} size={'sm'} />
-
                 </div>
             </div>
 
             <div className="hidden min-w-40 flex-col items-end sm:flex">
-                {/* <div className="text-sm font-bold">
-                    <span className={typeConfig.amountClass}>
-                        {formatCurrency(currentValue)}
-                    </span>
-                    <span className="mx-1 text-slate-300">/</span>
-                    <span className="text-slate-500">
-                        {formatCurrency(budgetValue)}
-                    </span>
-                </div> */}
-
+                <AmountRatio firstNum={formatCurrency(transaction.current)} secondNum={formatCurrency(transaction.target)}/>
                 <div className="mt-1 text-xs font-semibold text-slate-500">
                     Rimanenti:{" "}
                     <span className="font-bold text-slate-900">
-                        {formatCurrency(remaining)}
+                        {formatCurrency(transaction.remaining)}
                     </span>
                 </div>
-
                 <EdgeProgressBar value={transaction.progress} />
             </div>
+
             <MoreActionsMenu
                 item={transaction}
                 actions={moreActions}
@@ -333,3 +301,4 @@ function TransactionCard({
         </div>
     );
 }
+
