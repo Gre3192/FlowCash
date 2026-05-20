@@ -66,6 +66,9 @@ export default function CategoriesNewBuild(params) {
                     categories={categories}
                     loading={loading}
                     setShowCreateCategoryModal={setShowCreateCategoryModal}
+                    selectedMonth={selectedMonth}
+                    selectedYear={selectedYear}
+                    reloadMonthlyOverview={reloadMonthlyOverview}
                 />
             </div>
 

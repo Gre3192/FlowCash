@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Plus, FolderOpen, ChevronRight, ArrowLeft, ArrowUpRight, WalletCards, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { Plus, FolderOpen, ChevronRight, ArrowLeft, ArrowUpRight, WalletCards, MoreVertical } from "lucide-react";
 import { EmptyState, LoadingState, IconButton, Button } from "../../ui";
 import SearchBar from "../SearchBar/SearchBar";
 import ProgressBar from "../ProgressBar/ProgressBar";
@@ -11,13 +11,7 @@ import { useSearchFilter } from "../../hooks/useSearchFilter";
 import { div } from "framer-motion/m";
 import HeroOverlay from "../HeroOverlay/HeroOverlay";
 import { useEffect } from "react";
-import KindBadge from "../Badges/KindBadge/KindBadge";
-import EdgeProgressBar from "../EdgeProgressBar/EdgeProgressBar";
-import MoreActionsMenu from "../MoreActionMenu/MoreActionMenu"
-import "./TransactionCard.scss";
-import LogoBox from "../LogoBox/LogoBox";
-import InfoBadge from "../Badges/InfoBadge/InfoBadge"
-import AmountRatio from "../AmountRatio/AmountRatio";
+import TransactionCard from "../TransactionCard1/TransactionCard1";
 
 
 
@@ -25,6 +19,9 @@ export default function CategoriesList({
     categories,
     loading,
     setShowCreateCategoryModal,
+    selectedMonth,
+    selectedYear,
+    reloadMonthlyOverview
 }) {
 
     const [searchedCategories, setSearchedCategories] = useState("");
@@ -46,6 +43,9 @@ export default function CategoriesList({
                 <CategoriesListBody
                     filteredCategories={filteredCategories}
                     loading={loading}
+                    selectedMonth={selectedMonth}
+                    selectedYear={selectedYear}
+                    reloadMonthlyOverview={reloadMonthlyOverview}
                 />
             </ContentViewState>
         </div>
@@ -81,6 +81,9 @@ function CategoryListHeader({
 
 function CategoriesListBody({
     filteredCategories,
+    selectedMonth,
+    selectedYear,
+    reloadMonthlyOverview
 }) {
 
     const hero = useHeroAnimation("category-hero", "xl");
@@ -119,6 +122,9 @@ function CategoriesListBody({
                 <ExpandedCategoryView
                     category={selectedCategory}
                     onClose={hero.close}
+                    selectedMonth={selectedMonth}
+                    selectedYear={selectedYear}
+                    reloadMonthlyOverview={reloadMonthlyOverview}
                 />
             </HeroOverlay>
         </>
@@ -167,7 +173,10 @@ function CategoryCard({
 
 function ExpandedCategoryView({
     category,
-    onClose
+    onClose,
+    selectedMonth,
+    selectedYear,
+    reloadMonthlyOverview
 }) {
 
     const transactions = category?.transactions ?? [];
@@ -218,7 +227,12 @@ function ExpandedCategoryView({
                     {filteredTransactions.map((transaction, i) => {
 
                         return (
-                            <TransactionCard transaction={transaction} />
+                            <TransactionCard
+                                transaction={transaction}
+                                selectedMonth={selectedMonth}
+                                selectedYear={selectedYear}
+                                reloadMonthlyOverview={reloadMonthlyOverview}
+                            />
                         )
                     })}
                 </div>
@@ -231,74 +245,4 @@ function ExpandedCategoryView({
 
 
 
-
-
-
-function TransactionCard({
-    transaction,
-    logo,
-    onClick,
-}) {
-
-    const moreActions = [
-        {
-            label: "Movimenti",
-            icon: Pencil,
-            onClick: (transaction) => {
-                onEdit?.(transaction);
-            },
-        },
-        {
-            label: "Budget",
-            icon: Pencil,
-            onClick: (transaction) => {
-                onEdit?.(transaction);
-            },
-        },
-        {
-            label: "Elimina",
-            icon: Trash2,
-            variant: "danger",
-            onClick: (transaction) => {
-                onDelete?.(transaction);
-            },
-        },
-    ];
-
-    return (
-        <div onClick={onClick} className="transaction-card" >
-
-            <LogoBox src={logo} alt={transaction?.name ?? "Logo"} />
-
-            <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                    <h3 className="truncate text-sm font-semibold text-slate-900">
-                        {transaction?.name ?? "Transazione"}
-                    </h3>
-                </div>
-                <div className="mt-1 flex items-center gap-1.5">
-                    <KindBadge type={transaction.type} />
-                    <InfoBadge label={transaction.progress.toFixed(0) + "%"} />
-                    <IconButton icon={WalletCards} size={'sm'} />
-                </div>
-            </div>
-
-            <div className="hidden min-w-40 flex-col items-end sm:flex">
-                <AmountRatio firstNum={formatCurrency(transaction.current)} secondNum={formatCurrency(transaction.target)}/>
-                <div className="mt-1 text-xs font-semibold text-slate-500">
-                    Rimanenti:{" "}
-                    <span className="font-bold text-slate-900">
-                        {formatCurrency(transaction.remaining)}
-                    </span>
-                </div>
-                <EdgeProgressBar value={transaction.progress} />
-            </div>
-
-            <MoreActionsMenu
-                item={transaction}
-                actions={moreActions}
-            />
-        </div>
-    );
-}
 

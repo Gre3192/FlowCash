@@ -9,9 +9,10 @@
     cursor: pointer;
 
     border-width: 0.5px;
-    // border-left-width: 3px;
+    border-left-width: 3px;
+    border-bottom-width: 3px;
     border-style: solid;
-    border-color: var(--color-slate-300);
+    border-color: var(--color-slate-200);
     border-radius: 0.5rem;
 
     background-color: #ffffff;
@@ -27,7 +28,8 @@
 
     &:hover {
         transform: translateY(-0.125rem);
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+        border-color: var(--color-slate-300);
     }
 
     &:active {

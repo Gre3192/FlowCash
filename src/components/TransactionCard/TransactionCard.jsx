@@ -134,8 +134,6 @@ export default function TransactionCard({
         onClick?.(e);
     }
 
-    console.log(transaction);
-
 
     return (
         <div
