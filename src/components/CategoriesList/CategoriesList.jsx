@@ -15,6 +15,9 @@ import InfoBadge from "../Badges/InfoBadge/InfoBadge";
 import MoreActionsMenu from "../MoreActionMenu/MoreActionMenu";
 import AmountRatio from "../AmountRatio/AmountRatio";
 import TransactionCard from "../TransactionCard/TransactionCard";
+import { useDelete } from "../../hooks/useDelete";
+import { API_ENDPOINTS } from "../../api/endpoint";
+
 
 const OPENED_HERO_VIEW_KEY = "flowcash_openedHeroView";
 
@@ -151,7 +154,11 @@ function CategoriesListBody({
                                 key={category.id}
                                 layoutId={hero.getLayoutId(category.id)}
                             >
-                                <CategoryCard category={category} onClick={() => handleOpenHero(category)} />
+                                <CategoryCard
+                                    category={category}
+                                    onClick={() => handleOpenHero(category)}
+                                    reloadMonthlyOverview={reloadMonthlyOverview}
+                                />
                             </motion.div>
                         )
                     })}
@@ -176,19 +183,36 @@ function CategoriesListBody({
 function CategoryCard({
     category,
     onClick,
+    reloadMonthlyOverview
 }) {
+
+    const { deleteData } = useDelete()
+
+    async function handleDeleteCategory(category) {
+        if (!category?.id) return;
+        try {
+            await deleteData(API_ENDPOINTS.categories({}, category.id));
+            reloadMonthlyOverview?.();
+        } catch (error) {
+            if (error.name !== "AbortError") {
+                console.error("Errore durante l'eliminazione della categoria:", error);
+            }
+        }
+    }
 
     const moreActions = [
         {
             label: "Modifica",
             icon: Pencil,
-            onClick: (category) => { },
+            onClick: (category) => {
+                console.log("Modifica categoria", category);
+            },
         },
         {
             label: "Elimina",
             icon: Trash2,
             variant: "danger",
-            onClick: (category) => { },
+            onClick: (category) => { handleDeleteCategory(category) },
         },
     ];
 
@@ -215,11 +239,6 @@ function CategoryCard({
 
                 <ProgressBar currentValue={category.current_total} totalValue={category.budget_total} />
             </div>
-            {/* <ChevronRight
-                size={18}
-                className="shrink-0 text-slate-300 transition-transform group-hover:translate-x-0.5 group-hover:text-slate-500"
-            /> */}
-
             <MoreActionsMenu
                 item={category}
                 actions={moreActions}
@@ -274,7 +293,7 @@ function ExpandedCategoryView({
                     <ProgressBar currentValue={category.current_total} totalValue={category.budget_total} size="lg" />
                 </div>
                 <div className="min-w-0 flex-1 px-4 pb-3 sm:px-6">
-                    <SearchBar search={searchedTransactions} setSearch={setSearchedTransactions} placeholder={"Cerca transazione..."}/>
+                    <SearchBar search={searchedTransactions} setSearch={setSearchedTransactions} placeholder={"Cerca transazione..."} />
                 </div>
             </div>
 

@@ -71,10 +71,8 @@ export default function CategoriesTransactionsPage() {
 
     useEffect(() => {
         const nextParams = new URLSearchParams();
-
         nextParams.set("year", String(selectedYear));
         nextParams.set("month", String(selectedMonth));
-
         setSearchParams(nextParams, { replace: true });
     }, [selectedYear, selectedMonth, setSearchParams]);
 

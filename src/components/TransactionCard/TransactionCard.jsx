@@ -94,6 +94,7 @@ export default function TransactionCard({
         }
     }
 
+
     return (
         <div onClick={onClick} className="transaction-card" >
 
