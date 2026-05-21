@@ -1,3 +1,9 @@
+import { AnimatePresence } from "framer-motion";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { div } from "framer-motion/m";
+import { ChevronDown } from "lucide-react";
+
 export default function CategoryDivider({
     label,
     numItems,
@@ -6,8 +12,6 @@ export default function CategoryDivider({
     children,
     dotColor,
 }) {
-
-    const [defaultShow, setDefaultShow] = useState(!Number(numItems));
 
     return (
         <div className="w-full">
@@ -51,9 +55,8 @@ function DividerButton({
     label,
     numItems,
     show,
-    dotColor,
 }) {
-    const dotClassName = DOT_COLORS[dotColor];
+
 
     return (
         <button
@@ -68,12 +71,6 @@ function DividerButton({
                     size={13}
                     className={`transition-transform duration-200 ${show ? "rotate-0" : "-rotate-90"}`}
                 />
-
-                {dotClassName ? (
-                    <span
-                        className={`h-2 w-2 shrink-0 rounded-full ${dotClassName}`}
-                    />
-                ) : null}
 
                 <span>{label}</span>
 
