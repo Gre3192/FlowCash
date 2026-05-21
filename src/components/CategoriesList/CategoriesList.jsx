@@ -402,6 +402,8 @@ function ExpandedCategoryView({
 
     const filteredTransactions = useSearchFilter(transactions, searchedTransactions, ["name"]);
 
+
+    // Crea una nuova struttura delle transazioni separando tra pianificate, non pianificate e vuote
     const categorizedTransactions = useMemo(() => {
         return filteredTransactions.reduce(
             (acc, transaction) => {
@@ -427,7 +429,8 @@ function ExpandedCategoryView({
         );
     }, [filteredTransactions]);
 
-
+    
+    // Apre gli accordion in cui sono presenti le transazioni cercate
     useEffect(() => {
         const hasSearch = searchedTransactions.trim().length > 0;
         if (!hasSearch) return;
@@ -458,6 +461,7 @@ function ExpandedCategoryView({
         }));
     }
 
+    // Renderizza transazione
     function renderTransaction(transaction) {
 
         return (
