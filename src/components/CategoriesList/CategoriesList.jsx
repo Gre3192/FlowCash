@@ -144,23 +144,41 @@ function CategoriesListBody({
     setCategoryIdForNewTransaction,
     setShowCreateTransactionModal,
     setTransactionForNewMovement,
-    setShowMovementsModal
+    setShowMovementsModal,
 }) {
-
+    
     const [openSections, setOpenSections] = useState({
         budgeted: true,
         toPlan: false,
         empty: false,
     });
 
-    function toggleSection(sectionKey) {
-        setOpenSections((prev) => ({
-            ...prev,
-            [sectionKey]: !prev[sectionKey],
-        }));
-    }
-
     const hero = useHeroAnimation("category-hero", "xl");
+
+    const categorizedCategories = useMemo(() => {
+        return filteredCategories.reduce(
+            (acc, category) => {
+
+                if (!Boolean(category.has_transactions)) {
+                    acc.empty.push(category);
+                    return acc;
+                }
+
+                if (Number(category.budget_total || 0) === 0) {
+                    acc.toPlan.push(category);
+                    return acc;
+                }
+
+                acc.budgeted.push(category);
+                return acc;
+            },
+            {
+                budgeted: [],
+                toPlan: [],
+                empty: [],
+            }
+        );
+    }, [filteredCategories]);
 
     const selectedCategory = useMemo(() => {
         if (!hero.selectedId) return null;
@@ -171,26 +189,86 @@ function CategoriesListBody({
     }, [filteredCategories, hero.selectedId]);
 
     useEffect(() => {
+        const hasSearch = searchedCategories.trim().length > 0;
+        if (!hasSearch) return;
+        setOpenSections({
+            budgeted: categorizedCategories.budgeted.length > 0,
+            toPlan: categorizedCategories.toPlan.length > 0,
+            empty: categorizedCategories.empty.length > 0,
+        });
+    }, [
+        searchedCategories,
+        categorizedCategories.budgeted.length,
+        categorizedCategories.toPlan.length,
+        categorizedCategories.empty.length,
+    ]);
+
+    useEffect(() => {
         const storedCategoryId = sessionStorage.getItem(OPENED_HERO_VIEW_KEY);
+
         if (!storedCategoryId) return;
         if (hero.isOpen) return;
+
         const categoryExists = filteredCategories.some(
             (category) => category.id === storedCategoryId
         );
+
         if (!categoryExists) return;
+
+        setCategoryIdForNewTransaction?.(storedCategoryId);
         hero.open(storedCategoryId);
-    }, [filteredCategories, hero]);
+    }, [
+        filteredCategories,
+        hero.isOpen,
+        setCategoryIdForNewTransaction,
+    ]);
+
+    function toggleSection(sectionKey) {
+
+        if(searchedCategories.trim().length > 0) return
+
+        setOpenSections((prev) => ({
+            ...prev,
+            [sectionKey]: !prev[sectionKey],
+        }));
+    }
 
     function handleOpenHero(category) {
         sessionStorage.setItem(OPENED_HERO_VIEW_KEY, category.id);
-        setCategoryIdForNewTransaction(category.id);
+
+        setCategoryIdForNewTransaction?.(category.id);
+
         hero.open(category.id);
     }
 
     function handleCloseHero() {
         sessionStorage.removeItem(OPENED_HERO_VIEW_KEY);
-        setCategoryIdForNewTransaction(null);
+
+        setCategoryIdForNewTransaction?.(null);
+
         hero.close();
+    }
+
+    function renderCategory(category) {
+    
+        if (hero.selectedId === category.id) {
+            return (
+                <div key={category.id} className="h-16 rounded-xl bg-slate-100/50" />
+            );
+        }
+
+        return (
+            <motion.div
+                key={category.id}
+                layoutId={hero.getLayoutId(category.id)}
+            >
+                <CategoryCard
+                    category={category}
+                    onClick={() => handleOpenHero(category)}
+                    reloadMonthlyOverview={reloadMonthlyOverview}
+                />
+            </motion.div>
+        );
     }
 
     return (
@@ -202,113 +280,59 @@ function CategoriesListBody({
                 emptyComponent={<EmptyState text={searchedCategories ? "Nessun risultato trovato" : "Nessuna categoria disponibile"} />}
             >
                 <div className="space-y-4">
-
-                    {/* CATEGORIE PIANIFICATE */}
                     <CategoryDivider
-                        label={`Categorie pianificate per ${getMonthByNum(selectedMonth)} ${selectedYear}`}
-                        numItems={filteredCategories.length}
+                        label={`Categorie pianificate per ${getMonthByNum(
+                            selectedMonth
+                        )} ${selectedYear}`}
+                        numItems={categorizedCategories.budgeted.length}
                         show={openSections.budgeted}
                         onClick={() => toggleSection("budgeted")}
                     >
-                        {filteredCategories.map((category, i) => {
-
-                            if ((category.has_transactions && Number(category.budget_total) === 0) || !category.has_transactions) return null
-
-                            if (hero.selectedId === category.id) {
-                                return <div key={category.id} className="h-16 rounded-xl bg-slate-100/50" />;
-                            }
-
-                            return (
-                                <motion.div
-                                    key={category.id}
-                                    layoutId={hero.getLayoutId(category.id)}
-                                >
-                                    <CategoryCard
-                                        category={category}
-                                        onClick={() => handleOpenHero(category)}
-                                        reloadMonthlyOverview={reloadMonthlyOverview}
-                                    />
-                                </motion.div>
-                            )
-                        })}
+                        {categorizedCategories.budgeted.map(renderCategory)}
                     </CategoryDivider>
 
-                    {/* CATEGORIE INATTIVE */}
                     <CategoryDivider
-                        label={`Categorie non pianificate per ${getMonthByNum(selectedMonth)} ${selectedYear}`}
-                        numItems={filteredCategories.length}
+                        label={`Categorie da pianificare per ${getMonthByNum(
+                            selectedMonth
+                        )} ${selectedYear}`}
+                        numItems={categorizedCategories.toPlan.length}
                         show={openSections.toPlan}
                         onClick={() => toggleSection("toPlan")}
                     >
-                        {filteredCategories.map((category, i) => {
-
-                            if ((category.has_transactions && Number(category.budget_total) !== 0) || !category.has_transactions) return null
-
-                            if (hero.selectedId === category.id) {
-                                return <div key={category.id} className="h-16 rounded-xl bg-slate-100/50" />;
-                            }
-
-                            return (
-                                <motion.div
-                                    key={category.id}
-                                    layoutId={hero.getLayoutId(category.id)}
-                                >
-                                    <CategoryCard
-                                        category={category}
-                                        onClick={() => handleOpenHero(category)}
-                                        reloadMonthlyOverview={reloadMonthlyOverview}
-                                    />
-                                </motion.div>
-                            )
-                        })}
+                        {categorizedCategories.toPlan.map(renderCategory)}
                     </CategoryDivider>
 
-                    {/* CATEGORIE VUOTE */}
                     <CategoryDivider
-                        label={`Categorie vuote`}
-                        numItems={filteredCategories.length}
+                        label="Categorie senza transazioni"
+                        numItems={categorizedCategories.empty.length}
                         show={openSections.empty}
                         onClick={() => toggleSection("empty")}
                     >
-                        {filteredCategories.map((category, i) => {
-
-                            if (category.has_transactions) return null
-
-                            if (hero.selectedId === category.id) {
-                                return <div key={category.id} className="h-16 rounded-xl bg-slate-100/50" />;
-                            }
-
-                            return (
-                                <motion.div
-                                    key={category.id}
-                                    layoutId={hero.getLayoutId(category.id)}
-                                >
-                                    <CategoryCard
-                                        category={category}
-                                        onClick={() => handleOpenHero(category)}
-                                        reloadMonthlyOverview={reloadMonthlyOverview}
-                                    />
-                                </motion.div>
-                            )
-                        })}
+                        {categorizedCategories.empty.map(renderCategory)}
                     </CategoryDivider>
-
                 </div>
             </ContentViewState>
+
             <HeroOverlay hero={hero} onClose={handleCloseHero}>
-                <ExpandedCategoryView
-                    category={selectedCategory}
-                    onClose={handleCloseHero}
-                    selectedMonth={selectedMonth}
-                    selectedYear={selectedYear}
-                    reloadMonthlyOverview={reloadMonthlyOverview}
-                    setShowCreateTransactionModal={setShowCreateTransactionModal}
-                    setTransactionForNewMovement={setTransactionForNewMovement}
-                    setShowMovementsModal={setShowMovementsModal}
-                />
+                {selectedCategory && (
+                    <ExpandedCategoryView
+                        category={selectedCategory}
+                        onClose={handleCloseHero}
+                        selectedMonth={selectedMonth}
+                        selectedYear={selectedYear}
+                        reloadMonthlyOverview={reloadMonthlyOverview}
+                        setShowCreateTransactionModal={
+                            setShowCreateTransactionModal
+                        }
+                        setTransactionForNewMovement={
+                            setTransactionForNewMovement
+                        }
+                        setShowMovementsModal={setShowMovementsModal}
+                    />
+                )}
             </HeroOverlay>
         </>
-    )
+    );
 }
 
 function CategoryCard({
