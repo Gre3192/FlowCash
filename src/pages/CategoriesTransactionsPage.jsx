@@ -14,7 +14,7 @@ import CreateTransactionModal from "../components/Modals/CreateTransactionModal"
 import TransactionMovementsModal from "../components/Modals/TransactionMovementsModal";
 
 
-export default function CategoriesNewBuild(params) {
+export default function CategoriesTransactionsPage(params) {
 
     const [searchParams, setSearchParams] = useSearchParams();
 
