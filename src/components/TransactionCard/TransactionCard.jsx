@@ -119,7 +119,6 @@ export default function TransactionCard({
                     <IconButton icon={WalletCards} size={'sm'} onClick={() => handleGoToBudgetPage(transaction)} />
                 </div>
             </div>
-
             {
                 transaction?.needs_budget ?
                     <Button icon={Plus} label={'Inserisci budget'} variant={"secondary"} onClick={handleGoToBudgetPage} size={'sm'} className={'mr-3'} />
