@@ -392,6 +392,9 @@ function ExpandedCategoryView({
 
     const transactions = category?.transactions ?? [];
 
+    console.log(transactions);
+
+
     const [typeFilter, setTypeFilter] = useState("all");
     const [searchedTransactions, setSearchedTransactions] = useState("");
     const [openSections, setOpenSections] = useState({
@@ -477,6 +480,26 @@ function ExpandedCategoryView({
         );
     }
 
+    function countTransactionTypes(transactions = []) {
+        return transactions.reduce(
+            (acc, transaction) => {
+                if (transaction.type === "Income") {
+                    acc.income += 1;
+                }
+
+                if (transaction.type === "Expense") {
+                    acc.expense += 1;
+                }
+
+                return acc;
+            },
+            {
+                income: 0,
+                expense: 0,
+            }
+        );
+    }
+
     const filterOptions = [
         {
             label: "Tutte",
@@ -484,12 +507,12 @@ function ExpandedCategoryView({
             icon: null,
         },
         {
-            label: <div>Entrate</div>,
+            label: <div>Entrate <InfoBadge label={countTransactionTypes(transactions).income} /></div>,
             value: "Income",
             icon: ArrowDownRight,
         },
         {
-            label: <div>Uscite</div>,
+            label: <div>Uscite <InfoBadge label={countTransactionTypes(transactions).expense} /></div>,
             value: "Expense",
             icon: ArrowUpRight,
         },
