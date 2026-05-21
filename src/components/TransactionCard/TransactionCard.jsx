@@ -31,9 +31,8 @@ export default function TransactionCard({
         {
             label: "Movimenti",
             icon: ListChecks,
-            onClick: (transaction) => {
-                onClick(transaction)
-            },
+            onClick: (transaction) => { onClick(transaction) },
+            disabled: Number(transaction.target) === 0
         },
         {
             label: "Budget",
@@ -99,9 +98,14 @@ export default function TransactionCard({
         }
     }
 
+    function handleOnClickCard() {
+        if (Number(transaction.target) === 0) return null
+        onClick()
+    }
+
 
     return (
-        <div onClick={onClick} className="transaction-card" >
+        <div onClick={handleOnClickCard} className="transaction-card" >
 
             <LogoBox src={logo} alt={transaction?.name ?? "Logo"} />
 
