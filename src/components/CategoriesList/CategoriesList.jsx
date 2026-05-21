@@ -35,8 +35,7 @@ export default function CategoriesList({
 }) {
 
     const [searchedCategories, setSearchedCategories] = useState("");
-    const [typeFilter, setTypeFilter] = useState("active");
-
+    const [typeFilter, setTypeFilter] = useState("all");
 
     const searchedFilteredCategories = useSearchFilter(categories, searchedCategories, ["name"]);
 
@@ -46,8 +45,8 @@ export default function CategoriesList({
 
             const matchesType =
                 (typeFilter === "all") ||
-                (typeFilter === "active" && hasTransactions && category.budget_total != 0) ||
-                (typeFilter === "inactive" && hasTransactions && category.budget_total === 0) ||
+                (typeFilter === "active" && hasTransactions && Number(category.budget_total) != 0) ||
+                (typeFilter === "inactive" && hasTransactions && Number(category.budget_total) === 0) ||
                 (typeFilter === "empty" && !hasTransactions);
 
             return matchesType;
@@ -90,6 +89,11 @@ function CategoriesListHeader({
 }) {
 
     const options = [
+        {
+            label: "Tutte",
+            value: "all",
+            icon: null,
+        },
         {
             label: "Attive",
             value: "active",
