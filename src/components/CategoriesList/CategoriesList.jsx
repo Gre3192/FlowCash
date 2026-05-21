@@ -392,9 +392,6 @@ function ExpandedCategoryView({
 
     const transactions = category?.transactions ?? [];
 
-    console.log(transactions);
-
-
     const [typeFilter, setTypeFilter] = useState("all");
     const [searchedTransactions, setSearchedTransactions] = useState("");
     const [openSections, setOpenSections] = useState({
@@ -403,20 +400,20 @@ function ExpandedCategoryView({
         empty: false,
     });
 
-    const searchedTransactions = useSearchFilter(transactions, searchedTransactions, ["name"]);
+    const searchedFilteredTransactions = useSearchFilter(transactions, searchedTransactions, ["name"]);
 
     // Filtra le transazioni per tipoligia (Tutte, Entrate e Uscite)
     const filteredTransactions = useMemo(() => {
-        return searchedTransactions.filter((transaction) => {
+        return searchedFilteredTransactions.filter((transaction) => {
 
             const matchesType =
                 (typeFilter === "all") ||
-                (typeFilter === "income" && transaction.type === "Income") ||
-                (typeFilter === "expense" && transaction.type === "Expense")
+                (typeFilter === "income" && transaction.type.toLowerCase() === "income") ||
+                (typeFilter === "expense" && transaction.type.toLowerCase() === "expense")
 
             return matchesType;
         });
-    }, [searchedTransactions, typeFilter]);
+    }, [searchedFilteredTransactions, typeFilter]);
 
     // Crea una nuova struttura delle transazioni separando tra pianificate, non pianificate e vuote
     const categorizedTransactions = useMemo(() => {
@@ -521,14 +518,14 @@ function ExpandedCategoryView({
         },
         {
             label: <div>Entrate <InfoBadge label={countTransactionTypes(transactions).income} /></div>,
-            value: "Income",
+            value: "income",
             icon: ArrowDownRight,
             color: "text-emerald-700",
             selectedColor: "text-emerald-700",
         },
         {
             label: <div>Uscite <InfoBadge label={countTransactionTypes(transactions).expense} /></div>,
-            value: "Expense",
+            value: "expense",
             icon: ArrowUpRight,
             color: "text-red-700",
             selectedColor: "text-red-700",
