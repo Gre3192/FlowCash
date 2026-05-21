@@ -461,13 +461,15 @@ function ExpandedCategoryView({
     function renderTransaction(transaction) {
 
         return (
-            <TransactionCard
-                transaction={transaction}
-                selectedMonth={selectedMonth}
-                selectedYear={selectedYear}
-                reloadMonthlyOverview={reloadMonthlyOverview}
-                onClick={() => handleCardClick(transaction)}
-            />
+            <div className="px-5">
+                <TransactionCard
+                    transaction={transaction}
+                    selectedMonth={selectedMonth}
+                    selectedYear={selectedYear}
+                    reloadMonthlyOverview={reloadMonthlyOverview}
+                    onClick={() => handleCardClick(transaction)}
+                />
+            </div>
         );
     }
 
