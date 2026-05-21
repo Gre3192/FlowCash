@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { div } from "framer-motion/m";
 import { ChevronDown } from "lucide-react";
 
-export default function CategoryDivider({
+export default function SectionsDivider({
     label,
     numItems,
     show,

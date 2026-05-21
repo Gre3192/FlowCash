@@ -19,7 +19,7 @@ import { useDelete } from "../../hooks/useDelete";
 import { API_ENDPOINTS } from "../../api/endpoint";
 import ToggleButtonGroup from "../../ui/ToggleButtonGroup";
 import LogoBox from "../LogoBox/LogoBox";
-import CategoryDivider from "../CategoryDivider/CategoryDivider";
+import SectionsDivider from "../SectionsDivider/SectionsDivider";
 import getMonthByNum from "../../utils/getMonthByNum";
 
 const OPENED_HERO_VIEW_KEY = "flowcash_openedHeroView";
@@ -280,7 +280,7 @@ function CategoriesListBody({
                 emptyComponent={<EmptyState text={searchedCategories ? "Nessun risultato trovato" : "Nessuna categoria disponibile"} />}
             >
                 <div className="space-y-4">
-                    <CategoryDivider
+                    <SectionsDivider
                         label={`Categorie pianificate per ${getMonthByNum(selectedMonth)} ${selectedYear}`}
                         numItems={categorizedCategories.budgeted.length}
                         show={openSections.budgeted}
@@ -295,9 +295,9 @@ function CategoriesListBody({
                                 {categorizedCategories.budgeted.map(renderCategory)}
                             </div>
                         </ContentViewState>
-                    </CategoryDivider>
+                    </SectionsDivider>
 
-                    <CategoryDivider
+                    <SectionsDivider
                         label={`Categorie non pianificate per ${getMonthByNum(selectedMonth)} ${selectedYear}`}
                         numItems={categorizedCategories.toPlan.length}
                         show={openSections.toPlan}
@@ -312,9 +312,9 @@ function CategoriesListBody({
                                 {categorizedCategories.toPlan.map(renderCategory)}
                             </div>
                         </ContentViewState>
-                    </CategoryDivider>
+                    </SectionsDivider>
 
-                    <CategoryDivider
+                    <SectionsDivider
                         label="Categorie senza transazioni"
                         numItems={categorizedCategories.empty.length}
                         show={openSections.empty}
@@ -329,7 +329,7 @@ function CategoriesListBody({
                                 {categorizedCategories.empty.map(renderCategory)}
                             </div>
                         </ContentViewState>
-                    </CategoryDivider>
+                    </SectionsDivider>
                 </div>
             </ContentViewState>
 
