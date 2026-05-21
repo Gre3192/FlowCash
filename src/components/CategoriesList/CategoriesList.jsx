@@ -19,6 +19,7 @@ import { useDelete } from "../../hooks/useDelete";
 import { API_ENDPOINTS } from "../../api/endpoint";
 import ToggleButtonGroup from "../../ui/ToggleButtonGroup";
 import LogoBox from "../LogoBox/LogoBox";
+import CategoryDivider from "../CategoryDivider/CategoryDivider";
 
 const OPENED_HERO_VIEW_KEY = "flowcash_openedHeroView";
 
@@ -47,7 +48,6 @@ export default function CategoriesList({
                 (typeFilter === "active" && category.has_transactions && Number(category.budget_total) != 0) ||
                 (typeFilter === "inactive" && category.has_transactions && Number(category.budget_total) === 0) ||
                 (typeFilter === "empty" && !category.has_transactions);
-
             return matchesType;
         });
     }, [searchedFilteredCategories, typeFilter]);
@@ -435,6 +435,7 @@ function ExpandedCategoryView({
     )
 
 }
+
 
 
 
