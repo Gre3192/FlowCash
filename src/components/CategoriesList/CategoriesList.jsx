@@ -280,9 +280,7 @@ function CategoriesListBody({
             >
                 <div className="space-y-4">
                     <CategoryDivider
-                        label={`Categorie pianificate per ${getMonthByNum(
-                            selectedMonth
-                        )} ${selectedYear}`}
+                        label={`Categorie pianificate per ${getMonthByNum(selectedMonth)} ${selectedYear}`}
                         numItems={categorizedCategories.budgeted.length}
                         show={openSections.budgeted}
                         onClick={() => toggleSection("budgeted")}
@@ -291,9 +289,7 @@ function CategoriesListBody({
                     </CategoryDivider>
 
                     <CategoryDivider
-                        label={`Categorie non pianificate per ${getMonthByNum(
-                            selectedMonth
-                        )} ${selectedYear}`}
+                        label={`Categorie non pianificate per ${getMonthByNum(selectedMonth)} ${selectedYear}`}
                         numItems={categorizedCategories.toPlan.length}
                         show={openSections.toPlan}
                         onClick={() => toggleSection("toPlan")}
@@ -320,12 +316,8 @@ function CategoriesListBody({
                         selectedMonth={selectedMonth}
                         selectedYear={selectedYear}
                         reloadMonthlyOverview={reloadMonthlyOverview}
-                        setShowCreateTransactionModal={
-                            setShowCreateTransactionModal
-                        }
-                        setTransactionForNewMovement={
-                            setTransactionForNewMovement
-                        }
+                        setShowCreateTransactionModal={setShowCreateTransactionModal}
+                        setTransactionForNewMovement={setTransactionForNewMovement}
                         setShowMovementsModal={setShowMovementsModal}
                     />
                 )}
