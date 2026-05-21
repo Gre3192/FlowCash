@@ -39,7 +39,7 @@ export default function AmountRatio({ firstNum, secondNum, isIncome }) {
             `}
         >
             {firstNum}
-            <span className="font-normal text-slate-500">
+            <span className="font-semibold text-slate-500">
                 {" "}
                 / {secondNum}
             </span>
