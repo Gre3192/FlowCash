@@ -402,9 +402,6 @@ function ExpandedCategoryView({
 
     const filteredTransactions = useSearchFilter(transactions, searchedTransactions, ["name"]);
 
-    console.log(transactions);
-
-
     const categorizedTransactions = useMemo(() => {
         return filteredTransactions.reduce(
             (acc, transaction) => {
@@ -552,7 +549,7 @@ function ExpandedCategoryView({
 
                     {/* Transazioni non pianificate */}
                     <SectionsDivider
-                        label={`Transazioni pianificate per ${getMonthByNum(selectedMonth)} ${selectedYear}`}
+                        label={`Transazioni non pianificate per ${getMonthByNum(selectedMonth)} ${selectedYear}`}
                         numItems={categorizedTransactions.toPlan.length}
                         show={openSections.toPlan}
                         onClick={() => toggleSection("toPlan")}
