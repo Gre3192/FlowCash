@@ -42,13 +42,11 @@ export default function CategoriesList({
 
     const filteredCategories = useMemo(() => {
         return searchedFilteredCategories.filter((category) => {
-            const hasTransactions = category.transactions?.length > 0;
-
             const matchesType =
                 (typeFilter === "all") ||
-                (typeFilter === "active" && hasTransactions && Number(category.budget_total) != 0) ||
-                (typeFilter === "inactive" && hasTransactions && Number(category.budget_total) === 0) ||
-                (typeFilter === "empty" && !hasTransactions);
+                (typeFilter === "active" && category.has_transactions && Number(category.budget_total) != 0) ||
+                (typeFilter === "inactive" && category.has_transactions && Number(category.budget_total) === 0) ||
+                (typeFilter === "empty" && !category.has_transactions);
 
             return matchesType;
         });
@@ -96,12 +94,12 @@ function CategoriesListHeader({
             icon: null,
         },
         {
-            label: "Attive",
+            label: "Pianificate",
             value: "active",
             icon: null,
         },
         {
-            label: "Non attive",
+            label: "Da pianificare",
             value: "inactive",
             icon: null,
         },
@@ -190,12 +188,59 @@ function CategoriesListBody({
                 emptyComponent={<EmptyState text={searchedCategories ? "Nessun risultato trovato" : "Nessuna categoria disponibile"} />}
             >
                 <div className="space-y-4">
+
+                    {/* CATEGORIE ATTIVE */}
                     {filteredCategories.map((category, i) => {
 
                         if (hero.selectedId === category.id) {
                             return <div key={category.id} className="h-16 rounded-xl bg-slate-100/50" />;
                         }
+                        if ((category.has_transactions && Number(category.budget_total) === 0) || !category.has_transactions) return null
+  
+                        return (
+                            <motion.div
+                                key={category.id}
+                                layoutId={hero.getLayoutId(category.id)}
+                            >
+                                <CategoryCard
+                                    category={category}
+                                    onClick={() => handleOpenHero(category)}
+                                    reloadMonthlyOverview={reloadMonthlyOverview}
+                                />
+                            </motion.div>
+                        )
+                    })}
 
+                    {/* CATEGORIE INATTIVE */}
+                    {filteredCategories.map((category, i) => {
+
+                        if (hero.selectedId === category.id) {
+                            return <div key={category.id} className="h-16 rounded-xl bg-slate-100/50" />;
+                        }
+                        if ((category.has_transactions && Number(category.budget_total) !== 0) || !category.has_transactions) return null
+  
+                        return (
+                            <motion.div
+                                key={category.id}
+                                layoutId={hero.getLayoutId(category.id)}
+                            >
+                                <CategoryCard
+                                    category={category}
+                                    onClick={() => handleOpenHero(category)}
+                                    reloadMonthlyOverview={reloadMonthlyOverview}
+                                />
+                            </motion.div>
+                        )
+                    })}
+
+                    {/* CATEGORIE VUOTE */}
+                    {filteredCategories.map((category, i) => {
+
+                        if (hero.selectedId === category.id) {
+                            return <div key={category.id} className="h-16 rounded-xl bg-slate-100/50" />;
+                        }
+                        if (category.has_transactions) return null
+  
                         return (
                             <motion.div
                                 key={category.id}
