@@ -509,12 +509,12 @@ function ExpandedCategoryView({
         );
     }
 
-
     const filterOptions = [
         {
             label: "Tutte",
             value: "all",
             icon: null,
+            disabled: false,
         },
         {
             label: <div>Entrate <InfoBadge label={countTransactionTypes(transactions).income} /></div>,
@@ -522,6 +522,7 @@ function ExpandedCategoryView({
             icon: ArrowDownRight,
             color: "text-emerald-700",
             selectedColor: "text-emerald-700",
+            disabled: countTransactionTypes(transactions).income === 0 || countTransactionTypes(transactions).expense === 0,
         },
         {
             label: <div>Uscite <InfoBadge label={countTransactionTypes(transactions).expense} /></div>,
@@ -529,6 +530,7 @@ function ExpandedCategoryView({
             icon: ArrowUpRight,
             color: "text-red-700",
             selectedColor: "text-red-700",
+            disabled: countTransactionTypes(transactions).income === 0 || countTransactionTypes(transactions).expense === 0,
         },
     ];
 

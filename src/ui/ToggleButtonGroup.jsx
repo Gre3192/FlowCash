@@ -6,6 +6,7 @@ export default function ToggleButtonGroup({
     onChange,
     size = "sm",
     className = "",
+    disabled = false,
 }) {
     const sizes = {
         xs: {
@@ -37,21 +38,34 @@ export default function ToggleButtonGroup({
         >
             {options.map((option) => {
                 const isSelected = option.value === value;
+                const isDisabled = disabled || option.disabled;
                 const Icon = option.icon;
 
                 const selectedColor = option.selectedColor || "text-slate-900";
-                const color = option.color || "text-slate-400 hover:text-slate-600";
+                const color =
+                    option.color || "text-slate-400 hover:text-slate-600";
+
+                const buttonColorClass = isSelected ? selectedColor : color;
 
                 return (
                     <button
                         key={option.value}
                         type="button"
-                        onClick={() => onChange?.(option.value)}
+                        disabled={isDisabled}
+                        onClick={() => {
+                            if (isDisabled) return;
+                            onChange?.(option.value);
+                        }}
                         className={`
-                            relative inline-flex cursor-pointer items-center justify-center gap-1.5
+                            relative inline-flex items-center justify-center gap-1.5
                             rounded-lg font-medium transition-colors duration-200
                             ${selectedSize.button}
-                            ${isSelected ? selectedColor : color}
+                            ${buttonColorClass}
+                            ${
+                                isDisabled
+                                    ? "cursor-not-allowed opacity-65"
+                                    : "cursor-pointer"
+                            }
                         `}
                     >
                         {isSelected && (
