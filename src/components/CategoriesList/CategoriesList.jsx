@@ -510,11 +510,15 @@ function ExpandedCategoryView({
             label: <div>Entrate <InfoBadge label={countTransactionTypes(transactions).income} /></div>,
             value: "Income",
             icon: ArrowDownRight,
+            color: "text-emerald-700",
+            selectedColor: "text-emerald-700",
         },
         {
             label: <div>Uscite <InfoBadge label={countTransactionTypes(transactions).expense} /></div>,
             value: "Expense",
             icon: ArrowUpRight,
+            color: "text-red-700",
+            selectedColor: "text-red-700",
         },
     ];
 

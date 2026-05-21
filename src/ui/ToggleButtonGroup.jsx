@@ -39,6 +39,9 @@ export default function ToggleButtonGroup({
                 const isSelected = option.value === value;
                 const Icon = option.icon;
 
+                const selectedColor = option.selectedColor || "text-slate-900";
+                const color = option.color || "text-slate-400 hover:text-slate-600";
+
                 return (
                     <button
                         key={option.value}
@@ -48,11 +51,7 @@ export default function ToggleButtonGroup({
                             relative inline-flex cursor-pointer items-center justify-center gap-1.5
                             rounded-lg font-medium transition-colors duration-200
                             ${selectedSize.button}
-                            ${
-                                isSelected
-                                    ? "text-slate-900"
-                                    : "text-slate-400 hover:text-slate-600"
-                            }
+                            ${isSelected ? selectedColor : color}
                         `}
                     >
                         {isSelected && (
