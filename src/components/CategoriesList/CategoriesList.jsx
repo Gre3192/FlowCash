@@ -403,8 +403,20 @@ function ExpandedCategoryView({
         empty: false,
     });
 
-    const filteredTransactions = useSearchFilter(transactions, searchedTransactions, ["name"]);
+    const searchedTransactions = useSearchFilter(transactions, searchedTransactions, ["name"]);
 
+    // Filtra le transazioni per tipoligia (Tutte, Entrate e Uscite)
+    const filteredTransactions = useMemo(() => {
+        return searchedTransactions.filter((transaction) => {
+
+            const matchesType =
+                (typeFilter === "all") ||
+                (typeFilter === "income" && transaction.type === "Income") ||
+                (typeFilter === "expense" && transaction.type === "Expense")
+
+            return matchesType;
+        });
+    }, [searchedTransactions, typeFilter]);
 
     // Crea una nuova struttura delle transazioni separando tra pianificate, non pianificate e vuote
     const categorizedTransactions = useMemo(() => {
