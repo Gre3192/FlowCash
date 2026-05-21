@@ -21,7 +21,7 @@ export default function InfoBadge({
 
     const content = children ?? label;
 
-    if (!content) return null;
+    if (!content && content !== 0) return null;
 
     return (
         <span

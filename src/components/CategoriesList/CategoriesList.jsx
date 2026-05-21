@@ -500,6 +500,7 @@ function ExpandedCategoryView({
         );
     }
 
+
     const filterOptions = [
         {
             label: "Tutte",
