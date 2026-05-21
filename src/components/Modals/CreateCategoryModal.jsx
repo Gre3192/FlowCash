@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FolderPlus, LoaderCircle } from "lucide-react";
 import { usePost } from "../../hooks/usePost";
 import { API_ENDPOINTS } from "../../api/endpoint";
+import { usePut } from "../../hooks/usePut"
 
 const CATEGORY_TYPES = [
     { key: "income", label: "Entrata", color: "bg-emerald-500", textColor: "text-emerald-700", ringColor: "ring-emerald-300", bgLight: "bg-emerald-50" },
@@ -17,7 +18,10 @@ export default function CreateCategoryModal({
 
 }) {
 
-    const { postData, loading, error } = usePost();
+    const { postData, loading: postLoading, error: postError } = usePost();
+    const { putData, loading: putLoading, error: putError } = usePut();
+
+    const loading = postLoading || putLoading
 
     const [categoryName, setCategoryName] = useState(formValueForEdit?.name || "");
     const [selectedType, setSelectedType] = useState("mixed");
@@ -45,16 +49,19 @@ export default function CreateCategoryModal({
         if (!validateForm()) return;
         const payload = {
             name: categoryName.trim(),
-            type: selectedType,
+            // type: selectedType,
         };
+
         try {
-            const createdCategory = await postData(
-                API_ENDPOINTS.categories(),
-                payload
-            );
+            if (formValueForEdit) {
+                await putData(API_ENDPOINTS.categories() + formValueForEdit?.id + "/", payload);
+            }
+            else {
+                await postData(API_ENDPOINTS.categories(), payload);
+            }
             onClose?.();
         } catch (err) {
-            console.error(err);
+            console.postError(err);
         } finally {
             reload()
         }
@@ -122,9 +129,9 @@ export default function CreateCategoryModal({
                 </div>
             </div>
 
-            {error && (
+            {postError && (
                 <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
-                    {error}
+                    {postError}
                 </p>
             )}
 
@@ -145,7 +152,7 @@ export default function CreateCategoryModal({
                     {loading ? (
                         <LoaderCircle size={16} className="animate-spin" />
                     ) : (
-                        "Crea categoria"
+                        formValueForEdit ? "Modifica" : "Crea"
                     )}
                 </button>
             </div>

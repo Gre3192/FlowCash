@@ -16,7 +16,7 @@ export const API_ENDPOINTS = {
 
   monthlyOverview: buildEndpoint(base_url, `/api/flowcash/monthly-overview/`),
 
-  categories: buildEndpoint(base_url, `/api/categories/`),
+  categories: buildEndpoint(base_url, `/api/categories/`, true),
 
   transactions: buildEndpoint(base_url, `/api/transactions/`),
 

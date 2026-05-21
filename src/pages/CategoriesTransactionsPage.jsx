@@ -54,7 +54,7 @@ export default function CategoriesTransactionsPage(params) {
 
     const categories = data?.categories ?? [];
 
-    console.log(formValueForEdit);
+    console.log(categories);
     
 
     function onOpenCreateCategoryModal(isEditMode = false, category = null,) {
