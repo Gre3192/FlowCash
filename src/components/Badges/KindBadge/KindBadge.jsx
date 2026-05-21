@@ -1,6 +1,7 @@
 import {
-    ArrowDownLeft,
+    ArrowDownRight,
     ArrowUpRight,
+
 } from "lucide-react";
 
 export default function KindBadge({
@@ -9,7 +10,7 @@ export default function KindBadge({
 }) {
     const isIncome = type === "Income";
 
-    const TypeIcon = isIncome ? ArrowDownLeft : ArrowUpRight;
+    const TypeIcon = isIncome ? ArrowDownRight : ArrowUpRight;
     const typeLabel = isIncome ? "Entrata" : "Uscita";
 
     return (

@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Plus, FolderOpen, ChevronRight, ArrowLeft, ArrowUpRight, WalletCards, MoreVertical, ListChecks, Pencil, Trash2 } from "lucide-react";
+import { Plus, FolderOpen, ChevronRight, ArrowLeft, ArrowUpRight, ArrowDownRight, WalletCards, MoreVertical, ListChecks, Pencil, Trash2 } from "lucide-react";
 import { EmptyState, LoadingState, IconButton, Button } from "../../ui";
 import SearchBar from "../SearchBar/SearchBar";
 import ProgressBar from "../ProgressBar/ProgressBar";
@@ -429,7 +429,7 @@ function ExpandedCategoryView({
         );
     }, [filteredTransactions]);
 
-    
+
     // Apre gli accordion in cui sono presenti le transazioni cercate
     useEffect(() => {
         const hasSearch = searchedTransactions.trim().length > 0;
@@ -484,12 +484,12 @@ function ExpandedCategoryView({
             icon: null,
         },
         {
-            label: "Entrate",
+            label: <div>Entrate</div>,
             value: "Income",
-            icon: null,
+            icon: ArrowDownRight,
         },
         {
-            label: "Uscite",
+            label: <div>Uscite</div>,
             value: "Expense",
             icon: ArrowUpRight,
         },
@@ -534,7 +534,6 @@ function ExpandedCategoryView({
                 emptyComponent={<EmptyState text={searchedTransactions ? "Nessun risultato trovato" : "Nessuna transazione disponibile"} />}
             >
                 <div className="space-y-2">
-
                     {/* Transazioni pianificate */}
                     <SectionsDivider
                         label={`Transazioni pianificate per ${getMonthByNum(selectedMonth)} ${selectedYear}`}
@@ -588,8 +587,6 @@ function ExpandedCategoryView({
                             </div>
                         </ContentViewState>
                     </SectionsDivider>
-
-
                 </div>
             </ContentViewState>
         </>
