@@ -343,16 +343,16 @@ function ExpandedCategoryView({
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                             <h2 className="truncate text-base font-bold text-slate-900 sm:text-lg">
-                                {category.name}
+                                {category?.name}
                             </h2>
-                            <InfoBadge label={category.transactions.length} size="sm" />
+                            <InfoBadge label={category?.transactions.length} size="sm" />
                         </div>
-                        <AmountRatio firstNum={formatCurrency(category.current_total)} secondNum={formatCurrency(category.budget_total)} />
+                        <AmountRatio firstNum={formatCurrency(category?.current_total)} secondNum={formatCurrency(category?.budget_total)} />
                     </div>
                     <Button icon={Plus} label={'Transazione'} size={'sm'} variant={"secondary"} onClick={() => setShowCreateTransactionModal(true)} />
                 </div>
                 <div className="px-4 pb-3 sm:px-6">
-                    <ProgressBar currentValue={category.current_total} totalValue={category.budget_total} size="lg" />
+                    <ProgressBar currentValue={category?.current_total} totalValue={category?.budget_total} size="lg" />
                 </div>
                 <div className="min-w-0 flex-1 px-4 pb-3 sm:px-6 flex items-center justify-between">
                     <SearchBar search={searchedTransactions} setSearch={setSearchedTransactions} placeholder={"Cerca transazione..."} />

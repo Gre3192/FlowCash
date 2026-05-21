@@ -33,18 +33,16 @@ export default function ProgressBar({
     const total = Number(totalValue || 0);
 
     const rawProgress = total > 0 ? (current / total) * 100 : 0;
-    const progress = Math.max(0, Math.min(rawProgress, 100));
 
-    const isOver = rawProgress > 100;
-    const isComplete = current >= total && total > 0 && !isOver;
+    // La larghezza grafica resta massimo 100%
+    const progressWidth = Math.max(0, Math.min(rawProgress, 100));
 
-    const displayedProgress = isComplete
-        ? 100
-        : Math.floor(rawProgress);
+    // Il testo invece può superare 100%
+    const displayedProgress = rawProgress.toFixed(1);
 
     function getProgressColor(value) {
         if (value > 100) return "bg-red-500";
-        if (isComplete) return "bg-emerald-500";
+        if (value === 100) return "bg-emerald-500";
         if (value >= 70) return "bg-blue-600";
         if (value >= 40) return "bg-blue-400";
 
@@ -53,7 +51,7 @@ export default function ProgressBar({
 
     function getTextColor(value) {
         if (value > 100) return "text-red-600";
-        if (isComplete) return "text-emerald-600";
+        if (value === 100) return "text-emerald-600";
         if (value >= 70) return "text-blue-700";
         if (value >= 40) return "text-blue-500";
 
@@ -78,7 +76,7 @@ export default function ProgressBar({
                         h-full rounded-full transition-all duration-500
                         ${progressColor}
                     `}
-                    style={{ width: `${progress}%` }}
+                    style={{ width: `${progressWidth}%` }}
                 />
             </div>
 

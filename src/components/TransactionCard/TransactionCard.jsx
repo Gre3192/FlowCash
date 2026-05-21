@@ -99,7 +99,6 @@ export default function TransactionCard({
         }
     }
 
-
     return (
         <div onClick={onClick} className="transaction-card" >
 
@@ -110,7 +109,7 @@ export default function TransactionCard({
                     <h3 className="truncate text-sm font-semibold text-slate-900">
                         {transaction?.name ?? "Transazione"}
                     </h3>
-                    <InfoBadge label={transaction.progress.toFixed(0) + "%"} />
+                    <InfoBadge label={transaction.progress.toFixed(1) + "%"} />
                 </div>
                 <div className="mt-1 flex items-center gap-1.5">
                     <KindBadge type={transaction.type} />
