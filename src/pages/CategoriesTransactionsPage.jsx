@@ -24,6 +24,8 @@ export default function CategoriesTransactionsPage(params) {
     const [selectedMonth, setSelectedMonth] = useState(currentMonth);
     const [selectedYear, setSelectedYear] = useState(currentYear);
 
+    const [formValueForEdit, setFormValueForEdit] = useState(null);
+
     // APERTURA MODALI
     const [showCreateCategoryModal, setShowCreateCategoryModal] = useState(false);
     const [showCreateTransactionModal, setShowCreateTransactionModal] = useState(false);
@@ -52,6 +54,29 @@ export default function CategoriesTransactionsPage(params) {
 
     const categories = data?.categories ?? [];
 
+    console.log(formValueForEdit);
+    
+
+    function onOpenCreateCategoryModal(isEditMode = false, category = null,) {
+        if (isEditMode) setFormValueForEdit(category)
+        setShowCreateCategoryModal(true)
+    }
+
+    function onCloseCreateCategoryModal() {
+        setFormValueForEdit(null)
+        setShowCreateCategoryModal(false)
+    }
+
+    function onOpenCreateTransactionModal(isEditMode = false, transaction = null) {
+        if (isEditMode) setFormValueForEdit(transaction)
+        setShowCreateTransactionModal(true)
+    }
+
+    function onCloseCreateTransactionModal() {
+        setFormValueForEdit(null)
+        setShowCreateTransactionModal(false)
+    }
+
     return (
         <div className="box-border overflow-y-auto flex min-h-0 flex-col gap-3 lg:h-full bg-slate-50 p-2 sm:p-4 lg:min-h-0 lg:overflow-hidden">
             <Header
@@ -71,11 +96,11 @@ export default function CategoriesTransactionsPage(params) {
                 <CategoriesList
                     categories={categories}
                     loading={loading}
-                    setShowCreateCategoryModal={setShowCreateCategoryModal}
                     selectedMonth={selectedMonth}
                     selectedYear={selectedYear}
                     reloadMonthlyOverview={reloadMonthlyOverview}
                     setCategoryIdForNewTransaction={setCategoryIdForNewTransaction}
+                    onOpenCreateCategoryModal={onOpenCreateCategoryModal}
                     setShowCreateTransactionModal={setShowCreateTransactionModal}
                     setTransactionForNewMovement={setTransactionForNewMovement}
                     setShowMovementsModal={setShowMovementsModal}
@@ -86,12 +111,13 @@ export default function CategoriesTransactionsPage(params) {
             <ModalWrapper
                 height="h-fit"
                 isOpen={showCreateCategoryModal}
-                onClose={() => setShowCreateCategoryModal(false)}
+                onClose={onCloseCreateCategoryModal}
                 title="Nuova categoria"
             >
                 <CreateCategoryModal
                     reload={reloadMonthlyOverview}
-                    onClose={() => setShowCreateCategoryModal(false)}
+                    onClose={onCloseCreateCategoryModal}
+                    formValueForEdit={formValueForEdit}
                 />
             </ModalWrapper>
 
@@ -99,13 +125,13 @@ export default function CategoriesTransactionsPage(params) {
             <ModalWrapper
                 height="h-fit"
                 isOpen={showCreateTransactionModal}
-                onClose={() => setShowCreateTransactionModal(false)}
+                onClose={onCloseCreateTransactionModal}
                 title="Nuova transazione"
             >
                 <CreateTransactionModal
                     selectedCategoryId={categoryIdForNewTransaction}
                     reload={reloadMonthlyOverview}
-                    onClose={() => setShowCreateTransactionModal(false)}
+                    onClose={onCloseCreateTransactionModal}
                 />
             </ModalWrapper>
 

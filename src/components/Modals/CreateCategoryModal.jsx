@@ -12,13 +12,14 @@ const CATEGORY_TYPES = [
 export default function CreateCategoryModal({
 
     onClose,
-    reload
+    reload,
+    formValueForEdit,
 
 }) {
 
     const { postData, loading, error } = usePost();
 
-    const [categoryName, setCategoryName] = useState("");
+    const [categoryName, setCategoryName] = useState(formValueForEdit?.name || "");
     const [selectedType, setSelectedType] = useState("mixed");
     const [errors, setErrors] = useState({});
 
@@ -68,10 +69,10 @@ export default function CreateCategoryModal({
 
                 <div>
                     <h3 className="text-sm font-semibold text-slate-900">
-                        Nuova categoria
+                        {formValueForEdit ? 'Modifica categoria' : 'Nuova categoria'}
                     </h3>
                     <p className="mt-1 text-sm text-slate-500">
-                        Crea una categoria per organizzare entrate o uscite.
+                        {formValueForEdit ? ' Modifica la categoria per organizzare entrate o uscite.' : 'Crea una categoria per organizzare entrate o uscite.'}
                     </p>
                 </div>
             </div>
@@ -87,12 +88,8 @@ export default function CreateCategoryModal({
                     value={categoryName}
                     onChange={handleChange}
                     placeholder="Es. Abbonamenti"
-                    className={`w-full rounded-xl border px-3 py-2.5 text-sm outline-none transition ${errors.name
-                        ? "border-red-400 bg-red-50"
-                        : "border-slate-300 bg-white focus:border-slate-900"
-                        }`}
+                    className={`w-full rounded-xl border px-3 py-2.5 text-sm outline-none transition ${errors.name ? "border-red-400 bg-red-50" : "border-slate-300 bg-white focus:border-slate-900"}`}
                 />
-
                 {errors.name && (
                     <p className="text-xs text-red-500">
                         {errors.name}

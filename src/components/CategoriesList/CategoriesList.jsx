@@ -27,38 +27,26 @@ const OPENED_HERO_VIEW_KEY = "flowcash_openedHeroView";
 export default function CategoriesList({
     categories,
     loading,
-    setShowCreateCategoryModal,
+    onOpenCreateCategoryModal,
     selectedMonth,
     selectedYear,
     reloadMonthlyOverview,
     setCategoryIdForNewTransaction,
     setShowCreateTransactionModal,
     setTransactionForNewMovement,
-    setShowMovementsModal
+    setShowMovementsModal,
 }) {
 
     const [searchedCategories, setSearchedCategories] = useState("");
 
     const filteredCategories = useSearchFilter(categories, searchedCategories, ["name"]);
 
-    // const filteredCategories = useMemo(() => {
-    //     return searchedFilteredCategories.filter((category) => {
-    //         const matchesType =
-    //             (typeFilter === "all") ||
-    //             (typeFilter === "active" && category.has_transactions && Number(category.budget_total) != 0) ||
-    //             (typeFilter === "inactive" && category.has_transactions && Number(category.budget_total) === 0) ||
-    //             (typeFilter === "empty" && !category.has_transactions);
-    //         return matchesType;
-    //     });
-    // }, [searchedFilteredCategories, typeFilter]);
-
-
     return (
         <div className="flex min-h-0 flex-col rounded-xl border border-slate-200 bg-white shadow-sm lg:h-full lg:overflow-hidden">
             <CategoriesListHeader
                 searchedCategories={searchedCategories}
                 setSearchedCategories={setSearchedCategories}
-                setShowCreateCategoryModal={setShowCreateCategoryModal}
+                onOpenCreateCategoryModal={onOpenCreateCategoryModal}
             />
             <CategoriesListBody
                 filteredCategories={filteredCategories}
@@ -72,6 +60,7 @@ export default function CategoriesList({
                 setShowCreateTransactionModal={setShowCreateTransactionModal}
                 setTransactionForNewMovement={setTransactionForNewMovement}
                 setShowMovementsModal={setShowMovementsModal}
+                onOpenCreateCategoryModal={onOpenCreateCategoryModal}
             />
         </div>
     )
@@ -80,7 +69,7 @@ export default function CategoriesList({
 function CategoriesListHeader({
     searchedCategories,
     setSearchedCategories,
-    setShowCreateCategoryModal,
+    onOpenCreateCategoryModal,
 }) {
 
     return (
@@ -89,7 +78,7 @@ function CategoriesListHeader({
                 <h2 className="truncate text-lg font-bold text-slate-900">
                     Categorie
                 </h2>
-                <Button icon={Plus} label={'Categoria'} variant={"secondary"} onClick={() => setShowCreateCategoryModal(true)} size={'sm'} />
+                <Button icon={Plus} label={'Categoria'} variant={"secondary"} onClick={onOpenCreateCategoryModal} size={'sm'} />
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <div className="min-w-0 flex-1">
@@ -111,6 +100,7 @@ function CategoriesListBody({
     setShowCreateTransactionModal,
     setTransactionForNewMovement,
     setShowMovementsModal,
+    onOpenCreateCategoryModal
 }) {
 
     const [openSections, setOpenSections] = useState({
@@ -225,6 +215,7 @@ function CategoriesListBody({
                     category={category}
                     onClick={() => handleOpenHero(category)}
                     reloadMonthlyOverview={reloadMonthlyOverview}
+                    onOpenCreateCategoryModal={onOpenCreateCategoryModal}
                 />
             </motion.div>
         );
@@ -318,7 +309,8 @@ function CategoriesListBody({
 function CategoryCard({
     category,
     onClick,
-    reloadMonthlyOverview
+    reloadMonthlyOverview,
+    onOpenCreateCategoryModal
 }) {
 
     const { deleteData } = useDelete()
@@ -335,21 +327,22 @@ function CategoryCard({
         }
     }
 
+
+
     const moreActions = [
         {
             label: "Modifica",
             icon: Pencil,
-            onClick: (category) => {
-                console.log("Modifica categoria", category);
-            },
+            onClick: (category) => onOpenCreateCategoryModal(true, category)
         },
         {
             label: "Elimina",
             icon: Trash2,
             variant: "danger",
-            onClick: (category) => { handleDeleteCategory(category) },
+            onClick: (category) => handleDeleteCategory(category)
         },
     ];
+
 
     return (
         <div
