@@ -12,8 +12,6 @@ export default function SectionsDivider({
     children,
 }) {
 
-    console.log(children);
-
 
     return (
         <div className="w-full">

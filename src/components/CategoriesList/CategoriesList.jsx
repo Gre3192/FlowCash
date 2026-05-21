@@ -38,7 +38,6 @@ export default function CategoriesList({
 }) {
 
     const [searchedCategories, setSearchedCategories] = useState("");
-    const [typeFilter, setTypeFilter] = useState("all");
 
     const filteredCategories = useSearchFilter(categories, searchedCategories, ["name"]);
 
@@ -60,8 +59,6 @@ export default function CategoriesList({
                 searchedCategories={searchedCategories}
                 setSearchedCategories={setSearchedCategories}
                 setShowCreateCategoryModal={setShowCreateCategoryModal}
-                typeFilter={typeFilter}
-                setTypeFilter={setTypeFilter}
             />
             <CategoriesListBody
                 filteredCategories={filteredCategories}
@@ -84,32 +81,7 @@ function CategoriesListHeader({
     searchedCategories,
     setSearchedCategories,
     setShowCreateCategoryModal,
-    typeFilter,
-    setTypeFilter
 }) {
-
-    // const options = [
-    //     {
-    //         label: "Tutte",
-    //         value: "all",
-    //         icon: null,
-    //     },
-    //     {
-    //         label: "Pianificate",
-    //         value: "active",
-    //         icon: null,
-    //     },
-    //     {
-    //         label: "Da pianificare",
-    //         value: "inactive",
-    //         icon: null,
-    //     },
-    //     {
-    //         label: "Vuote",
-    //         value: "empty",
-    //         icon: null,
-    //     },
-    // ];
 
     return (
         <div className="flex shrink-0 flex-col gap-3 border-b border-slate-200 p-3 sm:p-4">
@@ -123,12 +95,6 @@ function CategoriesListHeader({
                 <div className="min-w-0 flex-1">
                     <SearchBar search={searchedCategories} setSearch={setSearchedCategories} placeholder={"Cerca categoria..."} />
                 </div>
-
-                {/* <ToggleButtonGroup
-                    options={options}
-                    value={typeFilter}
-                    onChange={setTypeFilter}
-                /> */}
             </div>
         </div>
     )
@@ -223,31 +189,24 @@ function CategoriesListBody({
     // Apre l'accordion cliccato
     function toggleSection(sectionKey) {
         if (searchedCategories.trim().length > 0) return
-        setOpenSections((prev) => ({
-            ...prev,
-            [sectionKey]: !prev[sectionKey],
-        }));
+        setOpenSections((prev) => ({ ...prev, [sectionKey]: !prev[sectionKey], }));
     }
 
     // Apre la heroView
     function handleOpenHero(category) {
         sessionStorage.setItem(OPENED_HERO_VIEW_KEY, category.id);
-
         setCategoryIdForNewTransaction?.(category.id);
-
         hero.open(category.id);
     }
 
     // Chiude la heroView
     function handleCloseHero() {
         sessionStorage.removeItem(OPENED_HERO_VIEW_KEY);
-
         setCategoryIdForNewTransaction?.(null);
-
         hero.close();
     }
 
-    // Rednerizza categoria
+    // Renderizza categoria
     function renderCategory(category) {
 
         if (hero.selectedId === category.id) {
@@ -280,6 +239,8 @@ function CategoriesListBody({
                 emptyComponent={<EmptyState text={searchedCategories ? "Nessun risultato trovato" : "Nessuna categoria disponibile"} />}
             >
                 <div className="space-y-4">
+
+                    {/* Categorie pianificate */}
                     <SectionsDivider
                         label={`Categorie pianificate per ${getMonthByNum(selectedMonth)} ${selectedYear}`}
                         numItems={categorizedCategories.budgeted.length}
@@ -297,6 +258,7 @@ function CategoriesListBody({
                         </ContentViewState>
                     </SectionsDivider>
 
+                    {/* Categorie non pianificate */}
                     <SectionsDivider
                         label={`Categorie non pianificate per ${getMonthByNum(selectedMonth)} ${selectedYear}`}
                         numItems={categorizedCategories.toPlan.length}
@@ -314,6 +276,7 @@ function CategoriesListBody({
                         </ContentViewState>
                     </SectionsDivider>
 
+                    {/* Categorie vuote */}
                     <SectionsDivider
                         label="Categorie senza transazioni"
                         numItems={categorizedCategories.empty.length}
@@ -330,6 +293,7 @@ function CategoriesListBody({
                             </div>
                         </ContentViewState>
                     </SectionsDivider>
+
                 </div>
             </ContentViewState>
 
@@ -428,10 +392,59 @@ function ExpandedCategoryView({
 
     const transactions = category?.transactions ?? [];
 
+    const [typeFilter, setTypeFilter] = useState("all");
     const [searchedTransactions, setSearchedTransactions] = useState("");
+    const [openSections, setOpenSections] = useState({
+        budgeted: true,
+        toPlan: false,
+        empty: false,
+    });
+
     const filteredTransactions = useSearchFilter(transactions, searchedTransactions, ["name"]);
 
-    const [typeFilter, setTypeFilter] = useState("all");
+    console.log(transactions);
+
+
+    const categorizedTransactions = useMemo(() => {
+        return filteredTransactions.reduce(
+            (acc, transaction) => {
+
+                if (Boolean(transaction.needs_budget)) {
+                    acc.empty.push(transaction);
+                    return acc;
+                }
+
+                if (Number(transaction.target || 0) === 0) {
+                    acc.toPlan.push(transaction);
+                    return acc;
+                }
+
+                acc.budgeted.push(transaction);
+                return acc;
+            },
+            {
+                budgeted: [],
+                toPlan: [],
+                empty: [],
+            }
+        );
+    }, [filteredTransactions]);
+
+
+    useEffect(() => {
+        const hasSearch = searchedTransactions.trim().length > 0;
+        if (!hasSearch) return;
+        setOpenSections({
+            budgeted: categorizedTransactions.budgeted.length > 0,
+            toPlan: categorizedTransactions.toPlan.length > 0,
+            empty: categorizedTransactions.empty.length > 0,
+        });
+    }, [
+        searchedTransactions,
+        categorizedTransactions.budgeted.length,
+        categorizedTransactions.toPlan.length,
+        categorizedTransactions.empty.length,
+    ]);
 
     function handleCardClick(transaction) {
         if (transaction.needs_budget) return
@@ -439,7 +452,29 @@ function ExpandedCategoryView({
         setShowMovementsModal(true)
     }
 
-    const options = [
+    // Apre l'accordion cliccato
+    function toggleSection(sectionKey) {
+        if (searchedTransactions.trim().length > 0) return
+        setOpenSections((prev) => ({
+            ...prev,
+            [sectionKey]: !prev[sectionKey],
+        }));
+    }
+
+    function renderTransaction(transaction) {
+
+        return (
+            <TransactionCard
+                transaction={transaction}
+                selectedMonth={selectedMonth}
+                selectedYear={selectedYear}
+                reloadMonthlyOverview={reloadMonthlyOverview}
+                onClick={() => handleCardClick(transaction)}
+            />
+        );
+    }
+
+    const filterOptions = [
         {
             label: "Tutte",
             value: "all",
@@ -482,7 +517,7 @@ function ExpandedCategoryView({
                 <div className="min-w-0 flex-1 px-4 pb-3 sm:px-6 flex items-center justify-between">
                     <SearchBar search={searchedTransactions} setSearch={setSearchedTransactions} placeholder={"Cerca transazione..."} />
                     <ToggleButtonGroup
-                        options={options}
+                        options={filterOptions}
                         value={typeFilter}
                         onChange={setTypeFilter}
                     />
@@ -496,18 +531,62 @@ function ExpandedCategoryView({
                 emptyComponent={<EmptyState text={searchedTransactions ? "Nessun risultato trovato" : "Nessuna transazione disponibile"} />}
             >
                 <div className="space-y-2">
-                    {filteredTransactions.map((transaction, i) => {
 
-                        return (
-                            <TransactionCard
-                                transaction={transaction}
-                                selectedMonth={selectedMonth}
-                                selectedYear={selectedYear}
-                                reloadMonthlyOverview={reloadMonthlyOverview}
-                                onClick={() => handleCardClick(transaction)}
-                            />
-                        )
-                    })}
+                    {/* Transazioni pianificate */}
+                    <SectionsDivider
+                        label={`Transazioni pianificate per ${getMonthByNum(selectedMonth)} ${selectedYear}`}
+                        numItems={categorizedTransactions.budgeted.length}
+                        show={openSections.budgeted}
+                        onClick={() => toggleSection("budgeted")}
+                    >
+                        <ContentViewState
+                            isEmpty={categorizedTransactions.budgeted.length === 0}
+                            emptyComponent={<EmptyState text={`Nessuna transazione pianificata per ${getMonthByNum(selectedMonth)} ${selectedYear}`} />}
+                            autoScroll={true}
+                        >
+                            <div className="space-y-3">
+                                {categorizedTransactions.budgeted.map(renderTransaction)}
+                            </div>
+                        </ContentViewState>
+                    </SectionsDivider>
+
+                    {/* Transazioni non pianificate */}
+                    <SectionsDivider
+                        label={`Transazioni pianificate per ${getMonthByNum(selectedMonth)} ${selectedYear}`}
+                        numItems={categorizedTransactions.toPlan.length}
+                        show={openSections.toPlan}
+                        onClick={() => toggleSection("toPlan")}
+                    >
+                        <ContentViewState
+                            isEmpty={categorizedTransactions.toPlan.length === 0}
+                            emptyComponent={<EmptyState text={`Nessuna transazione non pianificata per ${getMonthByNum(selectedMonth)} ${selectedYear}`} />}
+                            autoScroll={true}
+                        >
+                            <div className="space-y-3">
+                                {categorizedTransactions.toPlan.map(renderTransaction)}
+                            </div>
+                        </ContentViewState>
+                    </SectionsDivider>
+
+                    {/* Transazioni vuote */}
+                    <SectionsDivider
+                        label={`Transazioni non pianificate`}
+                        numItems={categorizedTransactions.empty.length}
+                        show={openSections.empty}
+                        onClick={() => toggleSection("empty")}
+                    >
+                        <ContentViewState
+                            isEmpty={categorizedTransactions.empty.length === 0}
+                            emptyComponent={<EmptyState text={`Nessuna transazione non pianificata`} />}
+                            autoScroll={true}
+                        >
+                            <div className="space-y-3">
+                                {categorizedTransactions.empty.map(renderTransaction)}
+                            </div>
+                        </ContentViewState>
+                    </SectionsDivider>
+
+
                 </div>
             </ContentViewState>
         </>
