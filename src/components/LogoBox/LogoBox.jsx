@@ -10,10 +10,10 @@ export default function LogoBox({
     imageClassName = "",
     iconClassName = "",
 }) {
-    
+
     const sizes = {
         sm: "h-9 w-9",
-        md: "h-11 w-11",
+        md: "h-10 w-10",
         lg: "h-14 w-14",
     };
 
@@ -27,8 +27,7 @@ export default function LogoBox({
     return (
         <div
             className={`
-                flex shrink-0 items-center justify-center overflow-hidden
-                bg-slate-100 shadow-sm
+                flex shrink-0 items-center justify-center overflow-hidden bg-slate-100 shadow-sm
                 ${sizes[size] || sizes.md}
                 ${roundedMap[rounded] || roundedMap.xl}
                 ${className}
@@ -47,7 +46,7 @@ export default function LogoBox({
                 <Icon
                     size={20}
                     className={`
-                        text-slate-400
+                        
                         ${iconClassName}
                     `}
                 />

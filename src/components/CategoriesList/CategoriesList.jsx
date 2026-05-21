@@ -18,6 +18,7 @@ import TransactionCard from "../TransactionCard/TransactionCard";
 import { useDelete } from "../../hooks/useDelete";
 import { API_ENDPOINTS } from "../../api/endpoint";
 import ToggleButtonGroup from "../../ui/ToggleButtonGroup";
+import LogoBox from "../LogoBox/LogoBox";
 
 const OPENED_HERO_VIEW_KEY = "flowcash_openedHeroView";
 
@@ -268,10 +269,7 @@ function CategoryCard({
             onClick={onClick}
             className={`group flex w-full cursor-pointer items-center gap-3 rounded-xl border border-l-4 border-slate-200 bg-white px-3 py-3 text-left shadow-sm transition-all hover:shadow-md sm:px-4`}
         >
-            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-transform group-hover:scale-105`}>
-                <FolderOpen size={18} />
-            </div>
-
+            <LogoBox icon={FolderOpen} />
             <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center  gap-2">
@@ -341,9 +339,7 @@ function ExpandedCategoryView({
             <div className={`shrink-0 border-b border-slate-200 `}>
                 <div className="flex items-center gap-3 px-4 py-4 sm:px-6">
                     <IconButton icon={ArrowLeft} size={'md'} onClick={onClose} />
-                    <div className={`flex h-10 w-10 bg-slate-100 shrink-0 items-center justify-center rounded-lg `}>
-                        <FolderOpen size={20} />
-                    </div>
+                    <LogoBox icon={FolderOpen} />
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                             <h2 className="truncate text-base font-bold text-slate-900 sm:text-lg">
