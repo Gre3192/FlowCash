@@ -4,22 +4,19 @@ export default function ContentViewState({
     loadingComponent = null,
     emptyComponent = null,
     children,
+    autoScroll = false,
 }) {
-    if (loading) {
-        return (<div className="min-h-0 flex-1 overflow-y-scroll p-2 sm:p-3">
-            {loadingComponent}
-        </div>)
-    }
+    const overflowClass = autoScroll ? "overflow-y-auto" : "overflow-y-scroll";
 
-    if (isEmpty) {
-        return (<div className="min-h-0 flex-1 overflow-y-scroll p-2 sm:p-3">
-            {emptyComponent}
-        </div>)
+    function renderContent() {
+        if (loading) return loadingComponent;
+        if (isEmpty) return emptyComponent;
+        return children;
     }
 
     return (
-        <div className="min-h-0 flex-1 overflow-y-scroll p-2 sm:p-3">
-            {children}
+        <div className={`min-h-0 flex-1 p-2 sm:p-3 ${overflowClass}`}>
+            {renderContent()}
         </div>
-    )
+    );
 }

@@ -260,6 +260,7 @@ function CategoriesListBody({
             <motion.div
                 key={category.id}
                 layoutId={hero.getLayoutId(category.id)}
+                className="px-5"
             >
                 <CategoryCard
                     category={category}
@@ -285,7 +286,15 @@ function CategoriesListBody({
                         show={openSections.budgeted}
                         onClick={() => toggleSection("budgeted")}
                     >
-                        {categorizedCategories.budgeted.map(renderCategory)}
+                        <ContentViewState
+                            isEmpty={categorizedCategories.budgeted.length === 0}
+                            emptyComponent={<EmptyState text={`Nessuna categoria pianificata per ${getMonthByNum(selectedMonth)} ${selectedYear}`} />}
+                            autoScroll={true}
+                        >
+                            <div className="space-y-3">
+                                {categorizedCategories.budgeted.map(renderCategory)}
+                            </div>
+                        </ContentViewState>
                     </CategoryDivider>
 
                     <CategoryDivider
@@ -294,7 +303,15 @@ function CategoriesListBody({
                         show={openSections.toPlan}
                         onClick={() => toggleSection("toPlan")}
                     >
-                        {categorizedCategories.toPlan.map(renderCategory)}
+                        <ContentViewState
+                            isEmpty={categorizedCategories.toPlan.length === 0}
+                            emptyComponent={<EmptyState text={`Nessuna categoria non pianificata per ${getMonthByNum(selectedMonth)} ${selectedYear}`} />}
+                            autoScroll={true}
+                        >
+                            <div className="space-y-3">
+                                {categorizedCategories.toPlan.map(renderCategory)}
+                            </div>
+                        </ContentViewState>
                     </CategoryDivider>
 
                     <CategoryDivider
@@ -303,7 +320,15 @@ function CategoriesListBody({
                         show={openSections.empty}
                         onClick={() => toggleSection("empty")}
                     >
-                        {categorizedCategories.empty.map(renderCategory)}
+                        <ContentViewState
+                            isEmpty={categorizedCategories.empty.length === 0}
+                            emptyComponent={<EmptyState text={"Nessuna categoria senza transazioni"} />}
+                            autoScroll={true}
+                        >
+                            <div className="space-y-3">
+                                {categorizedCategories.empty.map(renderCategory)}
+                            </div>
+                        </ContentViewState>
                     </CategoryDivider>
                 </div>
             </ContentViewState>
