@@ -32,7 +32,6 @@ export default function CategoriesTransactionsPage(params) {
     const [categoryIdForNewTransaction, setCategoryIdForNewTransaction] = useState(null);
     const [transactionForNewMovement, setTransactionForNewMovement] = useState(null);
 
-
     useEffect(() => {
         const nextParams = new URLSearchParams();
         nextParams.set("year", String(selectedYear));
