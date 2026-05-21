@@ -146,7 +146,7 @@ function CategoriesListBody({
     setTransactionForNewMovement,
     setShowMovementsModal,
 }) {
-    
+
     const [openSections, setOpenSections] = useState({
         budgeted: true,
         toPlan: false,
@@ -155,6 +155,7 @@ function CategoriesListBody({
 
     const hero = useHeroAnimation("category-hero", "xl");
 
+    // Crea una nuova struttura delle categorie separando tra pianificate, non pianificate e vuote
     const categorizedCategories = useMemo(() => {
         return filteredCategories.reduce(
             (acc, category) => {
@@ -180,14 +181,13 @@ function CategoriesListBody({
         );
     }, [filteredCategories]);
 
+    // Salva la categoria cliccata
     const selectedCategory = useMemo(() => {
         if (!hero.selectedId) return null;
-
-        return filteredCategories.find(
-            (category) => category.id === hero.selectedId
-        );
+        return filteredCategories.find((category) => category.id === hero.selectedId);
     }, [filteredCategories, hero.selectedId]);
 
+    // Apre gli accordion in cui sono presenti le categorie cercate
     useEffect(() => {
         const hasSearch = searchedCategories.trim().length > 0;
         if (!hasSearch) return;
@@ -203,6 +203,7 @@ function CategoriesListBody({
         categorizedCategories.empty.length,
     ]);
 
+    // Apre la heroView salvando l'id della categoria aperta in sessionStorage
     useEffect(() => {
         const storedCategoryId = sessionStorage.getItem(OPENED_HERO_VIEW_KEY);
 
@@ -217,22 +218,18 @@ function CategoriesListBody({
 
         setCategoryIdForNewTransaction?.(storedCategoryId);
         hero.open(storedCategoryId);
-    }, [
-        filteredCategories,
-        hero.isOpen,
-        setCategoryIdForNewTransaction,
-    ]);
+    }, [filteredCategories, hero.isOpen, setCategoryIdForNewTransaction]);
 
+    // Apre l'accordion cliccato
     function toggleSection(sectionKey) {
-
-        if(searchedCategories.trim().length > 0) return
-
+        if (searchedCategories.trim().length > 0) return
         setOpenSections((prev) => ({
             ...prev,
             [sectionKey]: !prev[sectionKey],
         }));
     }
 
+    // Apre la heroView
     function handleOpenHero(category) {
         sessionStorage.setItem(OPENED_HERO_VIEW_KEY, category.id);
 
@@ -241,6 +238,7 @@ function CategoriesListBody({
         hero.open(category.id);
     }
 
+    // Chiude la heroView
     function handleCloseHero() {
         sessionStorage.removeItem(OPENED_HERO_VIEW_KEY);
 
@@ -249,8 +247,9 @@ function CategoriesListBody({
         hero.close();
     }
 
+    // Rednerizza categoria
     function renderCategory(category) {
-    
+
         if (hero.selectedId === category.id) {
             return (
                 <div key={category.id} className="h-16 rounded-xl bg-slate-100/50" />
@@ -292,7 +291,7 @@ function CategoriesListBody({
                     </CategoryDivider>
 
                     <CategoryDivider
-                        label={`Categorie da pianificare per ${getMonthByNum(
+                        label={`Categorie non pianificate per ${getMonthByNum(
                             selectedMonth
                         )} ${selectedYear}`}
                         numItems={categorizedCategories.toPlan.length}
