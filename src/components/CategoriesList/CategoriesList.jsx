@@ -20,6 +20,7 @@ import { API_ENDPOINTS } from "../../api/endpoint";
 import ToggleButtonGroup from "../../ui/ToggleButtonGroup";
 import LogoBox from "../LogoBox/LogoBox";
 import CategoryDivider from "../CategoryDivider/CategoryDivider";
+import getMonthByNum from "../../utils/getMonthByNum";
 
 const OPENED_HERO_VIEW_KEY = "flowcash_openedHeroView";
 
@@ -204,7 +205,7 @@ function CategoriesListBody({
 
                     {/* CATEGORIE PIANIFICATE */}
                     <CategoryDivider
-                        label="Pianificate"
+                        label={`Categorie pianificate per ${getMonthByNum(selectedMonth)} ${selectedYear}`}
                         numItems={filteredCategories.length}
                         show={openSections.budgeted}
                         onClick={() => toggleSection("budgeted")}
@@ -234,7 +235,7 @@ function CategoriesListBody({
 
                     {/* CATEGORIE INATTIVE */}
                     <CategoryDivider
-                        label="Da pianificare"
+                        label={`Categorie non pianificate per ${getMonthByNum(selectedMonth)} ${selectedYear}`}
                         numItems={filteredCategories.length}
                         show={openSections.toPlan}
                         onClick={() => toggleSection("toPlan")}
@@ -264,7 +265,7 @@ function CategoriesListBody({
 
                     {/* CATEGORIE VUOTE */}
                     <CategoryDivider
-                        label="Vuote"
+                        label={`Categorie vuote`}
                         numItems={filteredCategories.length}
                         show={openSections.empty}
                         onClick={() => toggleSection("empty")}
