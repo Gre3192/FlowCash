@@ -474,10 +474,10 @@ function ExpandedCategoryView({
     }
 
     // Renderizza transazione
-    function renderTransaction(transaction, i) {
+    function renderTransaction(transaction) {
 
         return (
-            <div key={i} className="px-5">
+            <div key={transaction.id} className="px-5">
                 <TransactionCard
                     transaction={transaction}
                     selectedMonth={selectedMonth}
