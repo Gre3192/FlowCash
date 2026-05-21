@@ -99,8 +99,6 @@ export default function TransactionCard({
         }
     }
 
-    console.log(transaction.needs_budget);
-
 
     return (
         <div onClick={onClick} className="transaction-card" >
