@@ -1,4 +1,4 @@
-import { Pencil, Trash2, ListChecks, WalletCards } from "lucide-react";
+import { Pencil, Trash2, ListChecks, WalletCards, Plus } from "lucide-react";
 import "./TransactionCard.scss";
 import LogoBox from "../LogoBox/LogoBox";
 import InfoBadge from "../Badges/InfoBadge/InfoBadge"
@@ -6,7 +6,7 @@ import AmountRatio from "../AmountRatio/AmountRatio";
 import KindBadge from "../Badges/KindBadge/KindBadge";
 import EdgeProgressBar from "../EdgeProgressBar/EdgeProgressBar";
 import MoreActionsMenu from "../MoreActionMenu/MoreActionMenu"
-import { IconButton } from "../../ui";
+import { IconButton, Button } from "../../ui";
 import formatCurrency from "../../utils/formatCurrency";
 import { useNavigate } from "react-router-dom";
 import { ROUTE_PAGE } from "../../routes/routePage"
@@ -99,6 +99,9 @@ export default function TransactionCard({
         }
     }
 
+    console.log(transaction.needs_budget);
+
+
     return (
         <div onClick={onClick} className="transaction-card" >
 
@@ -117,17 +120,21 @@ export default function TransactionCard({
                 </div>
             </div>
 
-            <div className="hidden min-w-40 flex-col items-end mr-3 sm:flex">
-                <AmountRatio firstNum={formatCurrency(transaction.current)} secondNum={formatCurrency(transaction.target)} />
-                <div className="mt-1 text-xs font-semibold text-slate-500">
-                    Rimanenti:{" "}
-                    <span className="font-bold text-slate-900">
-                        {formatCurrency(transaction.remaining)}
-                    </span>
-                </div>
-                <EdgeProgressBar value={transaction.progress} />
-            </div>
-
+            {
+                transaction?.needs_budget ?
+                    <Button icon={Plus} label={'Inserisci budget'} variant={"secondary"} onClick={handleGoToBudgetPage} size={'sm'} className={'mr-3'} />
+                    :
+                    <div className="hidden min-w-40 flex-col items-end mr-3 sm:flex">
+                        <AmountRatio firstNum={formatCurrency(transaction.current)} secondNum={formatCurrency(transaction.target)} />
+                        <div className="mt-1 text-xs font-semibold text-slate-500">
+                            Rimanenti:{" "}
+                            <span className="font-bold text-slate-900">
+                                {formatCurrency(transaction.remaining)}
+                            </span>
+                        </div>
+                    </div>
+            }
+            <EdgeProgressBar value={transaction.progress} />
             <MoreActionsMenu
                 item={transaction}
                 actions={moreActions}

@@ -9,7 +9,12 @@ const CATEGORY_TYPES = [
     { key: "mixed", label: "Mista", color: "bg-slate-500", textColor: "text-slate-700", ringColor: "ring-slate-300", bgLight: "bg-slate-50" },
 ];
 
-export default function CreateCategoryModal({ onClose, reload }) {
+export default function CreateCategoryModal({
+
+    onClose,
+    reload
+
+}) {
 
     const { postData, loading, error } = usePost();
 
@@ -107,11 +112,10 @@ export default function CreateCategoryModal({ onClose, reload }) {
                                 key={type.key}
                                 type="button"
                                 onClick={() => setSelectedType(type.key)}
-                                className={`flex flex-1 items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition-all ${
-                                    isSelected
-                                        ? `${type.bgLight} ${type.textColor} border-current ring-2 ${type.ringColor}`
-                                        : "border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700"
-                                }`}
+                                className={`flex flex-1 items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition-all ${isSelected
+                                    ? `${type.bgLight} ${type.textColor} border-current ring-2 ${type.ringColor}`
+                                    : "border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700"
+                                    }`}
                             >
                                 <span className={`h-2.5 w-2.5 rounded-full ${type.color}`} />
                                 {type.label}

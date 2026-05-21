@@ -310,6 +310,7 @@ function ExpandedCategoryView({
     const [typeFilter, setTypeFilter] = useState("all");
 
     function handleCardClick(transaction) {
+        if (transaction.needs_budget) return
         setTransactionForNewMovement(transaction)
         setShowMovementsModal(true)
     }
