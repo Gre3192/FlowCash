@@ -40,19 +40,19 @@ export default function BulkUpdatePanel({
     const lastWheelTimeRef = useRef(0);
 
     function toggleMonth(monthIndex) {
-        setSelectedMonths((prev) =>
-            prev.includes(monthIndex)
-                ? prev.filter((month) => month !== monthIndex)
-                : [...prev, monthIndex].sort((a, b) => a - b)
-        );
+        setSelectedMonths((prev) => prev.includes(monthIndex) ?
+            prev.filter((month) => month !== monthIndex)
+            :
+            [...prev, monthIndex].sort((a, b) => a - b));
     }
 
     function toggleYear(year) {
-        setSelectedYears((prev) =>
-            prev.includes(year)
-                ? prev.filter((currentYear) => currentYear !== year)
-                : [...prev, year].sort((a, b) => a - b)
-        );
+        setSelectedYears(
+            (prev) =>
+                prev.includes(year) ?
+                    prev.filter((currentYear) => currentYear !== year)
+                    :
+                    [...prev, year].sort((a, b) => a - b));
     }
 
     function selectAllMonths() {
@@ -125,9 +125,7 @@ export default function BulkUpdatePanel({
     function handleWheelValue(event) {
         const now = performance.now();
 
-        const deltaTime = lastWheelTimeRef.current
-            ? now - lastWheelTimeRef.current
-            : 999;
+        const deltaTime = lastWheelTimeRef.current ? now - lastWheelTimeRef.current: 999;
 
         lastWheelTimeRef.current = now;
 
@@ -239,9 +237,7 @@ export default function BulkUpdatePanel({
 
                 <ChevronDown
                     size={22}
-                    className={`shrink-0 text-slate-500 transition-transform duration-300 ${
-                        isOpen ? "rotate-180" : ""
-                    }`}
+                    className={`shrink-0 text-slate-500 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
                 />
             </button>
 
