@@ -25,10 +25,27 @@ export default function MoreActionsMenu({
         const rect = button.getBoundingClientRect();
 
         const menuWidth = 180;
+        const estimatedItemHeight = 40;
+        const verticalPadding = 8;
+        const gap = 8;
         const viewportPadding = 12;
 
+        const menuHeight =
+            actions.length * estimatedItemHeight + verticalPadding;
+
         let left = rect.right - menuWidth;
-        let top = rect.bottom + 8;
+        let top = rect.bottom + gap;
+
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+
+        const shouldOpenAbove =
+            spaceBelow < menuHeight + gap &&
+            spaceAbove > spaceBelow;
+
+        if (shouldOpenAbove) {
+            top = rect.top - menuHeight - gap;
+        }
 
         if (left < viewportPadding) {
             left = viewportPadding;
@@ -36,6 +53,14 @@ export default function MoreActionsMenu({
 
         if (left + menuWidth > window.innerWidth - viewportPadding) {
             left = window.innerWidth - menuWidth - viewportPadding;
+        }
+
+        if (top < viewportPadding) {
+            top = viewportPadding;
+        }
+
+        if (top + menuHeight > window.innerHeight - viewportPadding) {
+            top = window.innerHeight - menuHeight - viewportPadding;
         }
 
         setMenuPosition({
@@ -69,6 +94,12 @@ export default function MoreActionsMenu({
     }
 
     useEffect(() => {
+        if (!isOpen) return;
+
+        updateMenuPosition();
+    }, [isOpen, actions.length]);
+
+    useEffect(() => {
         function handleClickOutside(e) {
             const button = buttonRef.current;
             const menu = menuRef.current;
@@ -94,7 +125,7 @@ export default function MoreActionsMenu({
             window.removeEventListener("scroll", handleScrollOrResize, true);
             window.removeEventListener("resize", handleScrollOrResize);
         };
-    }, [isOpen]);
+    }, [isOpen, actions.length]);
 
     const menu = (
         <AnimatePresence>
@@ -129,9 +160,11 @@ export default function MoreActionsMenu({
                         top: menuPosition.top,
                         left: menuPosition.left,
                         width: 180,
+                        maxHeight: "calc(100vh - 24px)",
+                        overflowY: "auto",
                     }}
                     className={`
-                        z-[9999] origin-top-right overflow-hidden 
+                        z-[9999] origin-top-right
                         rounded-xl border border-slate-200 bg-white py-1 
                         shadow-xl
                         ${menuClassName}
