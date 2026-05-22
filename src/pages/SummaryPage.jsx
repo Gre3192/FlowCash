@@ -240,6 +240,7 @@ function MoneyCell({
     strong = false,
     isEditable = false,
     onChange,
+    onKeyDown,
 }) {
     const variants = {
         default: "text-slate-700",
@@ -261,6 +262,7 @@ function MoneyCell({
                     inputMode="decimal"
                     value={formatInputValue(value)}
                     onChange={(event) => onChange?.(event.target.value)}
+                    onKeyDown={onKeyDown}
                     placeholder="-"
                     className={`
                         h-7 w-full min-w-0 rounded-md border border-slate-200 bg-white px-1.5 text-right text-xs font-medium
@@ -447,6 +449,19 @@ export default function YearBalanceSummaryPage() {
             ...prev,
             [rowKey]: !prev[rowKey],
         }));
+    }
+
+    function handleRowInputKeyDown(event, rowKey) {
+        if (event.key !== "Enter") return;
+
+        event.preventDefault();
+
+        setEditableRows((prev) => ({
+            ...prev,
+            [rowKey]: false,
+        }));
+
+        event.currentTarget.blur();
     }
 
     function handleMonthValueChange(monthIndex, fieldKey, value) {
@@ -666,6 +681,12 @@ export default function YearBalanceSummaryPage() {
                                                                 monthIndex,
                                                                 row.key,
                                                                 newValue
+                                                            )
+                                                        }
+                                                        onKeyDown={(event) =>
+                                                            handleRowInputKeyDown(
+                                                                event,
+                                                                row.key
                                                             )
                                                         }
                                                     />
