@@ -7,6 +7,7 @@ import {
     CalendarDays,
     Pencil,
     Lock,
+    ArrowUpRight,
 } from "lucide-react";
 
 import formatCurrency from "../utils/formatCurrency";
@@ -33,6 +34,7 @@ const summaryData = {
             endMonth: 899.48,
             expectedSaving: 400,
             realEndMonth: null,
+            surplusToWallet: 0,
         },
         {
             label: "Febbraio",
@@ -43,6 +45,7 @@ const summaryData = {
             endMonth: 456.14,
             expectedSaving: 400,
             realEndMonth: null,
+            surplusToWallet: 0,
         },
         {
             label: "Marzo",
@@ -53,6 +56,7 @@ const summaryData = {
             endMonth: 598.09,
             expectedSaving: 400,
             realEndMonth: null,
+            surplusToWallet: 0,
         },
         {
             label: "Aprile",
@@ -63,6 +67,7 @@ const summaryData = {
             endMonth: 579.75,
             expectedSaving: 400,
             realEndMonth: null,
+            surplusToWallet: 0,
         },
         {
             label: "Maggio",
@@ -73,6 +78,7 @@ const summaryData = {
             endMonth: 771.61,
             expectedSaving: 400,
             realEndMonth: null,
+            surplusToWallet: 0,
         },
         {
             label: "Giugno",
@@ -83,6 +89,7 @@ const summaryData = {
             endMonth: 753.27,
             expectedSaving: 400,
             realEndMonth: null,
+            surplusToWallet: 0,
         },
         {
             label: "Luglio",
@@ -93,6 +100,7 @@ const summaryData = {
             endMonth: 470.23,
             expectedSaving: 400,
             realEndMonth: null,
+            surplusToWallet: 0,
         },
         {
             label: "Agosto",
@@ -103,6 +111,7 @@ const summaryData = {
             endMonth: 451.89,
             expectedSaving: 400,
             realEndMonth: null,
+            surplusToWallet: 0,
         },
         {
             label: "Settembre",
@@ -113,6 +122,7 @@ const summaryData = {
             endMonth: 643.75,
             expectedSaving: 400,
             realEndMonth: null,
+            surplusToWallet: 0,
         },
         {
             label: "Ottobre",
@@ -123,6 +133,7 @@ const summaryData = {
             endMonth: 625.41,
             expectedSaving: 400,
             realEndMonth: null,
+            surplusToWallet: 0,
         },
         {
             label: "Novembre",
@@ -133,6 +144,7 @@ const summaryData = {
             endMonth: 817.27,
             expectedSaving: 400,
             realEndMonth: null,
+            surplusToWallet: 0,
         },
         {
             label: "Dicembre",
@@ -143,11 +155,18 @@ const summaryData = {
             endMonth: 2098.93,
             expectedSaving: 400,
             realEndMonth: null,
+            surplusToWallet: 0,
         },
     ],
 };
 
 const EDITABLE_ROWS = ["startMonth", "expectedSaving", "realEndMonth"];
+
+const START_MONTH_SOURCE = {
+    HYPOTHETICAL: "hypothetical",
+    REAL: "real",
+    CUSTOM: "custom",
+};
 
 function normalizeNumberValue(value) {
     if (value === "" || value === null || value === undefined) {
@@ -162,6 +181,27 @@ function normalizeNumberValue(value) {
     }
 
     return numericValue;
+}
+
+function normalizeCurrencyNumber(value) {
+    const numericValue = normalizeNumberValue(value);
+
+    if (numericValue === null || numericValue === undefined) {
+        return null;
+    }
+
+    return Math.round(numericValue * 100);
+}
+
+function areCurrencyValuesEqual(firstValue, secondValue) {
+    const firstNormalizedValue = normalizeCurrencyNumber(firstValue);
+    const secondNormalizedValue = normalizeCurrencyNumber(secondValue);
+
+    if (firstNormalizedValue === null || secondNormalizedValue === null) {
+        return false;
+    }
+
+    return firstNormalizedValue === secondNormalizedValue;
 }
 
 function formatInputValue(value) {
@@ -234,6 +274,33 @@ function SummaryCard({
     );
 }
 
+function ActionButton({ actionButton }) {
+    const isDisabled = !actionButton || actionButton.disabled;
+
+    return (
+        <button
+            type="button"
+            disabled={isDisabled}
+            onClick={actionButton?.onClick}
+            title={actionButton?.title}
+            className={`
+                flex h-7 w-full items-center justify-center gap-1 rounded-md
+                border px-1 text-[10px] font-medium transition sm:h-5
+                ${
+                    isDisabled
+                        ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
+                        : actionButton?.active
+                            ? "border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100"
+                            : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                }
+            `}
+        >
+            <span>{actionButton?.label ?? "-"}</span>
+            <ArrowUpRight size={11} />
+        </button>
+    );
+}
+
 function MoneyCell({
     value,
     variant = "default",
@@ -241,6 +308,8 @@ function MoneyCell({
     isEditable = false,
     onChange,
     onKeyDown,
+    actionButton = null,
+    reserveActionSpace = false,
 }) {
     const variants = {
         default: "text-slate-700",
@@ -249,6 +318,7 @@ function MoneyCell({
         saving: "text-sky-700",
         total: "text-slate-900",
         real: "text-indigo-700",
+        custom: "text-amber-700",
         surplusPositive: "text-emerald-700",
         surplusNegative: "text-red-700",
         muted: "text-slate-400",
@@ -256,22 +326,33 @@ function MoneyCell({
 
     if (isEditable) {
         return (
-            <td className="whitespace-nowrap px-3 py-3 text-right text-xs font-medium">
-                <input
-                    type="text"
-                    inputMode="decimal"
-                    value={formatInputValue(value)}
-                    onChange={(event) => onChange?.(event.target.value)}
-                    onKeyDown={onKeyDown}
-                    placeholder="-"
+            <td className="whitespace-nowrap px-3 py-2 text-right text-xs font-medium">
+                <div
                     className={`
-                        h-7 w-full min-w-0 rounded-md border border-slate-200 bg-white px-1.5 text-right text-xs font-medium
-                        outline-none transition
-                        placeholder:text-slate-400
-                        focus:border-slate-400 focus:ring-2 focus:ring-slate-200
-                        ${variants[variant] || variants.default}
+                        flex flex-col items-end justify-center gap-1
+                        ${reserveActionSpace ? "min-h-[44px] sm:min-h-[44px]" : "min-h-[24px]"}
                     `}
-                />
+                >
+                    <input
+                        type="text"
+                        inputMode="decimal"
+                        value={formatInputValue(value)}
+                        onChange={(event) => onChange?.(event.target.value)}
+                        onKeyDown={onKeyDown}
+                        placeholder="-"
+                        className={`
+                            h-6 w-full min-w-0 rounded-md border border-slate-200 bg-white px-1.5 text-right text-xs font-medium
+                            outline-none transition
+                            placeholder:text-slate-400
+                            focus:border-slate-400 focus:ring-2 focus:ring-slate-200
+                            ${variants[variant] || variants.default}
+                        `}
+                    />
+
+                    {reserveActionSpace && (
+                        <ActionButton actionButton={actionButton} />
+                    )}
+                </div>
             </td>
         );
     }
@@ -279,30 +360,61 @@ function MoneyCell({
     if (value === null || value === undefined || value === "") {
         return (
             <td className="whitespace-nowrap px-3 py-3 text-right text-xs font-medium text-slate-400">
-                -
+                <div
+                    className={`
+                        flex flex-col items-end justify-center gap-1
+                        ${reserveActionSpace ? "min-h-[44px] sm:min-h-[44px]" : "min-h-[16px]"}
+                    `}
+                >
+                    <span>-</span>
+
+                    {reserveActionSpace && (
+                        <ActionButton actionButton={actionButton} />
+                    )}
+                </div>
             </td>
         );
     }
 
     return (
-        <td
-            className={`
-                whitespace-nowrap px-3 py-3 text-right text-xs
-                ${strong ? "font-semibold" : "font-medium"}
-                ${variants[variant] || variants.default}
-            `}
-        >
-            {formatCurrency(value)}
+        <td className="whitespace-nowrap px-3 py-3 text-right text-xs">
+            <div
+                className={`
+                    flex flex-col items-end justify-center gap-1
+                    ${reserveActionSpace ? "min-h-[44px] sm:min-h-[44px]" : "min-h-[16px]"}
+                `}
+            >
+                <span
+                    className={`
+                        ${strong ? "font-semibold" : "font-medium"}
+                        ${variants[variant] || variants.default}
+                    `}
+                >
+                    {formatCurrency(value)}
+                </span>
+
+                {reserveActionSpace && (
+                    <ActionButton actionButton={actionButton} />
+                )}
+            </div>
         </td>
     );
 }
 
 export default function YearBalanceSummaryPage() {
-    const { year, savingWallet, annual } = summaryData;
+    const { year, annual } = summaryData;
 
     const rowRefs = useRef({});
 
-    const [monthsData, setMonthsData] = useState(summaryData.months);
+    const [monthsData, setMonthsData] = useState(() =>
+        summaryData.months.map((month, index) => ({
+            ...month,
+            startMonthSource:
+                index === 0
+                    ? START_MONTH_SOURCE.CUSTOM
+                    : START_MONTH_SOURCE.HYPOTHETICAL,
+        }))
+    );
 
     const [editableRows, setEditableRows] = useState({
         startMonth: false,
@@ -342,11 +454,45 @@ export default function YearBalanceSummaryPage() {
         };
     }, []);
 
-    const monthsWithSurplus = monthsData.map((month) => {
-        const startMonth = normalizeNumberValue(month.startMonth) ?? 0;
+    const monthsWithSurplus = monthsData.reduce((computedMonths, month, index) => {
+        const previousMonth = computedMonths[index - 1];
+
         const income = normalizeNumberValue(month.income) ?? 0;
         const expense = normalizeNumberValue(month.expense) ?? 0;
         const expectedSaving = normalizeNumberValue(month.expectedSaving) ?? 0;
+        const surplusToWallet = normalizeNumberValue(month.surplusToWallet) ?? 0;
+
+        let startMonthSource = month.startMonthSource;
+        let startMonth = normalizeNumberValue(month.startMonth) ?? 0;
+
+        if (index > 0) {
+            const previousHypotheticalEndMonth =
+                normalizeNumberValue(previousMonth?.endMonth) ?? 0;
+
+            const previousRealEndMonth =
+                normalizeNumberValue(previousMonth?.realEndMonth);
+
+            if (startMonthSource === START_MONTH_SOURCE.REAL) {
+                if (previousRealEndMonth !== null && previousRealEndMonth !== undefined) {
+                    startMonth = previousRealEndMonth;
+                } else {
+                    startMonth = previousHypotheticalEndMonth;
+                    startMonthSource = START_MONTH_SOURCE.HYPOTHETICAL;
+                }
+            }
+
+            if (startMonthSource === START_MONTH_SOURCE.HYPOTHETICAL) {
+                startMonth = previousHypotheticalEndMonth;
+            }
+
+            if (startMonthSource === START_MONTH_SOURCE.CUSTOM) {
+                startMonth = normalizeNumberValue(month.startMonth) ?? 0;
+            }
+        }
+
+        if (index === 0) {
+            startMonthSource = START_MONTH_SOURCE.CUSTOM;
+        }
 
         const endMonth = startMonth + income - expense - expectedSaving;
 
@@ -357,21 +503,36 @@ export default function YearBalanceSummaryPage() {
                 ? realEndMonth - endMonth
                 : null;
 
-        return {
+        computedMonths.push({
             ...month,
+            startMonth,
+            startMonthSource,
+            expectedSaving,
             endMonth,
+            realEndMonth,
             surplusEndMonth,
-        };
-    });
+            surplusToWallet,
+        });
 
-    const annualRealEndMonth = annual.realEndMonth;
+        return computedMonths;
+    }, []);
+
+    const totalSurplusToWallet = monthsWithSurplus.reduce(
+        (total, month) => total + (normalizeNumberValue(month.surplusToWallet) ?? 0),
+        0
+    );
+
+    const savingWallet = summaryData.savingWallet + totalSurplusToWallet;
 
     const lastHypotheticalEndMonth =
         monthsWithSurplus[monthsWithSurplus.length - 1]?.endMonth ?? 0;
 
+    const lastRealEndMonth =
+        monthsWithSurplus[monthsWithSurplus.length - 1]?.realEndMonth ?? null;
+
     const annualSurplusEndMonth =
-        annualRealEndMonth !== null && annualRealEndMonth !== undefined
-            ? annualRealEndMonth - lastHypotheticalEndMonth
+        lastRealEndMonth !== null && lastRealEndMonth !== undefined
+            ? normalizeNumberValue(lastRealEndMonth) - lastHypotheticalEndMonth
             : null;
 
     const balance = annual.income - annual.expense;
@@ -411,6 +572,7 @@ export default function YearBalanceSummaryPage() {
             label: "Fine mese ipotetico",
             variant: "total",
             rowClassName: "bg-slate-50",
+            reserveActionSpace: true,
         },
         {
             key: "realEndMonth",
@@ -418,6 +580,7 @@ export default function YearBalanceSummaryPage() {
             variant: "real",
             rowClassName: "bg-indigo-50/60",
             separator: true,
+            reserveActionSpace: true,
         },
         {
             key: "surplusEndMonth",
@@ -425,10 +588,43 @@ export default function YearBalanceSummaryPage() {
             subtitle: "(reale - ipotetico)",
             variant: "surplus",
             rowClassName: "bg-fuchsia-50/60",
+            reserveActionSpace: true,
         },
     ];
 
-    function getCellVariant(row, value) {
+    function getStartMonthVariant(monthIndex, month) {
+        if (monthIndex === 0) {
+            return "custom";
+        }
+
+        const previousMonth = monthsWithSurplus[monthIndex - 1];
+
+        const isSameAsPreviousHypotheticalEnd = areCurrencyValuesEqual(
+            month.startMonth,
+            previousMonth?.endMonth
+        );
+
+        if (isSameAsPreviousHypotheticalEnd) {
+            return "total";
+        }
+
+        const isSameAsPreviousRealEnd =
+            previousMonth?.realEndMonth !== null &&
+            previousMonth?.realEndMonth !== undefined &&
+            areCurrencyValuesEqual(month.startMonth, previousMonth.realEndMonth);
+
+        if (isSameAsPreviousRealEnd) {
+            return "real";
+        }
+
+        return "custom";
+    }
+
+    function getCellVariant(row, value, month, monthIndex) {
+        if (row.key === "startMonth") {
+            return getStartMonthVariant(monthIndex, month);
+        }
+
         if (row.key !== "surplusEndMonth") {
             return row.variant;
         }
@@ -438,6 +634,41 @@ export default function YearBalanceSummaryPage() {
         }
 
         return value >= 0 ? "surplusPositive" : "surplusNegative";
+    }
+
+    function getNextStartMonthStatus(monthIndex) {
+        const currentMonth = monthsWithSurplus[monthIndex];
+        const nextMonth = monthsWithSurplus[monthIndex + 1];
+
+        if (!currentMonth || !nextMonth) {
+            return {
+                hasNextMonth: false,
+                matchesHypothetical: false,
+                matchesReal: false,
+                hasRealEndMonth: false,
+            };
+        }
+
+        const hasRealEndMonth =
+            currentMonth.realEndMonth !== null &&
+            currentMonth.realEndMonth !== undefined &&
+            currentMonth.realEndMonth !== "";
+
+        const matchesHypothetical = areCurrencyValuesEqual(
+            nextMonth.startMonth,
+            currentMonth.endMonth
+        );
+
+        const matchesReal =
+            hasRealEndMonth &&
+            areCurrencyValuesEqual(nextMonth.startMonth, currentMonth.realEndMonth);
+
+        return {
+            hasNextMonth: true,
+            matchesHypothetical,
+            matchesReal,
+            hasRealEndMonth,
+        };
     }
 
     function isRowEditable(rowKey) {
@@ -471,12 +702,159 @@ export default function YearBalanceSummaryPage() {
                     return month;
                 }
 
+                if (fieldKey === "startMonth") {
+                    return {
+                        ...month,
+                        startMonth: value,
+                        startMonthSource: START_MONTH_SOURCE.CUSTOM,
+                    };
+                }
+
                 return {
                     ...month,
                     [fieldKey]: value,
                 };
             })
         );
+    }
+
+    function handleUseEndAsNextStart(monthIndex, source) {
+        const currentMonth = monthsWithSurplus[monthIndex];
+        const nextMonth = monthsWithSurplus[monthIndex + 1];
+
+        if (!currentMonth || !nextMonth) return;
+
+        const nextStartValue =
+            source === START_MONTH_SOURCE.REAL
+                ? normalizeNumberValue(currentMonth.realEndMonth)
+                : normalizeNumberValue(currentMonth.endMonth);
+
+        if (nextStartValue === null || nextStartValue === undefined) return;
+
+        setMonthsData((prev) =>
+            prev.map((month, index) => {
+                if (index !== monthIndex + 1) {
+                    return month;
+                }
+
+                return {
+                    ...month,
+                    startMonth: nextStartValue,
+                    startMonthSource: source,
+                };
+            })
+        );
+    }
+
+    function handleToggleSurplusToWallet(monthIndex) {
+        const targetMonth = monthsWithSurplus[monthIndex];
+
+        if (!targetMonth) return;
+
+        const alreadyMoved = normalizeNumberValue(targetMonth.surplusToWallet) !== 0;
+
+        if (alreadyMoved) {
+            setMonthsData((prev) =>
+                prev.map((month, index) => {
+                    if (index !== monthIndex) {
+                        return month;
+                    }
+
+                    return {
+                        ...month,
+                        surplusToWallet: 0,
+                    };
+                })
+            );
+
+            return;
+        }
+
+        const surplusValue = normalizeNumberValue(targetMonth.surplusEndMonth);
+
+        if (surplusValue === null || surplusValue === undefined || surplusValue === 0) {
+            return;
+        }
+
+        setMonthsData((prev) =>
+            prev.map((month, index) => {
+                if (index !== monthIndex) {
+                    return month;
+                }
+
+                return {
+                    ...month,
+                    surplusToWallet: surplusValue,
+                };
+            })
+        );
+    }
+
+    function getEndMonthActionButton(row, value, monthIndex) {
+        const {
+            hasNextMonth,
+            matchesHypothetical,
+            matchesReal,
+            hasRealEndMonth,
+        } = getNextStartMonthStatus(monthIndex);
+
+        const nextMonth = monthsWithSurplus[monthIndex + 1];
+
+        if (row.key === "endMonth") {
+            const isDisabled = !hasNextMonth || matchesHypothetical;
+
+            return {
+                label: nextMonth?.shortLabel ?? "-",
+                title: nextMonth
+                    ? `Usa come inizio di ${nextMonth.label}`
+                    : "Nessun mese successivo",
+                disabled: isDisabled,
+                onClick: () =>
+                    handleUseEndAsNextStart(
+                        monthIndex,
+                        START_MONTH_SOURCE.HYPOTHETICAL
+                    ),
+            };
+        }
+
+        if (row.key === "realEndMonth") {
+            const isDisabled = !hasNextMonth || !hasRealEndMonth || matchesReal;
+
+            return {
+                label: nextMonth?.shortLabel ?? "-",
+                title: nextMonth
+                    ? `Usa come inizio di ${nextMonth.label}`
+                    : "Nessun mese successivo",
+                disabled: isDisabled,
+                onClick: () =>
+                    handleUseEndAsNextStart(
+                        monthIndex,
+                        START_MONTH_SOURCE.REAL
+                    ),
+            };
+        }
+
+        if (row.key === "surplusEndMonth") {
+            const targetMonth = monthsWithSurplus[monthIndex];
+            const surplusValue = normalizeNumberValue(targetMonth?.surplusEndMonth);
+            const isMoved = normalizeNumberValue(targetMonth?.surplusToWallet) !== 0;
+
+            return {
+                label: "PORT",
+                title: isMoved
+                    ? "Rimuovi dal portafoglio risparmio"
+                    : "Sposta nel portafoglio risparmio",
+                active: isMoved,
+                disabled:
+                    !isMoved &&
+                    (surplusValue === null ||
+                        surplusValue === undefined ||
+                        surplusValue === 0),
+                onClick: () => handleToggleSurplusToWallet(monthIndex),
+            };
+        }
+
+        return null;
     }
 
     return (
@@ -666,13 +1044,21 @@ export default function YearBalanceSummaryPage() {
                                             </td>
 
                                             {monthsWithSurplus.map((month, monthIndex) => {
-                                                const value = month[row.key];
+                                                const displayValue =
+                                                    rowCanBeEditable && rowIsEditable
+                                                        ? monthsData[monthIndex]?.[row.key]
+                                                        : month[row.key];
 
                                                 return (
                                                     <MoneyCell
                                                         key={`${month.label}-${row.key}`}
-                                                        value={value}
-                                                        variant={getCellVariant(row, value)}
+                                                        value={displayValue}
+                                                        variant={getCellVariant(
+                                                            row,
+                                                            month[row.key],
+                                                            month,
+                                                            monthIndex
+                                                        )}
                                                         isEditable={
                                                             rowCanBeEditable && rowIsEditable
                                                         }
@@ -689,6 +1075,12 @@ export default function YearBalanceSummaryPage() {
                                                                 row.key
                                                             )
                                                         }
+                                                        actionButton={getEndMonthActionButton(
+                                                            row,
+                                                            month[row.key],
+                                                            monthIndex
+                                                        )}
+                                                        reserveActionSpace={row.reserveActionSpace}
                                                     />
                                                 );
                                             })}
