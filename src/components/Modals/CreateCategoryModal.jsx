@@ -22,6 +22,7 @@ export default function CreateCategoryModal({
     const { putData, loading: putLoading, error: putError } = usePut();
 
     const loading = postLoading || putLoading
+    const error = postError || putError
 
     const [categoryName, setCategoryName] = useState(formValueForEdit?.name || "");
     const [selectedType, setSelectedType] = useState("mixed");

@@ -54,10 +54,7 @@ export default function CategoriesTransactionsPage(params) {
 
     const categories = data?.categories ?? [];
 
-    console.log(categories);
-    
-
-    function onOpenCreateCategoryModal(isEditMode = false, category = null,) {
+    function onOpenCreateCategoryModal(isEditMode = false, category = null) {
         if (isEditMode) setFormValueForEdit(category)
         setShowCreateCategoryModal(true)
     }
@@ -101,7 +98,7 @@ export default function CategoriesTransactionsPage(params) {
                     reloadMonthlyOverview={reloadMonthlyOverview}
                     setCategoryIdForNewTransaction={setCategoryIdForNewTransaction}
                     onOpenCreateCategoryModal={onOpenCreateCategoryModal}
-                    setShowCreateTransactionModal={setShowCreateTransactionModal}
+                    onOpenCreateTransactionModal={onOpenCreateTransactionModal}
                     setTransactionForNewMovement={setTransactionForNewMovement}
                     setShowMovementsModal={setShowMovementsModal}
                 />
@@ -112,7 +109,7 @@ export default function CategoriesTransactionsPage(params) {
                 height="h-fit"
                 isOpen={showCreateCategoryModal}
                 onClose={onCloseCreateCategoryModal}
-                title="Nuova categoria"
+                title={formValueForEdit ? "Modifica categoria" : "Nuova categoria"}
             >
                 <CreateCategoryModal
                     reload={reloadMonthlyOverview}
@@ -126,12 +123,13 @@ export default function CategoriesTransactionsPage(params) {
                 height="h-fit"
                 isOpen={showCreateTransactionModal}
                 onClose={onCloseCreateTransactionModal}
-                title="Nuova transazione"
+                 title={formValueForEdit ? "Modifica transazione" : "Nuova transazione"}
             >
                 <CreateTransactionModal
                     selectedCategoryId={categoryIdForNewTransaction}
                     reload={reloadMonthlyOverview}
                     onClose={onCloseCreateTransactionModal}
+                    formValueForEdit={formValueForEdit}
                 />
             </ModalWrapper>
 

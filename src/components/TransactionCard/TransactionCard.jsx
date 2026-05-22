@@ -21,7 +21,8 @@ export default function TransactionCard({
     onClick,
     selectedMonth,
     selectedYear,
-    reloadMonthlyOverview
+    reloadMonthlyOverview,
+    onOpenCreateTransactionModal
 }) {
 
     const navigate = useNavigate();
@@ -44,7 +45,7 @@ export default function TransactionCard({
         {
             label: "Modifica",
             icon: Pencil,
-            onClick: (transaction) => { },
+            onClick: (transaction) => onOpenCreateTransactionModal(true, transaction),
         },
         {
             label: "Elimina",

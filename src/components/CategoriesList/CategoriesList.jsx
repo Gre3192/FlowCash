@@ -32,7 +32,7 @@ export default function CategoriesList({
     selectedYear,
     reloadMonthlyOverview,
     setCategoryIdForNewTransaction,
-    setShowCreateTransactionModal,
+    onOpenCreateTransactionModal,
     setTransactionForNewMovement,
     setShowMovementsModal,
 }) {
@@ -57,7 +57,7 @@ export default function CategoriesList({
                 loading={loading}
                 searchedCategories={searchedCategories}
                 setCategoryIdForNewTransaction={setCategoryIdForNewTransaction}
-                setShowCreateTransactionModal={setShowCreateTransactionModal}
+                onOpenCreateTransactionModal={onOpenCreateTransactionModal}
                 setTransactionForNewMovement={setTransactionForNewMovement}
                 setShowMovementsModal={setShowMovementsModal}
                 onOpenCreateCategoryModal={onOpenCreateCategoryModal}
@@ -97,7 +97,7 @@ function CategoriesListBody({
     loading,
     searchedCategories,
     setCategoryIdForNewTransaction,
-    setShowCreateTransactionModal,
+    onOpenCreateTransactionModal,
     setTransactionForNewMovement,
     setShowMovementsModal,
     onOpenCreateCategoryModal
@@ -296,7 +296,7 @@ function CategoriesListBody({
                         selectedMonth={selectedMonth}
                         selectedYear={selectedYear}
                         reloadMonthlyOverview={reloadMonthlyOverview}
-                        setShowCreateTransactionModal={setShowCreateTransactionModal}
+                        onOpenCreateTransactionModal={onOpenCreateTransactionModal}
                         setTransactionForNewMovement={setTransactionForNewMovement}
                         setShowMovementsModal={setShowMovementsModal}
                     />
@@ -378,7 +378,7 @@ function ExpandedCategoryView({
     selectedMonth,
     selectedYear,
     reloadMonthlyOverview,
-    setShowCreateTransactionModal,
+    onOpenCreateTransactionModal,
     setTransactionForNewMovement,
     setShowMovementsModal
 }) {
@@ -477,6 +477,7 @@ function ExpandedCategoryView({
                     selectedYear={selectedYear}
                     reloadMonthlyOverview={reloadMonthlyOverview}
                     onClick={() => handleCardClick(transaction)}
+                    onOpenCreateTransactionModal={onOpenCreateTransactionModal}
                 />
             </div>
         );
@@ -544,7 +545,7 @@ function ExpandedCategoryView({
                         </div>
                         <AmountRatio firstNum={formatCurrency(category?.current_total)} secondNum={formatCurrency(category?.budget_total)} />
                     </div>
-                    <Button icon={Plus} label={'Transazione'} size={'sm'} variant={"secondary"} onClick={() => setShowCreateTransactionModal(true)} />
+                    <Button icon={Plus} label={'Transazione'} size={'sm'} variant={"secondary"} onClick={onOpenCreateTransactionModal} />
                 </div>
                 <div className="px-4 pb-3 sm:px-6">
                     <ProgressBar currentValue={category?.current_total} totalValue={category?.budget_total} size="lg" />
