@@ -286,12 +286,11 @@ function ActionButton({ actionButton }) {
             className={`
                 flex h-7 w-full items-center justify-center gap-1 rounded-md
                 border px-1 text-[10px] font-medium transition sm:h-5
-                ${
-                    isDisabled
-                        ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
-                        : actionButton?.active
-                            ? "border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100"
-                            : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                ${isDisabled
+                    ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
+                    : actionButton?.active
+                        ? "border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100"
+                        : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                 }
             `}
         >
@@ -311,6 +310,7 @@ function MoneyCell({
     actionButton = null,
     reserveActionSpace = false,
 }) {
+
     const variants = {
         default: "text-slate-700",
         income: "text-emerald-700",
@@ -402,6 +402,7 @@ function MoneyCell({
 }
 
 export default function YearBalanceSummaryPage() {
+
     const { year, annual } = summaryData;
 
     const rowRefs = useRef({});
@@ -1021,10 +1022,9 @@ export default function YearBalanceSummaryPage() {
                                                             }
                                                             className={`
                                                                 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border transition
-                                                                ${
-                                                                    rowIsEditable
-                                                                        ? "border-slate-300 bg-slate-900 text-white hover:bg-slate-800"
-                                                                        : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                                                                ${rowIsEditable
+                                                                    ? "border-slate-300 bg-slate-900 text-white hover:bg-slate-800"
+                                                                    : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                                                                 }
                                                             `}
                                                             title={
@@ -1126,12 +1126,11 @@ export default function YearBalanceSummaryPage() {
                         <p
                             className={`
                                 mt-2 text-2xl font-semibold
-                                ${
-                                    annualSurplusEndMonth === null
-                                        ? "text-slate-400"
-                                        : annualSurplusEndMonth >= 0
-                                            ? "text-emerald-700"
-                                            : "text-red-700"
+                                ${annualSurplusEndMonth === null
+                                    ? "text-slate-400"
+                                    : annualSurplusEndMonth >= 0
+                                        ? "text-emerald-700"
+                                        : "text-red-700"
                                 }
                             `}
                         >
