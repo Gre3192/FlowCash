@@ -1,7 +1,7 @@
 export const ROUTE_PAGE = {
 
-    categoriesTransactionsPage: `/`,
-    categoriesNewBuild: `/c`,
+    summaryPage: `/`,
+    categoriesTransactionsPage: `/categoriesTransactionsPage`,
     budgetPage:  "/budgetPage/:id",
     testPage: `/testPage`
 
