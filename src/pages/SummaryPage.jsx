@@ -4,174 +4,36 @@ import {
     TrendingUp,
     TrendingDown,
     PiggyBank,
-    CalendarDays,
     Pencil,
     Lock,
     ChevronDown,
 } from "lucide-react";
 
 import formatCurrency from "../utils/formatCurrency";
+import { useGet } from "../hooks/useGet";
+import { API_ENDPOINTS } from "../api/endpoint";
 
-const summaryData = {
-    year: 2028,
-    savingWallet: 4869.33,
-
-    annual: {
-        startMonth: 8223.86,
-        income: 18100,
-        expense: 12358.04,
-        expectedSaving: 4800,
-        realEndMonth: null,
-    },
-
-    months: [
-        {
-            label: "Gennaio",
-            shortLabel: "GEN",
-            startMonth: 1156.97,
-            income: 1400,
-            expense: 1257.49,
-            endMonth: 899.48,
-            expectedSaving: 400,
-            realEndMonth: null,
-            surplusToWallet: 0,
-        },
-        {
-            label: "Febbraio",
-            shortLabel: "FEB",
-            startMonth: 899.48,
-            income: 1400,
-            expense: 1443.34,
-            endMonth: 456.14,
-            expectedSaving: 400,
-            realEndMonth: null,
-            surplusToWallet: 0,
-        },
-        {
-            label: "Marzo",
-            shortLabel: "MAR",
-            startMonth: 456.14,
-            income: 1400,
-            expense: 858.05,
-            endMonth: 598.09,
-            expectedSaving: 400,
-            realEndMonth: null,
-            surplusToWallet: 0,
-        },
-        {
-            label: "Aprile",
-            shortLabel: "APR",
-            startMonth: 598.09,
-            income: 1400,
-            expense: 1018.34,
-            endMonth: 579.75,
-            expectedSaving: 400,
-            realEndMonth: null,
-            surplusToWallet: 0,
-        },
-        {
-            label: "Maggio",
-            shortLabel: "MAG",
-            startMonth: 579.75,
-            income: 1400,
-            expense: 808.14,
-            endMonth: 771.61,
-            expectedSaving: 400,
-            realEndMonth: null,
-            surplusToWallet: 0,
-        },
-        {
-            label: "Giugno",
-            shortLabel: "GIU",
-            startMonth: 771.61,
-            income: 1400,
-            expense: 1018.34,
-            endMonth: 753.27,
-            expectedSaving: 400,
-            realEndMonth: null,
-            surplusToWallet: 0,
-        },
-        {
-            label: "Luglio",
-            shortLabel: "LUG",
-            startMonth: 753.27,
-            income: 1400,
-            expense: 1283.04,
-            endMonth: 470.23,
-            expectedSaving: 400,
-            realEndMonth: null,
-            surplusToWallet: 0,
-        },
-        {
-            label: "Agosto",
-            shortLabel: "AGO",
-            startMonth: 470.23,
-            income: 1400,
-            expense: 1018.34,
-            endMonth: 451.89,
-            expectedSaving: 400,
-            realEndMonth: null,
-            surplusToWallet: 0,
-        },
-        {
-            label: "Settembre",
-            shortLabel: "SET",
-            startMonth: 451.89,
-            income: 1400,
-            expense: 808.14,
-            endMonth: 643.75,
-            expectedSaving: 400,
-            realEndMonth: null,
-            surplusToWallet: 0,
-        },
-        {
-            label: "Ottobre",
-            shortLabel: "OTT",
-            startMonth: 643.75,
-            income: 1400,
-            expense: 1018.34,
-            endMonth: 625.41,
-            expectedSaving: 400,
-            realEndMonth: null,
-            surplusToWallet: 0,
-        },
-        {
-            label: "Novembre",
-            shortLabel: "NOV",
-            startMonth: 625.41,
-            income: 1400,
-            expense: 808.14,
-            endMonth: 817.27,
-            expectedSaving: 400,
-            realEndMonth: null,
-            surplusToWallet: 0,
-        },
-        {
-            label: "Dicembre",
-            shortLabel: "DIC",
-            startMonth: 817.27,
-            income: 2700,
-            expense: 1018.34,
-            endMonth: 2098.93,
-            expectedSaving: 400,
-            realEndMonth: null,
-            surplusToWallet: 0,
-        },
-    ],
-};
-
-const EDITABLE_ROWS = ["startMonth", "expectedSaving", "realEndMonth"];
+const EDITABLE_ROWS = [
+    "hypothetical_start",
+    "hypothetical_saving",
+    "real_end",
+];
 
 const START_MONTH_SOURCE = {
+    API: "api",
+    CUSTOM: "custom",
     HYPOTHETICAL: "hypothetical",
     REAL: "real",
-    CUSTOM: "custom",
+};
+
+const SURPLUS_DESTINATION = {
+    NONE: null,
+    WALLET: "wallet",
+    NEXT_MONTH: "nextMonth",
 };
 
 function sanitizeCurrencyInput(value) {
-    if (value === null || value === undefined) {
-        return "";
-    }
+    if (value === null || value === undefined) return "";
 
     let sanitizedValue = String(value)
         .replace(/[^\d.,-]/g, "")
@@ -198,16 +60,19 @@ function sanitizeCurrencyInput(value) {
 }
 
 function normalizeNumberValue(value) {
-    if (value === "" || value === null || value === undefined || value === "-") {
+    if (
+        value === "" ||
+        value === null ||
+        value === undefined ||
+        value === "-"
+    ) {
         return null;
     }
 
     const normalizedValue = String(value).replace(",", ".");
     const numericValue = Number(normalizedValue);
 
-    if (Number.isNaN(numericValue)) {
-        return null;
-    }
+    if (Number.isNaN(numericValue)) return null;
 
     return numericValue;
 }
@@ -233,12 +98,46 @@ function areCurrencyValuesEqual(firstValue, secondValue) {
     return firstNormalizedValue === secondNormalizedValue;
 }
 
-function formatInputValue(value) {
-    if (value === null || value === undefined) {
-        return "";
+function toCurrencyString(value) {
+    const numericValue = normalizeNumberValue(value);
+
+    if (numericValue === null || numericValue === undefined) {
+        return null;
     }
 
+    return numericValue.toFixed(2);
+}
+
+function formatInputValue(value) {
+    if (value === null || value === undefined) return "";
     return String(value);
+}
+
+function getSurplusDestination(month) {
+    if (month?.surplus_carried_to_saving_wallet) {
+        return SURPLUS_DESTINATION.WALLET;
+    }
+
+    if (month?.surplus_carried_to_next_month) {
+        return SURPLUS_DESTINATION.NEXT_MONTH;
+    }
+
+    return SURPLUS_DESTINATION.NONE;
+}
+
+function normalizeMonths(months = []) {
+    return months.map((month) => ({
+        ...month,
+        hypothetical_start: month?.hypothetical_start ?? "0.00",
+        income_total: month?.income_total ?? "0.00",
+        expense_total: month?.expense_total ?? "0.00",
+        hypothetical_saving: month?.hypothetical_saving ?? "0.00",
+        hypothetical_end: month?.hypothetical_end ?? "0.00",
+        real_end: month?.real_end ?? null,
+        surplus: month?.surplus ?? null,
+        surplusDestination: getSurplusDestination(month),
+        startMonthSource: START_MONTH_SOURCE.API,
+    }));
 }
 
 function SummaryCard({ title, value, icon: Icon, variant = "default" }) {
@@ -281,7 +180,7 @@ function SummaryCard({ title, value, icon: Icon, variant = "default" }) {
                     </p>
 
                     <p className={`mt-2 text-xl font-semibold ${selectedVariant.value}`}>
-                        {formatCurrency(value)}
+                        {formatCurrency(normalizeNumberValue(value) ?? 0)}
                     </p>
                 </div>
 
@@ -298,22 +197,6 @@ function SummaryCard({ title, value, icon: Icon, variant = "default" }) {
     );
 }
 
-function WalletBadge() {
-    return (
-        <span
-            className="
-                inline-flex items-center gap-1 rounded-md border border-sky-200
-                bg-sky-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase
-                tracking-wide text-sky-700
-            "
-            title="Surplus incluso nel portafoglio risparmio"
-        >
-            <Wallet size={10} />
-            PORT
-        </span>
-    );
-}
-
 function MoneyCell({
     value,
     variant = "default",
@@ -321,7 +204,9 @@ function MoneyCell({
     isEditable = false,
     onChange,
     onKeyDown,
+    onFocus,
     walletIncluded = false,
+    nextMonthIncluded = false,
 }) {
     const variants = {
         default: "text-slate-700",
@@ -344,13 +229,13 @@ function MoneyCell({
                         type="text"
                         inputMode="decimal"
                         value={formatInputValue(value)}
+                        onFocus={onFocus}
                         onChange={(event) => onChange?.(event.target.value)}
                         onKeyDown={onKeyDown}
                         placeholder="-"
                         className={`
                             h-6 w-full min-w-0 rounded-md border border-slate-200 bg-white px-1.5 text-right text-xs font-medium
-                            outline-none transition
-                            placeholder:text-slate-400
+                            outline-none transition placeholder:text-slate-400
                             focus:border-slate-400 focus:ring-2 focus:ring-slate-200
                             ${variants[variant] || variants.default}
                         `}
@@ -362,20 +247,27 @@ function MoneyCell({
 
     return (
         <td
-            title={walletIncluded ? "Surplus incluso nel portafoglio risparmio" : ""}
+            title={
+                walletIncluded
+                    ? "Surplus incluso nel portafoglio risparmio"
+                    : nextMonthIncluded
+                        ? "Surplus portato all'inizio del mese successivo"
+                        : ""
+            }
             className={`
                 relative whitespace-nowrap px-3 py-3 text-right text-xs
-                ${
-                    walletIncluded
-                        ? "bg-sky-50/70 ring-1 ring-inset ring-sky-200"
-                        : ""
-                }
+                ${walletIncluded ? "bg-sky-50/70 ring-1 ring-inset ring-sky-200" : ""}
+                ${nextMonthIncluded ? "bg-amber-50/70 ring-1 ring-inset ring-amber-200" : ""}
             `}
         >
             <span
                 className={`
                     block leading-none
-                    ${strong || walletIncluded ? "font-semibold" : "font-medium"}
+                    ${
+                        strong || walletIncluded || nextMonthIncluded
+                            ? "font-semibold"
+                            : "font-medium"
+                    }
                     ${
                         value === null || value === undefined || value === ""
                             ? "text-slate-400"
@@ -385,24 +277,34 @@ function MoneyCell({
             >
                 {value === null || value === undefined || value === ""
                     ? "-"
-                    : formatCurrency(value)}
+                    : formatCurrency(normalizeNumberValue(value) ?? 0)}
             </span>
 
             {walletIncluded && (
                 <Wallet
                     size={10}
-                    className="
-                        pointer-events-none absolute bottom-1 right-3
-                        text-sky-600
-                    "
+                    className="pointer-events-none absolute bottom-1 right-3 text-sky-600"
                 />
+            )}
+
+            {nextMonthIncluded && (
+                <span className="pointer-events-none absolute bottom-1 right-3 text-[9px] font-bold text-amber-600">
+                    +M
+                </span>
             )}
         </td>
     );
 }
 
-export default function YearBalanceSummaryPage() {
-    const { year, annual } = summaryData;
+export default function YearBalanceSummaryPage({ selectedYear = 2026 }) {
+    const { data, loading, error } = useGet(
+        API_ENDPOINTS.annualSummary({
+            year: selectedYear,
+        }),
+        {
+            delayMs: 0,
+        }
+    );
 
     const rowRefs = useRef({});
     const monthMenuRef = useRef(null);
@@ -414,21 +316,27 @@ export default function YearBalanceSummaryPage() {
         left: 0,
     });
 
-    const [monthsData, setMonthsData] = useState(() =>
-        summaryData.months.map((month, index) => ({
-            ...month,
-            startMonthSource:
-                index === 0
-                    ? START_MONTH_SOURCE.CUSTOM
-                    : START_MONTH_SOURCE.HYPOTHETICAL,
-        }))
-    );
+    const [monthsData, setMonthsData] = useState([]);
+    const [previousYearDecember, setPreviousYearDecember] = useState(null);
+    const [runtimeRecalculationStartIndex, setRuntimeRecalculationStartIndex] =
+        useState(null);
+
+    const [activeInputCell, setActiveInputCell] = useState(null);
 
     const [editableRows, setEditableRows] = useState({
-        startMonth: false,
-        expectedSaving: false,
-        realEndMonth: false,
+        hypothetical_start: false,
+        hypothetical_saving: false,
+        real_end: false,
     });
+
+    useEffect(() => {
+        if (!data?.months) return;
+
+        setPreviousYearDecember(data.previous_year_december ?? null);
+        setMonthsData(normalizeMonths(data.months));
+        setRuntimeRecalculationStartIndex(null);
+        setActiveInputCell(null);
+    }, [data]);
 
     useEffect(() => {
         function handleClickOutsideEditableRow(event) {
@@ -440,7 +348,6 @@ export default function YearBalanceSummaryPage() {
                     if (!isEditable) return;
 
                     const rowElement = rowRefs.current[rowKey];
-
                     if (!rowElement) return;
 
                     const clickedInsideRow = rowElement.contains(event.target);
@@ -448,6 +355,7 @@ export default function YearBalanceSummaryPage() {
                     if (!clickedInsideRow) {
                         nextEditableRows[rowKey] = false;
                         hasChanges = true;
+                        setActiveInputCell(null);
                     }
                 });
 
@@ -478,126 +386,210 @@ export default function YearBalanceSummaryPage() {
         };
     }, []);
 
-    const monthsWithSurplus = monthsData.reduce((computedMonths, month, index) => {
-        const previousMonth = computedMonths[index - 1];
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-slate-50 px-4 py-6">
+                <div className="mx-auto w-full max-w-7xl rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
+                    Caricamento riepilogo annuale...
+                </div>
+            </div>
+        );
+    }
 
-        const income = normalizeNumberValue(month.income) ?? 0;
-        const expense = normalizeNumberValue(month.expense) ?? 0;
-        const expectedSaving = normalizeNumberValue(month.expectedSaving) ?? 0;
-        const surplusToWallet = normalizeNumberValue(month.surplusToWallet) ?? 0;
+    if (error) {
+        return (
+            <div className="min-h-screen bg-slate-50 px-4 py-6">
+                <div className="mx-auto w-full max-w-7xl rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-700 shadow-sm">
+                    Errore durante il caricamento del riepilogo annuale.
+                </div>
+            </div>
+        );
+    }
 
-        let startMonthSource = month.startMonthSource;
-        let startMonth = normalizeNumberValue(month.startMonth) ?? 0;
+    if (!data) {
+        return (
+            <div className="min-h-screen bg-slate-50 px-4 py-6">
+                <div className="mx-auto w-full max-w-7xl rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
+                    Nessun dato disponibile.
+                </div>
+            </div>
+        );
+    }
 
-        if (index > 0) {
-            const previousHypotheticalEndMonth =
-                normalizeNumberValue(previousMonth?.endMonth) ?? 0;
+    const year = data.year;
 
-            const previousRealEndMonth =
-                normalizeNumberValue(previousMonth?.realEndMonth);
+    const computedMonths = monthsData.reduce((acc, month, index) => {
+        const previousMonth =
+            index === 0
+                ? previousYearDecember
+                : acc[index - 1];
 
-            if (startMonthSource === START_MONTH_SOURCE.REAL) {
-                if (previousRealEndMonth !== null && previousRealEndMonth !== undefined) {
-                    startMonth = previousRealEndMonth;
-                } else {
-                    startMonth = previousHypotheticalEndMonth;
-                    startMonthSource = START_MONTH_SOURCE.HYPOTHETICAL;
-                }
+        const incomeTotal = normalizeNumberValue(month.income_total) ?? 0;
+        const expenseTotal = normalizeNumberValue(month.expense_total) ?? 0;
+        const hypotheticalSaving =
+            normalizeNumberValue(month.hypothetical_saving) ?? 0;
+
+        let hypotheticalStart =
+            normalizeNumberValue(month.hypothetical_start) ?? 0;
+
+        const shouldRecalculateFromPrevious =
+            runtimeRecalculationStartIndex !== null &&
+            index > runtimeRecalculationStartIndex;
+
+        if (previousMonth && shouldRecalculateFromPrevious) {
+            if (month.startMonthSource === START_MONTH_SOURCE.REAL) {
+                const previousRealEnd = normalizeNumberValue(previousMonth.real_end);
+
+                hypotheticalStart =
+                    previousRealEnd !== null && previousRealEnd !== undefined
+                        ? previousRealEnd
+                        : normalizeNumberValue(previousMonth.hypothetical_end) ?? 0;
+            } else if (month.startMonthSource === START_MONTH_SOURCE.CUSTOM) {
+                hypotheticalStart =
+                    normalizeNumberValue(month.hypothetical_start) ?? 0;
+            } else {
+                hypotheticalStart =
+                    normalizeNumberValue(previousMonth.hypothetical_end) ?? 0;
             }
 
-            if (startMonthSource === START_MONTH_SOURCE.HYPOTHETICAL) {
-                startMonth = previousHypotheticalEndMonth;
-            }
-
-            if (startMonthSource === START_MONTH_SOURCE.CUSTOM) {
-                startMonth = normalizeNumberValue(month.startMonth) ?? 0;
+            if (
+                previousMonth.surplusDestination ===
+                SURPLUS_DESTINATION.NEXT_MONTH
+            ) {
+                hypotheticalStart +=
+                    normalizeNumberValue(previousMonth.surplus) ?? 0;
             }
         }
 
-        if (index === 0) {
-            startMonthSource = START_MONTH_SOURCE.CUSTOM;
+        if (
+            previousMonth &&
+            !shouldRecalculateFromPrevious &&
+            month.startMonthSource === START_MONTH_SOURCE.HYPOTHETICAL
+        ) {
+            hypotheticalStart =
+                normalizeNumberValue(previousMonth.hypothetical_end) ?? 0;
         }
 
-        const endMonth = startMonth + income - expense - expectedSaving;
+        if (
+            previousMonth &&
+            !shouldRecalculateFromPrevious &&
+            month.startMonthSource === START_MONTH_SOURCE.REAL
+        ) {
+            const previousRealEnd = normalizeNumberValue(previousMonth.real_end);
 
-        const realEndMonth = normalizeNumberValue(month.realEndMonth);
+            hypotheticalStart =
+                previousRealEnd !== null && previousRealEnd !== undefined
+                    ? previousRealEnd
+                    : normalizeNumberValue(previousMonth.hypothetical_end) ?? 0;
+        }
 
-        const surplusEndMonth =
-            realEndMonth !== null && realEndMonth !== undefined
-                ? realEndMonth - endMonth
+        const hypotheticalEnd =
+            hypotheticalStart + incomeTotal - expenseTotal - hypotheticalSaving;
+
+        const realEnd = normalizeNumberValue(month.real_end);
+
+        const surplus =
+            realEnd !== null && realEnd !== undefined
+                ? realEnd - hypotheticalEnd
                 : null;
 
-        computedMonths.push({
+        acc.push({
             ...month,
-            startMonth,
-            startMonthSource,
-            expectedSaving,
-            endMonth,
-            realEndMonth,
-            surplusEndMonth,
-            surplusToWallet,
+            hypothetical_start: toCurrencyString(hypotheticalStart),
+            hypothetical_end: toCurrencyString(hypotheticalEnd),
+            surplus: surplus === null ? null : toCurrencyString(surplus),
         });
 
-        return computedMonths;
+        return acc;
     }, []);
 
-    const totalSurplusToWallet = monthsWithSurplus.reduce(
-        (total, month) => total + (normalizeNumberValue(month.surplusToWallet) ?? 0),
+    const months = computedMonths;
+
+    const incomeAnnualTotal = months.reduce(
+        (total, month) => total + (normalizeNumberValue(month.income_total) ?? 0),
         0
     );
 
-    const savingWallet = summaryData.savingWallet + totalSurplusToWallet;
+    const expenseAnnualTotal = months.reduce(
+        (total, month) => total + (normalizeNumberValue(month.expense_total) ?? 0),
+        0
+    );
 
-    const lastHypotheticalEndMonth =  monthsWithSurplus[monthsWithSurplus.length - 1]?.endMonth ?? 0;
+    const hypotheticalSavingAnnualTotal = months.reduce(
+        (total, month) =>
+            total + (normalizeNumberValue(month.hypothetical_saving) ?? 0),
+        0
+    );
 
-    const lastRealEndMonth =  monthsWithSurplus[monthsWithSurplus.length - 1]?.realEndMonth ?? null;
+    const totalSurplusToWallet = months.reduce((total, month) => {
+        if (month.surplusDestination !== SURPLUS_DESTINATION.WALLET) {
+            return total;
+        }
 
-    const annualSurplusEndMonth =  lastRealEndMonth !== null && lastRealEndMonth !== undefined     ? normalizeNumberValue(lastRealEndMonth) - lastHypotheticalEndMonth     : null;
+        return total + (normalizeNumberValue(month.surplus) ?? 0);
+    }, 0);
 
-    const balance = annual.income - annual.expense;
+    const savingWallet =
+        (normalizeNumberValue(data.saving_wallet_total) ?? 0) + totalSurplusToWallet;
 
-    const savingProgress =   annual.expectedSaving > 0      ? Math.min((balance / annual.expectedSaving) * 100, 100)     : 0;
+    const lastHypotheticalEnd =
+        months[months.length - 1]?.hypothetical_end ?? "0.00";
+
+    const lastRealEnd = months[months.length - 1]?.real_end ?? null;
+
+    const annualSurplus =
+        lastRealEnd !== null && lastRealEnd !== undefined
+            ? (normalizeNumberValue(lastRealEnd) ?? 0) -
+              (normalizeNumberValue(lastHypotheticalEnd) ?? 0)
+            : null;
+
+    const balance = incomeAnnualTotal - expenseAnnualTotal;
+
+    const savingProgress =
+        hypotheticalSavingAnnualTotal > 0
+            ? Math.min((balance / hypotheticalSavingAnnualTotal) * 100, 100)
+            : 0;
 
     const rows = [
         {
-            key: "startMonth",
+            key: "hypothetical_start",
             label: "Inizio mese ipotetico",
             variant: "default",
             rowClassName: "bg-white",
         },
         {
-            key: "income",
+            key: "income_total",
             label: "Entrate",
             variant: "income",
             rowClassName: "bg-emerald-50/60",
         },
         {
-            key: "expense",
+            key: "expense_total",
             label: "Uscite",
             variant: "expense",
             rowClassName: "bg-red-50/60",
         },
         {
-            key: "expectedSaving",
+            key: "hypothetical_saving",
             label: "Risparmio ipotetico",
             variant: "saving",
             rowClassName: "bg-sky-50/60",
         },
         {
-            key: "endMonth",
+            key: "hypothetical_end",
             label: "Fine mese ipotetico",
             variant: "total",
             rowClassName: "bg-slate-50",
         },
         {
-            key: "realEndMonth",
+            key: "real_end",
             label: "Fine mese reale",
             variant: "real",
             rowClassName: "bg-indigo-50/60",
             separator: true,
         },
         {
-            key: "surplusEndMonth",
+            key: "surplus",
             label: "Surplus fine mese",
             subtitle: "(reale - ipotetico)",
             variant: "surplus",
@@ -605,28 +597,47 @@ export default function YearBalanceSummaryPage() {
         },
     ];
 
-    function getStartMonthVariant(monthIndex, month) {
+    function isRowEditable(rowKey) {
+        return EDITABLE_ROWS.includes(rowKey);
+    }
+
+    function getPreviousMonthByIndex(monthIndex) {
         if (monthIndex === 0) {
-            return "custom";
+            return previousYearDecember;
         }
 
-        const previousMonth = monthsWithSurplus[monthIndex - 1];
+        return months[monthIndex - 1];
+    }
 
-        const isSameAsPreviousHypotheticalEnd = areCurrencyValuesEqual(
-            month.startMonth,
-            previousMonth?.endMonth
-        );
+    function getPreviousHypotheticalEnd(monthIndex) {
+        const previousMonth = getPreviousMonthByIndex(monthIndex);
+        return previousMonth?.hypothetical_end ?? null;
+    }
 
-        if (isSameAsPreviousHypotheticalEnd) {
+    function getPreviousRealEnd(monthIndex) {
+        const previousMonth = getPreviousMonthByIndex(monthIndex);
+        return previousMonth?.real_end ?? null;
+    }
+
+    function getStartMonthVariant(monthIndex, month) {
+        const previousHypotheticalEnd = getPreviousHypotheticalEnd(monthIndex);
+
+        if (
+            areCurrencyValuesEqual(
+                month.hypothetical_start,
+                previousHypotheticalEnd
+            )
+        ) {
             return "total";
         }
 
-        const isSameAsPreviousRealEnd =
-            previousMonth?.realEndMonth !== null &&
-            previousMonth?.realEndMonth !== undefined &&
-            areCurrencyValuesEqual(month.startMonth, previousMonth.realEndMonth);
+        const previousRealEnd = getPreviousRealEnd(monthIndex);
 
-        if (isSameAsPreviousRealEnd) {
+        if (
+            previousRealEnd !== null &&
+            previousRealEnd !== undefined &&
+            areCurrencyValuesEqual(month.hypothetical_start, previousRealEnd)
+        ) {
             return "real";
         }
 
@@ -634,23 +645,21 @@ export default function YearBalanceSummaryPage() {
     }
 
     function getCellVariant(row, value, month, monthIndex) {
-        if (row.key === "startMonth") {
+        if (row.key === "hypothetical_start") {
             return getStartMonthVariant(monthIndex, month);
         }
 
-        if (row.key !== "surplusEndMonth") {
+        if (row.key !== "surplus") {
             return row.variant;
         }
 
-        if (value === null || value === undefined) {
+        const numericValue = normalizeNumberValue(value);
+
+        if (numericValue === null) {
             return "muted";
         }
 
-        return value >= 0 ? "surplusPositive" : "surplusNegative";
-    }
-
-    function isRowEditable(rowKey) {
-        return EDITABLE_ROWS.includes(rowKey);
+        return numericValue >= 0 ? "surplusPositive" : "surplusNegative";
     }
 
     function handleToggleEditableRow(rowKey) {
@@ -658,6 +667,8 @@ export default function YearBalanceSummaryPage() {
             ...prev,
             [rowKey]: !prev[rowKey],
         }));
+
+        setActiveInputCell(null);
     }
 
     function handleRowInputKeyDown(event, rowKey) {
@@ -670,22 +681,30 @@ export default function YearBalanceSummaryPage() {
             [rowKey]: false,
         }));
 
+        setActiveInputCell(null);
         event.currentTarget.blur();
+    }
+
+    function updateRuntimeStartIndex(monthIndex) {
+        setRuntimeRecalculationStartIndex((prev) => {
+            if (prev === null) return monthIndex;
+            return Math.min(prev, monthIndex);
+        });
     }
 
     function handleMonthValueChange(monthIndex, fieldKey, value) {
         const sanitizedValue = sanitizeCurrencyInput(value);
 
+        updateRuntimeStartIndex(monthIndex);
+
         setMonthsData((prev) =>
             prev.map((month, index) => {
-                if (index !== monthIndex) {
-                    return month;
-                }
+                if (index !== monthIndex) return month;
 
-                if (fieldKey === "startMonth") {
+                if (fieldKey === "hypothetical_start") {
                     return {
                         ...month,
-                        startMonth: sanitizedValue,
+                        hypothetical_start: sanitizedValue,
                         startMonthSource: START_MONTH_SOURCE.CUSTOM,
                     };
                 }
@@ -712,26 +731,24 @@ export default function YearBalanceSummaryPage() {
     }
 
     function handleUsePreviousEndAsStart(monthIndex, source) {
-        const previousMonth = monthsWithSurplus[monthIndex - 1];
-
-        if (!previousMonth) return;
-
-        const nextStartValue =
+        const previousValue =
             source === START_MONTH_SOURCE.REAL
-                ? normalizeNumberValue(previousMonth.realEndMonth)
-                : normalizeNumberValue(previousMonth.endMonth);
+                ? getPreviousRealEnd(monthIndex)
+                : getPreviousHypotheticalEnd(monthIndex);
+
+        const nextStartValue = normalizeNumberValue(previousValue);
 
         if (nextStartValue === null || nextStartValue === undefined) return;
 
+        updateRuntimeStartIndex(monthIndex);
+
         setMonthsData((prev) =>
             prev.map((month, index) => {
-                if (index !== monthIndex) {
-                    return month;
-                }
+                if (index !== monthIndex) return month;
 
                 return {
                     ...month,
-                    startMonth: nextStartValue,
+                    hypothetical_start: nextStartValue.toFixed(2),
                     startMonthSource: source,
                 };
             })
@@ -744,55 +761,55 @@ export default function YearBalanceSummaryPage() {
         }));
     }
 
-    function handleToggleSurplusToWallet(monthIndex) {
-        const targetMonth = monthsWithSurplus[monthIndex];
+    function handleToggleSurplusDestination(monthIndex, destination) {
+        const targetMonth = months[monthIndex];
 
         if (!targetMonth) return;
 
-        const alreadyMoved = normalizeNumberValue(targetMonth.surplusToWallet) !== 0;
+        const surplusValue = normalizeNumberValue(targetMonth.surplus);
 
-        if (alreadyMoved) {
-            setMonthsData((prev) =>
-                prev.map((month, index) => {
-                    if (index !== monthIndex) {
-                        return month;
-                    }
-
-                    return {
-                        ...month,
-                        surplusToWallet: 0,
-                    };
-                })
-            );
-
+        if (
+            surplusValue === null ||
+            surplusValue === undefined ||
+            surplusValue === 0
+        ) {
             return;
         }
 
-        const surplusValue = normalizeNumberValue(targetMonth.surplusEndMonth);
+        updateRuntimeStartIndex(monthIndex);
 
-        if (surplusValue === null || surplusValue === undefined || surplusValue === 0) {
-            return;
-        }
+        const isAlreadySelected = targetMonth.surplusDestination === destination;
 
         setMonthsData((prev) =>
             prev.map((month, index) => {
-                if (index !== monthIndex) {
-                    return month;
-                }
+                if (index !== monthIndex) return month;
+
+                const nextDestination = isAlreadySelected
+                    ? SURPLUS_DESTINATION.NONE
+                    : destination;
 
                 return {
                     ...month,
-                    surplusToWallet: surplusValue,
+                    surplusDestination: nextDestination,
+                    surplus_carried_to_saving_wallet:
+                        nextDestination === SURPLUS_DESTINATION.WALLET,
+                    surplus_carried_to_next_month:
+                        nextDestination === SURPLUS_DESTINATION.NEXT_MONTH,
                 };
             })
         );
+
+        setMonthMenu((prev) => ({
+            ...prev,
+            isOpen: false,
+            monthIndex: null,
+        }));
     }
 
     function getMonthMenuOptionState(monthIndex, source) {
-        const currentMonth = monthsWithSurplus[monthIndex];
-        const previousMonth = monthsWithSurplus[monthIndex - 1];
+        const currentMonth = months[monthIndex];
 
-        if (!currentMonth || !previousMonth) {
+        if (!currentMonth) {
             return {
                 value: null,
                 isActive: false,
@@ -802,41 +819,51 @@ export default function YearBalanceSummaryPage() {
 
         const value =
             source === START_MONTH_SOURCE.REAL
-                ? previousMonth.realEndMonth
-                : previousMonth.endMonth;
+                ? getPreviousRealEnd(monthIndex)
+                : getPreviousHypotheticalEnd(monthIndex);
 
         const normalizedValue = normalizeNumberValue(value);
 
         return {
             value,
-            isActive: areCurrencyValuesEqual(currentMonth.startMonth, value),
+            isActive: areCurrencyValuesEqual(
+                currentMonth.hypothetical_start,
+                value
+            ),
             disabled: normalizedValue === null || normalizedValue === undefined,
         };
     }
 
     function getSurplusMenuOptionState(monthIndex) {
-        const targetMonth = monthsWithSurplus[monthIndex];
-        const surplusValue = normalizeNumberValue(targetMonth?.surplusEndMonth);
-        const isMoved = normalizeNumberValue(targetMonth?.surplusToWallet) !== 0;
+        const targetMonth = months[monthIndex];
+        const surplusValue = normalizeNumberValue(targetMonth?.surplus);
+
+        const hasSurplus =
+            surplusValue !== null &&
+            surplusValue !== undefined &&
+            surplusValue !== 0;
 
         return {
-            value: targetMonth?.surplusEndMonth ?? null,
-            isActive: isMoved,
-            disabled:
-                !isMoved &&
-                (surplusValue === null ||
-                    surplusValue === undefined ||
-                    surplusValue === 0),
+            value: targetMonth?.surplus ?? null,
+            walletActive:
+                targetMonth?.surplusDestination === SURPLUS_DESTINATION.WALLET,
+            nextMonthActive:
+                targetMonth?.surplusDestination === SURPLUS_DESTINATION.NEXT_MONTH,
+            walletDisabled: !hasSurplus,
+            nextMonthDisabled: !hasSurplus || monthIndex >= months.length - 1,
         };
     }
 
     const openedMonth =
         monthMenu.isOpen && monthMenu.monthIndex !== null
-            ? monthsWithSurplus[monthMenu.monthIndex]
+            ? months[monthMenu.monthIndex]
             : null;
 
     const hypotheticalOption = monthMenu.isOpen
-        ? getMonthMenuOptionState(monthMenu.monthIndex, START_MONTH_SOURCE.HYPOTHETICAL)
+        ? getMonthMenuOptionState(
+              monthMenu.monthIndex,
+              START_MONTH_SOURCE.HYPOTHETICAL
+          )
         : null;
 
     const realOption = monthMenu.isOpen
@@ -850,55 +877,30 @@ export default function YearBalanceSummaryPage() {
     return (
         <div className="min-h-screen bg-slate-50 px-4 py-6">
             <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
-
-                
-                {/* <header className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white">
-                            <CalendarDays size={18} />
-                        </div>
-
-                        <div>
-                            <h1 className="text-xl font-semibold text-slate-900">
-                                Bilancio {year}
-                            </h1>
-
-                            <p className="text-sm text-slate-500">
-                                Riepilogo annuale di entrate, uscite e risparmio
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-right">
-                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                            Portafoglio risparmio
-                        </p>
-
-                        <p className="text-lg font-semibold text-slate-900">
-                            {formatCurrency(savingWallet)}
-                        </p>
-                    </div>
-                </header> */}
-
                 <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    <SummaryCard
+                        title="Portafoglio risparmio"
+                        value={savingWallet}
+                        icon={Wallet}
+                    />
 
                     <SummaryCard
                         title="Entrate annuali"
-                        value={annual.income}
+                        value={incomeAnnualTotal}
                         icon={TrendingUp}
                         variant="income"
                     />
 
                     <SummaryCard
                         title="Uscite annuali"
-                        value={annual.expense}
+                        value={expenseAnnualTotal}
                         icon={TrendingDown}
                         variant="expense"
                     />
 
                     <SummaryCard
                         title="Risparmio ipotetico"
-                        value={annual.expectedSaving}
+                        value={hypotheticalSavingAnnualTotal}
                         icon={PiggyBank}
                         variant="saving"
                     />
@@ -908,7 +910,7 @@ export default function YearBalanceSummaryPage() {
                     <div className="flex flex-col gap-3 border-b border-slate-200 p-5 md:flex-row md:items-center md:justify-between">
                         <div>
                             <h2 className="text-base font-semibold text-slate-900">
-                                Andamento mensile
+                                Andamento {year}
                             </h2>
 
                             <p className="text-sm text-slate-500">
@@ -918,7 +920,7 @@ export default function YearBalanceSummaryPage() {
 
                         <div className="w-full max-w-xs">
                             <div className="mb-1 flex items-center justify-between text-xs text-slate-500">
-                                <span>Obiettivo risparmio</span>
+                                <span>Risparmio ipotetico</span>
                                 <span>{Math.round(savingProgress)}%</span>
                             </div>
 
@@ -936,8 +938,11 @@ export default function YearBalanceSummaryPage() {
                             <colgroup>
                                 <col className="w-[160px]" />
 
-                                {monthsWithSurplus.map((month) => (
-                                    <col key={month.label} className="w-[72px]" />
+                                {months.map((month) => (
+                                    <col
+                                        key={month.id ?? month.label}
+                                        className="w-[72px]"
+                                    />
                                 ))}
                             </colgroup>
 
@@ -947,20 +952,23 @@ export default function YearBalanceSummaryPage() {
                                         Voce
                                     </th>
 
-                                    {monthsWithSurplus.map((month, monthIndex) => {
+                                    {months.map((month, monthIndex) => {
                                         const isOpen =
                                             monthMenu.isOpen &&
                                             monthMenu.monthIndex === monthIndex;
 
                                         return (
                                             <th
-                                                key={month.label}
+                                                key={month.id ?? month.label}
                                                 className="px-2 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500"
                                             >
                                                 <button
                                                     type="button"
                                                     onClick={(event) =>
-                                                        handleOpenMonthMenu(event, monthIndex)
+                                                        handleOpenMonthMenu(
+                                                            event,
+                                                            monthIndex
+                                                        )
                                                     }
                                                     className={`
                                                         ml-auto inline-flex items-center justify-end gap-1 rounded-lg border px-2 py-1 text-[11px] font-semibold uppercase tracking-wide transition
@@ -971,7 +979,7 @@ export default function YearBalanceSummaryPage() {
                                                         }
                                                     `}
                                                 >
-                                                    <span>{month.shortLabel}</span>
+                                                    <span>{month.label}</span>
 
                                                     <ChevronDown
                                                         size={12}
@@ -1030,7 +1038,9 @@ export default function YearBalanceSummaryPage() {
                                                         <button
                                                             type="button"
                                                             onClick={() =>
-                                                                handleToggleEditableRow(row.key)
+                                                                handleToggleEditableRow(
+                                                                    row.key
+                                                                )
                                                             }
                                                             className={`
                                                                 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border transition
@@ -1056,19 +1066,31 @@ export default function YearBalanceSummaryPage() {
                                                 </div>
                                             </td>
 
-                                            {monthsWithSurplus.map((month, monthIndex) => {
+                                            {months.map((month, monthIndex) => {
+                                                const isCurrentInputCell =
+                                                    activeInputCell?.rowKey === row.key &&
+                                                    activeInputCell?.monthIndex === monthIndex;
+
                                                 const displayValue =
-                                                    rowCanBeEditable && rowIsEditable
+                                                    rowCanBeEditable &&
+                                                    rowIsEditable &&
+                                                    isCurrentInputCell
                                                         ? monthsData[monthIndex]?.[row.key]
                                                         : month[row.key];
 
                                                 const walletIncluded =
-                                                    row.key === "surplusEndMonth" &&
-                                                    normalizeNumberValue(month.surplusToWallet) !== 0;
+                                                    row.key === "surplus" &&
+                                                    month.surplusDestination ===
+                                                        SURPLUS_DESTINATION.WALLET;
+
+                                                const nextMonthIncluded =
+                                                    row.key === "surplus" &&
+                                                    month.surplusDestination ===
+                                                        SURPLUS_DESTINATION.NEXT_MONTH;
 
                                                 return (
                                                     <MoneyCell
-                                                        key={`${month.label}-${row.key}`}
+                                                        key={`${month.id ?? month.label}-${row.key}`}
                                                         value={displayValue}
                                                         variant={getCellVariant(
                                                             row,
@@ -1077,7 +1099,14 @@ export default function YearBalanceSummaryPage() {
                                                             monthIndex
                                                         )}
                                                         isEditable={
-                                                            rowCanBeEditable && rowIsEditable
+                                                            rowCanBeEditable &&
+                                                            rowIsEditable
+                                                        }
+                                                        onFocus={() =>
+                                                            setActiveInputCell({
+                                                                rowKey: row.key,
+                                                                monthIndex,
+                                                            })
                                                         }
                                                         onChange={(newValue) =>
                                                             handleMonthValueChange(
@@ -1093,6 +1122,7 @@ export default function YearBalanceSummaryPage() {
                                                             )
                                                         }
                                                         walletIncluded={walletIncluded}
+                                                        nextMonthIncluded={nextMonthIncluded}
                                                     />
                                                 );
                                             })}
@@ -1101,56 +1131,6 @@ export default function YearBalanceSummaryPage() {
                                 })}
                             </tbody>
                         </table>
-                    </div>
-                </section>
-
-                <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                        <p className="text-sm font-medium text-slate-500">
-                            Saldo entrate / uscite
-                        </p>
-
-                        <p
-                            className={`
-                                mt-2 text-2xl font-semibold
-                                ${balance >= 0 ? "text-emerald-700" : "text-red-700"}
-                            `}
-                        >
-                            {formatCurrency(balance)}
-                        </p>
-                    </div>
-
-                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                        <p className="text-sm font-medium text-slate-500">
-                            Fine anno ipotetico
-                        </p>
-
-                        <p className="mt-2 text-2xl font-semibold text-slate-900">
-                            {formatCurrency(lastHypotheticalEndMonth)}
-                        </p>
-                    </div>
-
-                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                        <p className="text-sm font-medium text-slate-500">
-                            Surplus annuale
-                        </p>
-
-                        <p
-                            className={`
-                                mt-2 text-2xl font-semibold
-                                ${
-                                    annualSurplusEndMonth === null
-                                        ? "text-slate-400"
-                                        : annualSurplusEndMonth >= 0
-                                            ? "text-emerald-700"
-                                            : "text-red-700"
-                                }
-                            `}
-                        >
-                            {annualSurplusEndMonth === null
-                                ? "-"
-                                : formatCurrency(annualSurplusEndMonth)}
-                        </p>
                     </div>
                 </section>
             </div>
@@ -1166,11 +1146,11 @@ export default function YearBalanceSummaryPage() {
                 >
                     <div className="border-b border-slate-100 px-2 pb-2">
                         <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                            Opzioni {openedMonth.shortLabel}
+                            Opzioni {openedMonth.label}
                         </p>
 
                         <p className="mt-0.5 text-[11px] text-slate-400">
-                            Inizio mese e portafoglio
+                            Inizio mese e surplus
                         </p>
                     </div>
 
@@ -1203,7 +1183,11 @@ export default function YearBalanceSummaryPage() {
                                 {hypotheticalOption?.value === null ||
                                 hypotheticalOption?.value === undefined
                                     ? "-"
-                                    : formatCurrency(hypotheticalOption.value)}
+                                    : formatCurrency(
+                                          normalizeNumberValue(
+                                              hypotheticalOption.value
+                                          ) ?? 0
+                                      )}
                             </span>
                         </button>
 
@@ -1235,7 +1219,9 @@ export default function YearBalanceSummaryPage() {
                                 {realOption?.value === null ||
                                 realOption?.value === undefined
                                     ? "-"
-                                    : formatCurrency(realOption.value)}
+                                    : formatCurrency(
+                                          normalizeNumberValue(realOption.value) ?? 0
+                                      )}
                             </span>
                         </button>
 
@@ -1243,30 +1229,77 @@ export default function YearBalanceSummaryPage() {
 
                         <button
                             type="button"
-                            disabled={surplusOption?.disabled}
-                            onClick={() => handleToggleSurplusToWallet(monthMenu.monthIndex)}
+                            disabled={surplusOption?.walletDisabled}
+                            onClick={() =>
+                                handleToggleSurplusDestination(
+                                    monthMenu.monthIndex,
+                                    SURPLUS_DESTINATION.WALLET
+                                )
+                            }
                             className={`
                                 flex w-full flex-col rounded-lg border px-2 py-2 text-left transition
                                 ${
-                                    surplusOption?.disabled
+                                    surplusOption?.walletDisabled
                                         ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
-                                        : surplusOption?.isActive
+                                        : surplusOption?.walletActive
                                             ? "border-sky-200 bg-sky-50 text-sky-700"
                                             : "border-transparent text-slate-600 hover:border-slate-200 hover:bg-slate-50"
                                 }
                             `}
                         >
                             <span className="text-[11px] font-medium">
-                                {surplusOption?.isActive
-                                    ? "Rimuovi surplus dal portafoglio"
-                                    : "Aggiungi surplus al portafoglio"}
+                                {surplusOption?.walletActive
+                                    ? "Rimuovi dal portafoglio"
+                                    : "Aggiungi al portafoglio"}
                             </span>
 
                             <span className="mt-0.5 text-xs font-semibold">
                                 {surplusOption?.value === null ||
                                 surplusOption?.value === undefined
                                     ? "-"
-                                    : formatCurrency(surplusOption.value)}
+                                    : formatCurrency(
+                                          normalizeNumberValue(
+                                              surplusOption.value
+                                          ) ?? 0
+                                      )}
+                            </span>
+                        </button>
+
+                        <button
+                            type="button"
+                            disabled={surplusOption?.nextMonthDisabled}
+                            onClick={() =>
+                                handleToggleSurplusDestination(
+                                    monthMenu.monthIndex,
+                                    SURPLUS_DESTINATION.NEXT_MONTH
+                                )
+                            }
+                            className={`
+                                flex w-full flex-col rounded-lg border px-2 py-2 text-left transition
+                                ${
+                                    surplusOption?.nextMonthDisabled
+                                        ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
+                                        : surplusOption?.nextMonthActive
+                                            ? "border-amber-200 bg-amber-50 text-amber-700"
+                                            : "border-transparent text-slate-600 hover:border-slate-200 hover:bg-slate-50"
+                                }
+                            `}
+                        >
+                            <span className="text-[11px] font-medium">
+                                {surplusOption?.nextMonthActive
+                                    ? "Rimuovi dal mese successivo"
+                                    : "Porta al mese successivo"}
+                            </span>
+
+                            <span className="mt-0.5 text-xs font-semibold">
+                                {surplusOption?.value === null ||
+                                surplusOption?.value === undefined
+                                    ? "-"
+                                    : formatCurrency(
+                                          normalizeNumberValue(
+                                              surplusOption.value
+                                          ) ?? 0
+                                      )}
                             </span>
                         </button>
                     </div>
