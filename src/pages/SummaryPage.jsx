@@ -7,7 +7,7 @@ import {
     CalendarDays,
     Pencil,
     Lock,
-    ArrowUpRight,
+    ChevronDown,
 } from "lucide-react";
 
 import formatCurrency from "../utils/formatCurrency";
@@ -168,8 +168,37 @@ const START_MONTH_SOURCE = {
     CUSTOM: "custom",
 };
 
+function sanitizeCurrencyInput(value) {
+    if (value === null || value === undefined) {
+        return "";
+    }
+
+    let sanitizedValue = String(value)
+        .replace(/[^\d.,-]/g, "")
+        .replace(/\s/g, "");
+
+    const isNegative = sanitizedValue.startsWith("-");
+
+    sanitizedValue = sanitizedValue.replace(/-/g, "");
+
+    const firstSeparatorIndex = sanitizedValue.search(/[.,]/);
+
+    if (firstSeparatorIndex === -1) {
+        return `${isNegative ? "-" : ""}${sanitizedValue}`;
+    }
+
+    const integerPart = sanitizedValue.slice(0, firstSeparatorIndex);
+    const separator = sanitizedValue[firstSeparatorIndex];
+    const decimalPart = sanitizedValue
+        .slice(firstSeparatorIndex + 1)
+        .replace(/[.,]/g, "")
+        .slice(0, 2);
+
+    return `${isNegative ? "-" : ""}${integerPart}${separator}${decimalPart}`;
+}
+
 function normalizeNumberValue(value) {
-    if (value === "" || value === null || value === undefined) {
+    if (value === "" || value === null || value === undefined || value === "-") {
         return null;
     }
 
@@ -212,12 +241,7 @@ function formatInputValue(value) {
     return String(value);
 }
 
-function SummaryCard({
-    title,
-    value,
-    icon: Icon,
-    variant = "default",
-}) {
+function SummaryCard({ title, value, icon: Icon, variant = "default" }) {
     const variants = {
         default: {
             wrapper: "border-slate-200 bg-white",
@@ -274,29 +298,19 @@ function SummaryCard({
     );
 }
 
-function ActionButton({ actionButton }) {
-    const isDisabled = !actionButton || actionButton.disabled;
-
+function WalletBadge() {
     return (
-        <button
-            type="button"
-            disabled={isDisabled}
-            onClick={actionButton?.onClick}
-            title={actionButton?.title}
-            className={`
-                flex h-7 w-full items-center justify-center gap-1 rounded-md
-                border px-1 text-[10px] font-medium transition sm:h-5
-                ${isDisabled
-                    ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
-                    : actionButton?.active
-                        ? "border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100"
-                        : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-                }
-            `}
+        <span
+            className="
+                inline-flex items-center gap-1 rounded-md border border-sky-200
+                bg-sky-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase
+                tracking-wide text-sky-700
+            "
+            title="Surplus incluso nel portafoglio risparmio"
         >
-            <span>{actionButton?.label ?? "-"}</span>
-            <ArrowUpRight size={11} />
-        </button>
+            <Wallet size={10} />
+            PORT
+        </span>
     );
 }
 
@@ -307,10 +321,8 @@ function MoneyCell({
     isEditable = false,
     onChange,
     onKeyDown,
-    actionButton = null,
-    reserveActionSpace = false,
+    walletIncluded = false,
 }) {
-
     const variants = {
         default: "text-slate-700",
         income: "text-emerald-700",
@@ -327,12 +339,7 @@ function MoneyCell({
     if (isEditable) {
         return (
             <td className="whitespace-nowrap px-3 py-2 text-right text-xs font-medium">
-                <div
-                    className={`
-                        flex flex-col items-end justify-center gap-1
-                        ${reserveActionSpace ? "min-h-[44px] sm:min-h-[44px]" : "min-h-[24px]"}
-                    `}
-                >
+                <div className="flex min-h-[24px] flex-col items-end justify-center gap-1">
                     <input
                         type="text"
                         inputMode="decimal"
@@ -348,64 +355,64 @@ function MoneyCell({
                             ${variants[variant] || variants.default}
                         `}
                     />
-
-                    {reserveActionSpace && (
-                        <ActionButton actionButton={actionButton} />
-                    )}
-                </div>
-            </td>
-        );
-    }
-
-    if (value === null || value === undefined || value === "") {
-        return (
-            <td className="whitespace-nowrap px-3 py-3 text-right text-xs font-medium text-slate-400">
-                <div
-                    className={`
-                        flex flex-col items-end justify-center gap-1
-                        ${reserveActionSpace ? "min-h-[44px] sm:min-h-[44px]" : "min-h-[16px]"}
-                    `}
-                >
-                    <span>-</span>
-
-                    {reserveActionSpace && (
-                        <ActionButton actionButton={actionButton} />
-                    )}
                 </div>
             </td>
         );
     }
 
     return (
-        <td className="whitespace-nowrap px-3 py-3 text-right text-xs">
-            <div
+        <td
+            title={walletIncluded ? "Surplus incluso nel portafoglio risparmio" : ""}
+            className={`
+                relative whitespace-nowrap px-3 py-3 text-right text-xs
+                ${
+                    walletIncluded
+                        ? "bg-sky-50/70 ring-1 ring-inset ring-sky-200"
+                        : ""
+                }
+            `}
+        >
+            <span
                 className={`
-                    flex flex-col items-end justify-center gap-1
-                    ${reserveActionSpace ? "min-h-[44px] sm:min-h-[44px]" : "min-h-[16px]"}
+                    block leading-none
+                    ${strong || walletIncluded ? "font-semibold" : "font-medium"}
+                    ${
+                        value === null || value === undefined || value === ""
+                            ? "text-slate-400"
+                            : variants[variant] || variants.default
+                    }
                 `}
             >
-                <span
-                    className={`
-                        ${strong ? "font-semibold" : "font-medium"}
-                        ${variants[variant] || variants.default}
-                    `}
-                >
-                    {formatCurrency(value)}
-                </span>
+                {value === null || value === undefined || value === ""
+                    ? "-"
+                    : formatCurrency(value)}
+            </span>
 
-                {reserveActionSpace && (
-                    <ActionButton actionButton={actionButton} />
-                )}
-            </div>
+            {walletIncluded && (
+                <Wallet
+                    size={10}
+                    className="
+                        pointer-events-none absolute bottom-1 right-3
+                        text-sky-600
+                    "
+                />
+            )}
         </td>
     );
 }
 
 export default function YearBalanceSummaryPage() {
-
     const { year, annual } = summaryData;
 
     const rowRefs = useRef({});
+    const monthMenuRef = useRef(null);
+
+    const [monthMenu, setMonthMenu] = useState({
+        isOpen: false,
+        monthIndex: null,
+        top: 0,
+        left: 0,
+    });
 
     const [monthsData, setMonthsData] = useState(() =>
         summaryData.months.map((month, index) => ({
@@ -448,10 +455,26 @@ export default function YearBalanceSummaryPage() {
             });
         }
 
+        function handleClickOutsideMonthMenu(event) {
+            if (!monthMenuRef.current) return;
+
+            const clickedInsideMenu = monthMenuRef.current.contains(event.target);
+
+            if (!clickedInsideMenu) {
+                setMonthMenu((prev) => ({
+                    ...prev,
+                    isOpen: false,
+                    monthIndex: null,
+                }));
+            }
+        }
+
         document.addEventListener("mousedown", handleClickOutsideEditableRow);
+        document.addEventListener("mousedown", handleClickOutsideMonthMenu);
 
         return () => {
             document.removeEventListener("mousedown", handleClickOutsideEditableRow);
+            document.removeEventListener("mousedown", handleClickOutsideMonthMenu);
         };
     }, []);
 
@@ -525,23 +548,15 @@ export default function YearBalanceSummaryPage() {
 
     const savingWallet = summaryData.savingWallet + totalSurplusToWallet;
 
-    const lastHypotheticalEndMonth =
-        monthsWithSurplus[monthsWithSurplus.length - 1]?.endMonth ?? 0;
+    const lastHypotheticalEndMonth =  monthsWithSurplus[monthsWithSurplus.length - 1]?.endMonth ?? 0;
 
-    const lastRealEndMonth =
-        monthsWithSurplus[monthsWithSurplus.length - 1]?.realEndMonth ?? null;
+    const lastRealEndMonth =  monthsWithSurplus[monthsWithSurplus.length - 1]?.realEndMonth ?? null;
 
-    const annualSurplusEndMonth =
-        lastRealEndMonth !== null && lastRealEndMonth !== undefined
-            ? normalizeNumberValue(lastRealEndMonth) - lastHypotheticalEndMonth
-            : null;
+    const annualSurplusEndMonth =  lastRealEndMonth !== null && lastRealEndMonth !== undefined     ? normalizeNumberValue(lastRealEndMonth) - lastHypotheticalEndMonth     : null;
 
     const balance = annual.income - annual.expense;
 
-    const savingProgress =
-        annual.expectedSaving > 0
-            ? Math.min((balance / annual.expectedSaving) * 100, 100)
-            : 0;
+    const savingProgress =   annual.expectedSaving > 0      ? Math.min((balance / annual.expectedSaving) * 100, 100)     : 0;
 
     const rows = [
         {
@@ -573,7 +588,6 @@ export default function YearBalanceSummaryPage() {
             label: "Fine mese ipotetico",
             variant: "total",
             rowClassName: "bg-slate-50",
-            reserveActionSpace: true,
         },
         {
             key: "realEndMonth",
@@ -581,7 +595,6 @@ export default function YearBalanceSummaryPage() {
             variant: "real",
             rowClassName: "bg-indigo-50/60",
             separator: true,
-            reserveActionSpace: true,
         },
         {
             key: "surplusEndMonth",
@@ -589,7 +602,6 @@ export default function YearBalanceSummaryPage() {
             subtitle: "(reale - ipotetico)",
             variant: "surplus",
             rowClassName: "bg-fuchsia-50/60",
-            reserveActionSpace: true,
         },
     ];
 
@@ -637,41 +649,6 @@ export default function YearBalanceSummaryPage() {
         return value >= 0 ? "surplusPositive" : "surplusNegative";
     }
 
-    function getNextStartMonthStatus(monthIndex) {
-        const currentMonth = monthsWithSurplus[monthIndex];
-        const nextMonth = monthsWithSurplus[monthIndex + 1];
-
-        if (!currentMonth || !nextMonth) {
-            return {
-                hasNextMonth: false,
-                matchesHypothetical: false,
-                matchesReal: false,
-                hasRealEndMonth: false,
-            };
-        }
-
-        const hasRealEndMonth =
-            currentMonth.realEndMonth !== null &&
-            currentMonth.realEndMonth !== undefined &&
-            currentMonth.realEndMonth !== "";
-
-        const matchesHypothetical = areCurrencyValuesEqual(
-            nextMonth.startMonth,
-            currentMonth.endMonth
-        );
-
-        const matchesReal =
-            hasRealEndMonth &&
-            areCurrencyValuesEqual(nextMonth.startMonth, currentMonth.realEndMonth);
-
-        return {
-            hasNextMonth: true,
-            matchesHypothetical,
-            matchesReal,
-            hasRealEndMonth,
-        };
-    }
-
     function isRowEditable(rowKey) {
         return EDITABLE_ROWS.includes(rowKey);
     }
@@ -697,6 +674,8 @@ export default function YearBalanceSummaryPage() {
     }
 
     function handleMonthValueChange(monthIndex, fieldKey, value) {
+        const sanitizedValue = sanitizeCurrencyInput(value);
+
         setMonthsData((prev) =>
             prev.map((month, index) => {
                 if (index !== monthIndex) {
@@ -706,35 +685,47 @@ export default function YearBalanceSummaryPage() {
                 if (fieldKey === "startMonth") {
                     return {
                         ...month,
-                        startMonth: value,
+                        startMonth: sanitizedValue,
                         startMonthSource: START_MONTH_SOURCE.CUSTOM,
                     };
                 }
 
                 return {
                     ...month,
-                    [fieldKey]: value,
+                    [fieldKey]: sanitizedValue,
                 };
             })
         );
     }
 
-    function handleUseEndAsNextStart(monthIndex, source) {
-        const currentMonth = monthsWithSurplus[monthIndex];
-        const nextMonth = monthsWithSurplus[monthIndex + 1];
+    function handleOpenMonthMenu(event, monthIndex) {
+        event.stopPropagation();
 
-        if (!currentMonth || !nextMonth) return;
+        const rect = event.currentTarget.getBoundingClientRect();
+
+        setMonthMenu((prev) => ({
+            isOpen: !(prev.isOpen && prev.monthIndex === monthIndex),
+            monthIndex,
+            top: rect.bottom + 6,
+            left: rect.right - 200,
+        }));
+    }
+
+    function handleUsePreviousEndAsStart(monthIndex, source) {
+        const previousMonth = monthsWithSurplus[monthIndex - 1];
+
+        if (!previousMonth) return;
 
         const nextStartValue =
             source === START_MONTH_SOURCE.REAL
-                ? normalizeNumberValue(currentMonth.realEndMonth)
-                : normalizeNumberValue(currentMonth.endMonth);
+                ? normalizeNumberValue(previousMonth.realEndMonth)
+                : normalizeNumberValue(previousMonth.endMonth);
 
         if (nextStartValue === null || nextStartValue === undefined) return;
 
         setMonthsData((prev) =>
             prev.map((month, index) => {
-                if (index !== monthIndex + 1) {
+                if (index !== monthIndex) {
                     return month;
                 }
 
@@ -745,6 +736,12 @@ export default function YearBalanceSummaryPage() {
                 };
             })
         );
+
+        setMonthMenu((prev) => ({
+            ...prev,
+            isOpen: false,
+            monthIndex: null,
+        }));
     }
 
     function handleToggleSurplusToWallet(monthIndex) {
@@ -791,77 +788,71 @@ export default function YearBalanceSummaryPage() {
         );
     }
 
-    function getEndMonthActionButton(row, value, monthIndex) {
-        const {
-            hasNextMonth,
-            matchesHypothetical,
-            matchesReal,
-            hasRealEndMonth,
-        } = getNextStartMonthStatus(monthIndex);
+    function getMonthMenuOptionState(monthIndex, source) {
+        const currentMonth = monthsWithSurplus[monthIndex];
+        const previousMonth = monthsWithSurplus[monthIndex - 1];
 
-        const nextMonth = monthsWithSurplus[monthIndex + 1];
-
-        if (row.key === "endMonth") {
-            const isDisabled = !hasNextMonth || matchesHypothetical;
-
+        if (!currentMonth || !previousMonth) {
             return {
-                label: nextMonth?.shortLabel ?? "-",
-                title: nextMonth
-                    ? `Usa come inizio di ${nextMonth.label}`
-                    : "Nessun mese successivo",
-                disabled: isDisabled,
-                onClick: () =>
-                    handleUseEndAsNextStart(
-                        monthIndex,
-                        START_MONTH_SOURCE.HYPOTHETICAL
-                    ),
+                value: null,
+                isActive: false,
+                disabled: true,
             };
         }
 
-        if (row.key === "realEndMonth") {
-            const isDisabled = !hasNextMonth || !hasRealEndMonth || matchesReal;
+        const value =
+            source === START_MONTH_SOURCE.REAL
+                ? previousMonth.realEndMonth
+                : previousMonth.endMonth;
 
-            return {
-                label: nextMonth?.shortLabel ?? "-",
-                title: nextMonth
-                    ? `Usa come inizio di ${nextMonth.label}`
-                    : "Nessun mese successivo",
-                disabled: isDisabled,
-                onClick: () =>
-                    handleUseEndAsNextStart(
-                        monthIndex,
-                        START_MONTH_SOURCE.REAL
-                    ),
-            };
-        }
+        const normalizedValue = normalizeNumberValue(value);
 
-        if (row.key === "surplusEndMonth") {
-            const targetMonth = monthsWithSurplus[monthIndex];
-            const surplusValue = normalizeNumberValue(targetMonth?.surplusEndMonth);
-            const isMoved = normalizeNumberValue(targetMonth?.surplusToWallet) !== 0;
-
-            return {
-                label: "PORT",
-                title: isMoved
-                    ? "Rimuovi dal portafoglio risparmio"
-                    : "Sposta nel portafoglio risparmio",
-                active: isMoved,
-                disabled:
-                    !isMoved &&
-                    (surplusValue === null ||
-                        surplusValue === undefined ||
-                        surplusValue === 0),
-                onClick: () => handleToggleSurplusToWallet(monthIndex),
-            };
-        }
-
-        return null;
+        return {
+            value,
+            isActive: areCurrencyValuesEqual(currentMonth.startMonth, value),
+            disabled: normalizedValue === null || normalizedValue === undefined,
+        };
     }
+
+    function getSurplusMenuOptionState(monthIndex) {
+        const targetMonth = monthsWithSurplus[monthIndex];
+        const surplusValue = normalizeNumberValue(targetMonth?.surplusEndMonth);
+        const isMoved = normalizeNumberValue(targetMonth?.surplusToWallet) !== 0;
+
+        return {
+            value: targetMonth?.surplusEndMonth ?? null,
+            isActive: isMoved,
+            disabled:
+                !isMoved &&
+                (surplusValue === null ||
+                    surplusValue === undefined ||
+                    surplusValue === 0),
+        };
+    }
+
+    const openedMonth =
+        monthMenu.isOpen && monthMenu.monthIndex !== null
+            ? monthsWithSurplus[monthMenu.monthIndex]
+            : null;
+
+    const hypotheticalOption = monthMenu.isOpen
+        ? getMonthMenuOptionState(monthMenu.monthIndex, START_MONTH_SOURCE.HYPOTHETICAL)
+        : null;
+
+    const realOption = monthMenu.isOpen
+        ? getMonthMenuOptionState(monthMenu.monthIndex, START_MONTH_SOURCE.REAL)
+        : null;
+
+    const surplusOption = monthMenu.isOpen
+        ? getSurplusMenuOptionState(monthMenu.monthIndex)
+        : null;
 
     return (
         <div className="min-h-screen bg-slate-50 px-4 py-6">
             <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
-                <header className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between">
+
+                
+                {/* <header className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between">
                     <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white">
                             <CalendarDays size={18} />
@@ -887,14 +878,9 @@ export default function YearBalanceSummaryPage() {
                             {formatCurrency(savingWallet)}
                         </p>
                     </div>
-                </header>
+                </header> */}
 
                 <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                    <SummaryCard
-                        title="Portafoglio risparmio"
-                        value={savingWallet}
-                        icon={Wallet}
-                    />
 
                     <SummaryCard
                         title="Entrate annuali"
@@ -951,10 +937,7 @@ export default function YearBalanceSummaryPage() {
                                 <col className="w-[160px]" />
 
                                 {monthsWithSurplus.map((month) => (
-                                    <col
-                                        key={month.label}
-                                        className="w-[72px]"
-                                    />
+                                    <col key={month.label} className="w-[72px]" />
                                 ))}
                             </colgroup>
 
@@ -964,14 +947,43 @@ export default function YearBalanceSummaryPage() {
                                         Voce
                                     </th>
 
-                                    {monthsWithSurplus.map((month) => (
-                                        <th
-                                            key={month.label}
-                                            className="px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500"
-                                        >
-                                            {month.shortLabel}
-                                        </th>
-                                    ))}
+                                    {monthsWithSurplus.map((month, monthIndex) => {
+                                        const isOpen =
+                                            monthMenu.isOpen &&
+                                            monthMenu.monthIndex === monthIndex;
+
+                                        return (
+                                            <th
+                                                key={month.label}
+                                                className="px-2 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                                            >
+                                                <button
+                                                    type="button"
+                                                    onClick={(event) =>
+                                                        handleOpenMonthMenu(event, monthIndex)
+                                                    }
+                                                    className={`
+                                                        ml-auto inline-flex items-center justify-end gap-1 rounded-lg border px-2 py-1 text-[11px] font-semibold uppercase tracking-wide transition
+                                                        ${
+                                                            isOpen
+                                                                ? "border-slate-300 bg-white text-slate-900 shadow-sm"
+                                                                : "border-transparent text-slate-500 hover:border-slate-200 hover:bg-white hover:text-slate-900"
+                                                        }
+                                                    `}
+                                                >
+                                                    <span>{month.shortLabel}</span>
+
+                                                    <ChevronDown
+                                                        size={12}
+                                                        className={`
+                                                            transition
+                                                            ${isOpen ? "rotate-180" : ""}
+                                                        `}
+                                                    />
+                                                </button>
+                                            </th>
+                                        );
+                                    })}
                                 </tr>
                             </thead>
 
@@ -1022,9 +1034,10 @@ export default function YearBalanceSummaryPage() {
                                                             }
                                                             className={`
                                                                 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border transition
-                                                                ${rowIsEditable
-                                                                    ? "border-slate-300 bg-slate-900 text-white hover:bg-slate-800"
-                                                                    : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                                                                ${
+                                                                    rowIsEditable
+                                                                        ? "border-slate-300 bg-slate-900 text-white hover:bg-slate-800"
+                                                                        : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                                                                 }
                                                             `}
                                                             title={
@@ -1048,6 +1061,10 @@ export default function YearBalanceSummaryPage() {
                                                     rowCanBeEditable && rowIsEditable
                                                         ? monthsData[monthIndex]?.[row.key]
                                                         : month[row.key];
+
+                                                const walletIncluded =
+                                                    row.key === "surplusEndMonth" &&
+                                                    normalizeNumberValue(month.surplusToWallet) !== 0;
 
                                                 return (
                                                     <MoneyCell
@@ -1075,12 +1092,7 @@ export default function YearBalanceSummaryPage() {
                                                                 row.key
                                                             )
                                                         }
-                                                        actionButton={getEndMonthActionButton(
-                                                            row,
-                                                            month[row.key],
-                                                            monthIndex
-                                                        )}
-                                                        reserveActionSpace={row.reserveActionSpace}
+                                                        walletIncluded={walletIncluded}
                                                     />
                                                 );
                                             })}
@@ -1126,11 +1138,12 @@ export default function YearBalanceSummaryPage() {
                         <p
                             className={`
                                 mt-2 text-2xl font-semibold
-                                ${annualSurplusEndMonth === null
-                                    ? "text-slate-400"
-                                    : annualSurplusEndMonth >= 0
-                                        ? "text-emerald-700"
-                                        : "text-red-700"
+                                ${
+                                    annualSurplusEndMonth === null
+                                        ? "text-slate-400"
+                                        : annualSurplusEndMonth >= 0
+                                            ? "text-emerald-700"
+                                            : "text-red-700"
                                 }
                             `}
                         >
@@ -1141,6 +1154,124 @@ export default function YearBalanceSummaryPage() {
                     </div>
                 </section>
             </div>
+
+            {monthMenu.isOpen && openedMonth && (
+                <div
+                    ref={monthMenuRef}
+                    className="fixed z-50 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-xl"
+                    style={{
+                        top: `${monthMenu.top}px`,
+                        left: `${Math.max(monthMenu.left, 8)}px`,
+                    }}
+                >
+                    <div className="border-b border-slate-100 px-2 pb-2">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                            Opzioni {openedMonth.shortLabel}
+                        </p>
+
+                        <p className="mt-0.5 text-[11px] text-slate-400">
+                            Inizio mese e portafoglio
+                        </p>
+                    </div>
+
+                    <div className="mt-2 flex flex-col gap-1">
+                        <button
+                            type="button"
+                            disabled={hypotheticalOption?.disabled}
+                            onClick={() =>
+                                handleUsePreviousEndAsStart(
+                                    monthMenu.monthIndex,
+                                    START_MONTH_SOURCE.HYPOTHETICAL
+                                )
+                            }
+                            className={`
+                                flex w-full flex-col rounded-lg border px-2 py-2 text-left transition
+                                ${
+                                    hypotheticalOption?.disabled
+                                        ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
+                                        : hypotheticalOption?.isActive
+                                            ? "border-slate-300 bg-slate-100 text-slate-900"
+                                            : "border-transparent text-slate-600 hover:border-slate-200 hover:bg-slate-50"
+                                }
+                            `}
+                        >
+                            <span className="text-[11px] font-medium">
+                                Inizio da fine ipotetico
+                            </span>
+
+                            <span className="mt-0.5 text-xs font-semibold">
+                                {hypotheticalOption?.value === null ||
+                                hypotheticalOption?.value === undefined
+                                    ? "-"
+                                    : formatCurrency(hypotheticalOption.value)}
+                            </span>
+                        </button>
+
+                        <button
+                            type="button"
+                            disabled={realOption?.disabled}
+                            onClick={() =>
+                                handleUsePreviousEndAsStart(
+                                    monthMenu.monthIndex,
+                                    START_MONTH_SOURCE.REAL
+                                )
+                            }
+                            className={`
+                                flex w-full flex-col rounded-lg border px-2 py-2 text-left transition
+                                ${
+                                    realOption?.disabled
+                                        ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
+                                        : realOption?.isActive
+                                            ? "border-indigo-200 bg-indigo-50 text-indigo-700"
+                                            : "border-transparent text-slate-600 hover:border-slate-200 hover:bg-slate-50"
+                                }
+                            `}
+                        >
+                            <span className="text-[11px] font-medium">
+                                Inizio da fine reale
+                            </span>
+
+                            <span className="mt-0.5 text-xs font-semibold">
+                                {realOption?.value === null ||
+                                realOption?.value === undefined
+                                    ? "-"
+                                    : formatCurrency(realOption.value)}
+                            </span>
+                        </button>
+
+                        <div className="my-1 border-t border-slate-100" />
+
+                        <button
+                            type="button"
+                            disabled={surplusOption?.disabled}
+                            onClick={() => handleToggleSurplusToWallet(monthMenu.monthIndex)}
+                            className={`
+                                flex w-full flex-col rounded-lg border px-2 py-2 text-left transition
+                                ${
+                                    surplusOption?.disabled
+                                        ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
+                                        : surplusOption?.isActive
+                                            ? "border-sky-200 bg-sky-50 text-sky-700"
+                                            : "border-transparent text-slate-600 hover:border-slate-200 hover:bg-slate-50"
+                                }
+                            `}
+                        >
+                            <span className="text-[11px] font-medium">
+                                {surplusOption?.isActive
+                                    ? "Rimuovi surplus dal portafoglio"
+                                    : "Aggiungi surplus al portafoglio"}
+                            </span>
+
+                            <span className="mt-0.5 text-xs font-semibold">
+                                {surplusOption?.value === null ||
+                                surplusOption?.value === undefined
+                                    ? "-"
+                                    : formatCurrency(surplusOption.value)}
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
