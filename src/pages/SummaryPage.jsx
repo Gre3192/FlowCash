@@ -723,7 +723,7 @@ export default function YearBalanceSummaryPage({ selectedYear = 2026 }) {
 
                             <tbody>
                                 {ROWS.map((row) => {
-                                    
+
                                     const rowEditable = EDITABLE_ROWS.includes(row.key);
                                     const rowIsEditing = editableRows[row.key];
 
@@ -773,9 +773,9 @@ export default function YearBalanceSummaryPage({ selectedYear = 2026 }) {
                                                             `}
                                                         >
                                                             {rowIsEditing ? (
-                                                                <Pencil size={13} />
-                                                            ) : (
                                                                 <Lock size={13} />
+                                                            ) : (
+                                                                <Pencil size={13} />
                                                             )}
                                                         </button>
                                                     )}
