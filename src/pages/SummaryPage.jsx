@@ -663,7 +663,7 @@ export default function YearBalanceSummaryPage({ selectedYear = 2027 }) {
                     </div>
 
                     <div className="overflow-x-auto">
-                        <SummaryTable months={data.months} />
+                        <SummaryTable monthsData={data.months} />
                     </div>
                 </section>
             </div>

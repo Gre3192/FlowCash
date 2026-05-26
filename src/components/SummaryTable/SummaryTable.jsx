@@ -1,7 +1,7 @@
 import { Wallet, TrendingUp, TrendingDown, PiggyBank, Pencil, Lock, ChevronDown } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import formatCurrency from "../../utils/formatCurrency";
-import { IconButton } from "../../ui"
+import { IconButton, Input } from "../../ui"
 
 
 const ROWS_CONFIG = [
@@ -56,9 +56,15 @@ const ROWS_CONFIG = [
 
 export default function SummaryTable({
 
-    months
+    monthsData
 
 }) {
+
+    const [months, setMonths] = useState(monthsData ?? [])
+
+    useEffect(() => {
+        setMonths(monthsData ?? [])
+    }, [monthsData])
 
 
     return (
@@ -126,6 +132,12 @@ function RowTable({
 
     const [rowIsEditing, setRowIsEditing] = useState(false)
 
+    console.log(months);
+
+    function handleEditing() {
+        setRowIsEditing(!rowIsEditing)
+    }
+
     return (
         <tr
             key={row.key}
@@ -144,7 +156,7 @@ function RowTable({
                         )}
                     </div>
                     {row.isEditable && (
-                        <IconButton icon={rowIsEditing ? Lock : Pencil} onClick={() => setRowIsEditing(!rowIsEditing)} size={"sm"} />
+                        <IconButton icon={rowIsEditing ? Lock : Pencil} onClick={handleEditing} size={"sm"} />
                     )}
                 </div>
             </td>
@@ -165,30 +177,41 @@ function MoneyCell({
     value,
     variant,
     rowIsEditing,
-    onChange,
-    onFocus,
-    onKeyDown,
-    walletIncluded,
-    nextMonthIncluded,
 }) {
 
-    const hasValue = value !== null && value !== undefined && value !== "";
+    const [valueCell, setValueCell] = useState(value ?? "")
+
+    function handleChangeValue(e) {
+        setValueCell(e.target.value)
+    }
 
     if (rowIsEditing) {
         return (
             <td className="whitespace-nowrap px-3 py-2 text-right text-xs font-medium">
-                <input
+                {/* <input
                     type="text"
                     inputMode="decimal"
-                    value={hasValue ? String(value) : ""}
+                    value={valueCell}
                     placeholder="-"
                     className={`
                         h-6 w-full min-w-0 rounded-md border border-slate-200 bg-white px-1.5
                         text-right text-xs font-medium outline-none transition
                         placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-200
                     `}
+                /> */}
+
+                <Input
+                    value={valueCell}
+                    onChange={handleChangeValue}
+                    placeholder="-"
+                    inputClassName={`
+                        h-6 w-full min-w-0 rounded-md border border-slate-200 bg-white px-1.5
+                        text-right text-xs font-medium outline-none transition
+                        placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-200
+                    `}
                 />
             </td>
+
         );
     }
 
@@ -200,7 +223,7 @@ function MoneyCell({
             <span
                 className={`block leading-none font-medium`}
             >
-                {hasValue ? formatCurrency(value) : "-"}
+                {true ? formatCurrency(valueCell) : "-"}
             </span>
         </td>
     );
