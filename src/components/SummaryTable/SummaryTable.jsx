@@ -82,6 +82,8 @@ function recalculateMonthsChain(months, changedMonthNum, cellType, newValue) {
 }
 
 export default function SummaryTable({ monthsData }) {
+
+    
     const [months, setMonths] = useState(monthsData ?? []);
 
     useEffect(() => {
