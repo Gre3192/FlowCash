@@ -21,7 +21,8 @@ export const API_ENDPOINTS = {
   transactions: buildEndpoint(base_url, `/api/transactions/`),
 
   annualSummary: buildEndpoint(base_url, `/api/flowcash/annual-summary`),
-
+  
+  monthlySummaries: buildEndpoint(base_url, `/api/flowcash/monthly-summaries`),
 };
 
 

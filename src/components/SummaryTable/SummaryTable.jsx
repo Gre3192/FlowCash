@@ -3,6 +3,8 @@ import { useState, useRef, useEffect } from "react";
 import formatCurrency from "../../utils/formatCurrency";
 import { IconButton, Input } from "../../ui";
 import toNumber from "../../utils/toNumber";
+import { API_ENDPOINTS } from "../../api/endpoint";
+import { usePost } from "../../hooks/usePost"
 
 const ROWS_CONFIG = [
     {
@@ -82,10 +84,14 @@ function recalculateMonthsChain(months, changedMonthNum, cellType, newValue) {
     return updatedMonths;
 }
 
-export default function SummaryTable({ monthsData }) {
-
+export default function SummaryTable({
+    monthsData,
+    selectedYear
+}) {
 
     const [months, setMonths] = useState(monthsData ?? []);
+
+
 
     useEffect(() => {
         setMonths(monthsData ?? []);
@@ -101,8 +107,7 @@ export default function SummaryTable({ monthsData }) {
             </colgroup>
 
             <HeadTable months={months} />
-
-            <BodyTable months={months} setMonths={setMonths} />
+            <BodyTable months={months} setMonths={setMonths} selectedYear={selectedYear} />
         </table>
     );
 }
@@ -128,7 +133,7 @@ function HeadTable({ months }) {
     );
 }
 
-function BodyTable({ months, setMonths }) {
+function BodyTable({ months, setMonths, selectedYear }) {
     return (
         <tbody>
             {ROWS_CONFIG.map((row) => (
@@ -137,18 +142,63 @@ function BodyTable({ months, setMonths }) {
                     row={row}
                     months={months}
                     setMonths={setMonths}
+                    selectedYear={selectedYear}
                 />
             ))}
         </tbody>
     );
 }
 
-function RowTable({ row, months, setMonths }) {
+function RowTable({ row, months, setMonths, selectedYear }) {
 
     const [rowIsEditing, setRowIsEditing] = useState(false);
+    const { postData, loading } = usePost();
 
-    function handleEditing() {
-        setRowIsEditing((prev) => !prev);
+    async function saveHypotheticalStart() {
+        const payload = { months };
+        try {
+            await postData(API_ENDPOINTS.monthlySummaries() + "/" + selectedYear + "/", payload);
+
+            return true;
+        } catch (error) {
+            console.error("Errore salvataggio inizio mese ipotetico:", error);
+            return false;
+        }
+    }
+
+    async function saveHypotheticalSaving() {
+
+    }
+
+    async function saveRealEnd() {
+
+
+    }
+
+    async function handleEditing() {
+        if (!rowIsEditing) {
+            setRowIsEditing(true);
+            return;
+        }
+
+        const saveActions = {
+            hypothetical_start: saveHypotheticalStart,
+            hypothetical_saving: saveHypotheticalSaving,
+            real_end: saveRealEnd,
+        };
+
+        const saveAction = saveActions[row.key];
+
+        if (!saveAction) {
+            console.warn(`Nessuna funzione di salvataggio per: ${row.key}`);
+            return;
+        }
+
+        const saved = await saveAction();
+
+        if (saved) {
+            setRowIsEditing(false);
+        }
     }
 
     return (
@@ -168,6 +218,7 @@ function RowTable({ row, months, setMonths }) {
                             icon={rowIsEditing ? Lock : Pencil}
                             onClick={handleEditing}
                             size="sm"
+                            loading={loading}
                         />
                     )}
                 </div>
