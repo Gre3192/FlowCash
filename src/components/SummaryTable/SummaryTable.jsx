@@ -148,7 +148,6 @@ function RowTable({
                     )}
                 </div>
             </td>
-
             {months.map((month) => {
                 return (
                     <MoneyCell
