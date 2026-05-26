@@ -54,48 +54,30 @@ const ROWS_CONFIG = [
     },
 ];
 
-function calculateHypotheticalEnd(month) {
-    return (
-        toNumber(month.hypothetical_start) +
-        toNumber(month.income_total) -
-        toNumber(month.expense_total) -
-        toNumber(month.hypothetical_saving)
-    );
-}
-
-function calculateSurplus(month) {
-    return toNumber(month.real_end) - toNumber(month.hypothetical_end);
-}
-
 function recalculateMonthsChain(months, changedMonthNum, cellType, newValue) {
     const updatedMonths = months.map((month) => ({ ...month }));
-
-    const changedIndex = updatedMonths.findIndex(
-        (month) => Number(month.month) === Number(changedMonthNum)
-    );
-
+    const changedIndex = updatedMonths.findIndex((month) => Number(month.month) === Number(changedMonthNum));
     if (changedIndex === -1) return updatedMonths;
-
-    updatedMonths[changedIndex] = {
-        ...updatedMonths[changedIndex],
-        [cellType]: toNumber(newValue),
-    };
-
+    updatedMonths[changedIndex] = { ...updatedMonths[changedIndex], [cellType]: toNumber(newValue) };
     for (let i = changedIndex; i < updatedMonths.length; i++) {
         const currentMonth = updatedMonths[i];
-
         if (i > changedIndex) {
             const previousMonth = updatedMonths[i - 1];
-
             currentMonth.hypothetical_start = toNumber(
                 previousMonth.hypothetical_end
             );
         }
+        const newHpEnd = toNumber(currentMonth.hypothetical_start) +
+            toNumber(currentMonth.income_total) -
+            toNumber(currentMonth.expense_total) -
+            toNumber(currentMonth.hypothetical_saving)
 
-        currentMonth.hypothetical_end = calculateHypotheticalEnd(currentMonth);
-        currentMonth.surplus = calculateSurplus(currentMonth);
+        const surplus = toNumber(currentMonth.real_end) -
+            toNumber(currentMonth.hypothetical_end);
+
+        currentMonth.hypothetical_end = newHpEnd;
+        currentMonth.surplus = surplus;
     }
-
     return updatedMonths;
 }
 
@@ -230,9 +212,7 @@ function MoneyCell({
 
     function handleChangeValue(e) {
         const newValue = e.target.value;
-
         setValueCell(newValue);
-
         setMonths((prevMonths) =>
             recalculateMonthsChain(
                 prevMonths,
