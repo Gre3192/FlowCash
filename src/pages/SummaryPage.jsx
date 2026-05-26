@@ -8,7 +8,7 @@ import SummaryTable from "../components/SummaryTable/SummaryTable";
 
 
 
-export default function YearBalanceSummaryPage({ selectedYear = 2028 }) {
+export default function YearBalanceSummaryPage({ selectedYear = 2029 }) {
 
     const { data, loading, error } = useGet(
         API_ENDPOINTS.annualSummary({ year: selectedYear }),
