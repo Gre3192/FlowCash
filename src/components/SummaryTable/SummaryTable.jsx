@@ -60,13 +60,14 @@ function recalculateMonthsChain(months, changedMonthNum, cellType, newValue) {
     if (changedIndex === -1) return updatedMonths;
     updatedMonths[changedIndex] = { ...updatedMonths[changedIndex], [cellType]: toNumber(newValue) };
     for (let i = changedIndex; i < updatedMonths.length; i++) {
+
         const currentMonth = updatedMonths[i];
+
         if (i > changedIndex) {
             const previousMonth = updatedMonths[i - 1];
-            currentMonth.hypothetical_start = toNumber(
-                previousMonth.hypothetical_end
-            );
+            currentMonth.hypothetical_start = toNumber(previousMonth.hypothetical_end);
         }
+
         const newHpEnd = toNumber(currentMonth.hypothetical_start) +
             toNumber(currentMonth.income_total) -
             toNumber(currentMonth.expense_total) -
@@ -83,7 +84,7 @@ function recalculateMonthsChain(months, changedMonthNum, cellType, newValue) {
 
 export default function SummaryTable({ monthsData }) {
 
-    
+
     const [months, setMonths] = useState(monthsData ?? []);
 
     useEffect(() => {
