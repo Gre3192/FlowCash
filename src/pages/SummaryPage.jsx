@@ -246,7 +246,7 @@ function MoneyCell({
     );
 }
 
-export default function YearBalanceSummaryPage({ selectedYear = 2026 }) {
+export default function YearBalanceSummaryPage({ selectedYear = 2027 }) {
 
     const { data, loading, error } = useGet(
         API_ENDPOINTS.annualSummary({ year: selectedYear }),
@@ -388,21 +388,9 @@ export default function YearBalanceSummaryPage({ selectedYear = 2026 }) {
     }, [monthsData, previousYearDecember, runtimeStartIndex]);
 
     const totals = useMemo(() => {
-        const income = months.reduce(
-            (sum, month) => sum + (toNumber(month.income_total) ?? 0),
-            0
-        );
-
-        const expense = months.reduce(
-            (sum, month) => sum + (toNumber(month.expense_total) ?? 0),
-            0
-        );
-
-        const saving = months.reduce(
-            (sum, month) => sum + (toNumber(month.hypothetical_saving) ?? 0),
-            0
-        );
-
+        const income = months.reduce((sum, month) => sum + (toNumber(month.income_total) ?? 0), 0);
+        const expense = months.reduce((sum, month) => sum + (toNumber(month.expense_total) ?? 0), 0);
+        const saving = months.reduce((sum, month) => sum + (toNumber(month.hypothetical_saving) ?? 0), 0);
         const surplusToWallet = months.reduce((sum, month) => {
             if (month.surplusDestination !== SURPLUS_DESTINATION.WALLET) return sum;
             return sum + (toNumber(month.surplus) ?? 0);
@@ -696,9 +684,7 @@ export default function YearBalanceSummaryPage({ selectedYear = 2026 }) {
                                             >
                                                 <button
                                                     type="button"
-                                                    onClick={(event) =>
-                                                        openMonthMenu(event, monthIndex)
-                                                    }
+                                                    onClick={(event) => openMonthMenu(event, monthIndex)}
                                                     className={`
                                                         ml-auto inline-flex items-center justify-end gap-1 rounded-lg border px-2 py-1
                                                         text-[11px] font-semibold uppercase tracking-wide transition
