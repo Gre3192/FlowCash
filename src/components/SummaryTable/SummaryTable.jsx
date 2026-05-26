@@ -1,8 +1,8 @@
-import { Wallet, TrendingUp, TrendingDown, PiggyBank, Pencil, Lock, ChevronDown } from "lucide-react";
+import { Pencil, Lock, ChevronDown } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import formatCurrency from "../../utils/formatCurrency";
-import { IconButton, Input } from "../../ui"
-
+import { IconButton, Input } from "../../ui";
+import toNumber from "../../utils/toNumber";
 
 const ROWS_CONFIG = [
     {
@@ -10,7 +10,7 @@ const ROWS_CONFIG = [
         label: "Inizio mese ipotetico",
         variant: "default",
         className: "bg-white",
-        isEditable: true
+        isEditable: true,
     },
     {
         key: "income_total",
@@ -29,7 +29,7 @@ const ROWS_CONFIG = [
         label: "Risparmio ipotetico",
         variant: "saving",
         className: "bg-sky-50/60",
-        isEditable: true
+        isEditable: true,
     },
     {
         key: "hypothetical_end",
@@ -43,7 +43,7 @@ const ROWS_CONFIG = [
         variant: "real",
         className: "bg-indigo-50/60 text-indigo-700",
         separator: true,
-        isEditable: true
+        isEditable: true,
     },
     {
         key: "surplus",
@@ -54,152 +54,198 @@ const ROWS_CONFIG = [
     },
 ];
 
-export default function SummaryTable({
+function calculateHypotheticalEnd(month) {
+    return (
+        toNumber(month.hypothetical_start) +
+        toNumber(month.income_total) -
+        toNumber(month.expense_total) -
+        toNumber(month.hypothetical_saving)
+    );
+}
 
-    monthsData
+function calculateSurplus(month) {
+    return toNumber(month.real_end) - toNumber(month.hypothetical_end);
+}
 
-}) {
+function recalculateMonthsChain(months, changedMonthNum, cellType, newValue) {
+    const updatedMonths = months.map((month) => ({ ...month }));
 
-    const [months, setMonths] = useState(monthsData ?? [])
+    const changedIndex = updatedMonths.findIndex(
+        (month) => Number(month.month) === Number(changedMonthNum)
+    );
+
+    if (changedIndex === -1) return updatedMonths;
+
+    updatedMonths[changedIndex] = {
+        ...updatedMonths[changedIndex],
+        [cellType]: toNumber(newValue),
+    };
+
+    for (let i = changedIndex; i < updatedMonths.length; i++) {
+        const currentMonth = updatedMonths[i];
+
+        if (i > changedIndex) {
+            const previousMonth = updatedMonths[i - 1];
+
+            currentMonth.hypothetical_start = toNumber(
+                previousMonth.hypothetical_end
+            );
+        }
+
+        currentMonth.hypothetical_end = calculateHypotheticalEnd(currentMonth);
+        currentMonth.surplus = calculateSurplus(currentMonth);
+    }
+
+    return updatedMonths;
+}
+
+export default function SummaryTable({ monthsData }) {
+    const [months, setMonths] = useState(monthsData ?? []);
 
     useEffect(() => {
-        setMonths(monthsData ?? [])
-    }, [monthsData])
-
+        setMonths(monthsData ?? []);
+    }, [monthsData]);
 
     return (
         <table className="w-full min-w-[980px] table-fixed border-collapse">
             <colgroup>
                 <col className="w-[160px]" />
-                {months.map((month) => (
+                {months?.map((month) => (
                     <col key={month.id ?? month.label} className="w-[72px]" />
                 ))}
             </colgroup>
+
             <HeadTable months={months} />
-            <BodyTable months={months} />
+
+            <BodyTable months={months} setMonths={setMonths} />
         </table>
-    )
+    );
 }
 
-
-function HeadTable({
-    months
-}) {
+function HeadTable({ months }) {
     return (
         <thead>
             <tr className="border-b border-slate-200 bg-slate-50">
                 <th className="sticky left-0 z-10 bg-slate-50 px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                     Voce
                 </th>
-                {months.map((month, i) => {
-                    return (
-                        <th
-                            key={month.id ?? month.label}
-                            className="px-2 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500"
-                        >
-                            <MonthLabelButton label={month.label} />
-                        </th>
-                    );
-                })}
+
+                {months.map((month) => (
+                    <th
+                        key={month.id ?? month.label}
+                        className="px-2 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                    >
+                        <MonthLabelButton label={month.label} />
+                    </th>
+                ))}
             </tr>
         </thead>
-    )
+    );
 }
 
-function BodyTable({
-    months
-}) {
-
-
+function BodyTable({ months, setMonths }) {
     return (
         <tbody>
-            {ROWS_CONFIG.map((row) => {
-                return (
-                    <RowTable
-                        row={row}
-                        months={months}
-                    />
-                );
-            })}
+            {ROWS_CONFIG.map((row) => (
+                <RowTable
+                    key={row.key}
+                    row={row}
+                    months={months}
+                    setMonths={setMonths}
+                />
+            ))}
         </tbody>
-    )
+    );
 }
 
-function RowTable({
-    row,
-    months
-}) {
+function RowTable({ row, months, setMonths }) {
 
-    const [rowIsEditing, setRowIsEditing] = useState(false)
-
-    console.log(months);
+    const [rowIsEditing, setRowIsEditing] = useState(false);
 
     function handleEditing() {
-        setRowIsEditing(!rowIsEditing)
+        setRowIsEditing((prev) => !prev);
     }
 
     return (
         <tr
-            key={row.key}
-            className={`border-b border-slate-100 last:border-b-0 hover:bg-slate-100/60 ${row.className} ${row.separator ? "border-t-4 border-t-slate-200" : ""}`}
+            className={`
+                border-b border-slate-100 last:border-b-0 hover:bg-slate-100/60
+                ${row.className}
+                ${row.separator ? "border-t-4 border-t-slate-200" : ""}
+            `}
         >
-            <td className={`sticky left-0 z-10 px-3 py-3 text-xs font-semibold text-slate-700 ${row.className}`} >
+            <td
+                className={`
+                    sticky left-0 z-10 px-3 py-3 text-xs font-semibold text-slate-700
+                    ${row.className}
+                `}
+            >
                 <div className="flex items-center justify-between gap-2">
                     <div className="flex min-w-0 flex-col leading-tight">
-                        <span className="truncate">
-                            {row.label}
-                        </span>
+                        <span className="truncate">{row.label}</span>
+
                         {row.subtitle && (
                             <span className="mt-0.5 truncate text-[11px] font-normal italic text-slate-500">
                                 {row.subtitle}
                             </span>
                         )}
                     </div>
+
                     {row.isEditable && (
-                        <IconButton icon={rowIsEditing ? Lock : Pencil} onClick={handleEditing} size={"sm"} />
+                        <IconButton
+                            icon={rowIsEditing ? Lock : Pencil}
+                            onClick={handleEditing}
+                            size="sm"
+                        />
                     )}
                 </div>
             </td>
-            {months.map((month) => {
-                return (
-                    <MoneyCell
-                        key={`${month.id ?? month.label}-${row.key}`}
-                        value={month[row.key]}
-                        rowIsEditing={rowIsEditing}
-                    />
-                );
-            })}
+
+            {months.map((month) => (
+                <MoneyCell
+                    key={`${row.key}-${month.month}`}
+                    value={month[row.key]}
+                    rowIsEditing={rowIsEditing}
+                    setMonths={setMonths}
+                    cellType={row.key}
+                    monthNum={month.month}
+                />
+            ))}
         </tr>
-    )
+    );
 }
 
 function MoneyCell({
     value,
-    variant,
     rowIsEditing,
+    setMonths,
+    cellType,
+    monthNum,
 }) {
+    const [valueCell, setValueCell] = useState(value ?? "");
 
-    const [valueCell, setValueCell] = useState(value ?? "")
+    useEffect(() => {
+        setValueCell(value ?? "");
+    }, [value]);
 
     function handleChangeValue(e) {
-        setValueCell(e.target.value)
+        const newValue = e.target.value;
+
+        setValueCell(newValue);
+
+        setMonths((prevMonths) =>
+            recalculateMonthsChain(
+                prevMonths,
+                monthNum,
+                cellType,
+                newValue
+            )
+        );
     }
 
     if (rowIsEditing) {
         return (
             <td className="whitespace-nowrap px-3 py-2 text-right text-xs font-medium">
-                {/* <input
-                    type="text"
-                    inputMode="decimal"
-                    value={valueCell}
-                    placeholder="-"
-                    className={`
-                        h-6 w-full min-w-0 rounded-md border border-slate-200 bg-white px-1.5
-                        text-right text-xs font-medium outline-none transition
-                        placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-200
-                    `}
-                /> */}
-
                 <Input
                     value={valueCell}
                     onChange={handleChangeValue}
@@ -211,39 +257,39 @@ function MoneyCell({
                     `}
                 />
             </td>
-
         );
     }
 
     return (
         <td
-            title={""}
-            className={`whitespace-nowrap px-3 py-3 text-right text-xs`}
+            title=""
+            className="whitespace-nowrap px-3 py-3 text-right text-xs"
         >
-            <span
-                className={`block leading-none font-medium`}
-            >
-                {true ? formatCurrency(valueCell) : "-"}
+            <span className="block leading-none font-medium">
+                {valueCell !== "" && valueCell !== null && valueCell !== undefined
+                    ? formatCurrency(valueCell)
+                    : "-"}
             </span>
         </td>
     );
 }
 
 function MonthLabelButton({ label }) {
-
-
     const buttonRef = useRef(null);
+
     const [isOpen, setIsOpen] = useState(false);
     const [menuPosition, setMenuPosition] = useState(null);
 
     function handleToggleMenu() {
-
         if (!buttonRef.current) return;
+
         const rect = buttonRef.current.getBoundingClientRect();
+
         setMenuPosition({
             top: rect.bottom + 6,
             left: rect.right - 224,
         });
+
         setIsOpen((prev) => !prev);
     }
 
@@ -270,7 +316,7 @@ function MonthLabelButton({ label }) {
                 />
             </button>
 
-            {isOpen && (
+            {isOpen && menuPosition && (
                 <div
                     className="fixed z-50 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-xl"
                     style={{
@@ -365,4 +411,3 @@ function MenuButton({
         </button>
     );
 }
-
