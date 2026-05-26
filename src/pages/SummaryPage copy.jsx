@@ -3,7 +3,6 @@ import { Wallet, TrendingUp, TrendingDown, PiggyBank, Pencil, Lock, ChevronDown 
 import formatCurrency from "../utils/formatCurrency";
 import { useGet } from "../hooks/useGet";
 import { API_ENDPOINTS } from "../api/endpoint";
-import SummaryTable from "../components/SummaryTable/SummaryTable";
 
 const START_SOURCE = {
     API: "api",
@@ -18,11 +17,7 @@ const SURPLUS_DESTINATION = {
     NEXT_MONTH: "nextMonth",
 };
 
-const EDITABLE_ROWS = [
-    "hypothetical_start",
-    "hypothetical_saving",
-    "real_end"
-];
+const EDITABLE_ROWS = ["hypothetical_start", "hypothetical_saving", "real_end"];
 
 const ROWS = [
     {
@@ -257,8 +252,6 @@ export default function YearBalanceSummaryPage({ selectedYear = 2027 }) {
         API_ENDPOINTS.annualSummary({ year: selectedYear }),
         { delayMs: 0 }
     );
-
-
 
     const rowRefs = useRef({});
     const monthMenuRef = useRef(null);
@@ -663,7 +656,168 @@ export default function YearBalanceSummaryPage({ selectedYear = 2027 }) {
                     </div>
 
                     <div className="overflow-x-auto">
-                        <SummaryTable months={data.months} />
+                        <table className="w-full min-w-[980px] table-fixed border-collapse">
+                            <colgroup>
+                                <col className="w-[160px]" />
+
+                                {months.map((month) => (
+                                    <col key={month.id ?? month.label} className="w-[72px]" />
+                                ))}
+                            </colgroup>
+
+                            <thead>
+                                <tr className="border-b border-slate-200 bg-slate-50">
+                                    <th className="sticky left-0 z-10 bg-slate-50 px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                                        Voce
+                                    </th>
+
+                                    {months.map((month, monthIndex) => {
+
+                                        const isOpen =
+                                            monthMenu.open &&
+                                            monthMenu.monthIndex === monthIndex;
+
+                                        return (
+                                            <th
+                                                key={month.id ?? month.label}
+                                                className="px-2 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                                            >
+                                                <button
+                                                    type="button"
+                                                    onClick={(event) => openMonthMenu(event, monthIndex)}
+                                                    className={`
+                                                        ml-auto inline-flex items-center justify-end gap-1 rounded-lg border px-2 py-1
+                                                        text-[11px] font-semibold uppercase tracking-wide transition
+                                                        ${isOpen
+                                                            ? "border-slate-300 bg-white text-slate-900 shadow-sm"
+                                                            : "border-transparent text-slate-500 hover:border-slate-200 hover:bg-white hover:text-slate-900"
+                                                        }
+                                                    `}
+                                                >
+                                                    <span>{month.label}</span>
+
+                                                    <ChevronDown
+                                                        size={12}
+                                                        className={`transition ${isOpen ? "rotate-180" : ""}`}
+                                                    />
+                                                </button>
+                                            </th>
+                                        );
+                                    })}
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {ROWS.map((row) => {
+
+                                    const rowEditable = EDITABLE_ROWS.includes(row.key);
+                                    const rowIsEditing = editableRows[row.key];
+
+                                    return (
+                                        <tr
+                                            key={row.key}
+                                            ref={(element) => {
+                                                if (rowEditable) {
+                                                    rowRefs.current[row.key] = element;
+                                                }
+                                            }}
+                                            className={`
+                                                border-b border-slate-100 last:border-b-0 hover:bg-slate-100/60
+                                                ${row.className}
+                                                ${row.separator ? "border-t-4 border-t-slate-200" : ""}
+                                            `}
+                                        >
+                                            <td
+                                                className={`
+                                                    sticky left-0 z-10 px-3 py-3 text-xs font-semibold text-slate-700
+                                                    ${row.className}
+                                                `}
+                                            >
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <div className="flex min-w-0 flex-col leading-tight">
+                                                        <span className="truncate">{row.label}</span>
+
+                                                        {row.subtitle && (
+                                                            <span className="mt-0.5 truncate text-[11px] font-normal italic text-slate-500">
+                                                                {row.subtitle}
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {rowEditable && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                handleToggleEditableRow(row.key)
+                                                            }
+                                                            className={`
+                                                                inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border transition
+                                                                ${rowIsEditing
+                                                                    ? "border-slate-300 bg-slate-900 text-white hover:bg-slate-800"
+                                                                    : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                                                                }
+                                                            `}
+                                                        >
+                                                            {rowIsEditing ? (
+                                                                <Lock size={13} />
+                                                            ) : (
+                                                                <Pencil size={13} />
+                                                            )}
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
+
+                                            {months.map((month, monthIndex) => {
+                                                const isCurrentInput =
+                                                    activeInputCell?.rowKey === row.key &&
+                                                    activeInputCell?.monthIndex === monthIndex;
+
+                                                const value =
+                                                    rowEditable && rowIsEditing && isCurrentInput
+                                                        ? monthsData[monthIndex]?.[row.key]
+                                                        : month[row.key];
+
+                                                return (
+                                                    <MoneyCell
+                                                        key={`${month.id ?? month.label}-${row.key}`}
+                                                        value={value}
+                                                        variant={getCellVariant(row, month, monthIndex)}
+                                                        editable={rowEditable && rowIsEditing}
+                                                        onFocus={() =>
+                                                            setActiveInputCell({
+                                                                rowKey: row.key,
+                                                                monthIndex,
+                                                            })
+                                                        }
+                                                        onChange={(newValue) =>
+                                                            handleInputChange(
+                                                                monthIndex,
+                                                                row.key,
+                                                                newValue
+                                                            )
+                                                        }
+                                                        onKeyDown={(event) =>
+                                                            handleInputKeyDown(event, row.key)
+                                                        }
+                                                        walletIncluded={
+                                                            row.key === "surplus" &&
+                                                            month.surplusDestination ===
+                                                            SURPLUS_DESTINATION.WALLET
+                                                        }
+                                                        nextMonthIncluded={
+                                                            row.key === "surplus" &&
+                                                            month.surplusDestination ===
+                                                            SURPLUS_DESTINATION.NEXT_MONTH
+                                                        }
+                                                    />
+                                                );
+                                            })}
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
                     </div>
                 </section>
             </div>
