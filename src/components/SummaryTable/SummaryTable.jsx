@@ -5,6 +5,7 @@ import { IconButton, Input } from "../../ui";
 import toNumber from "../../utils/toNumber";
 import { API_ENDPOINTS } from "../../api/endpoint";
 import { usePost } from "../../hooks/usePost"
+import { toast } from "react-toastify";
 
 const ROWS_CONFIG = [
     {
@@ -154,50 +155,26 @@ function RowTable({ row, months, setMonths, selectedYear }) {
     const [rowIsEditing, setRowIsEditing] = useState(false);
     const { postData, loading } = usePost();
 
-    async function saveHypotheticalStart() {
-        const payload = { months };
-        try {
-            await postData(API_ENDPOINTS.monthlySummaries() + "/" + selectedYear + "/", payload);
-
-            return true;
-        } catch (error) {
-            console.error("Errore salvataggio inizio mese ipotetico:", error);
-            return false;
-        }
-    }
-
-    async function saveHypotheticalSaving() {
-
-    }
-
-    async function saveRealEnd() {
-
-
-    }
-
     async function handleEditing() {
         if (!rowIsEditing) {
             setRowIsEditing(true);
             return;
         }
 
-        const saveActions = {
-            hypothetical_start: saveHypotheticalStart,
-            hypothetical_saving: saveHypotheticalSaving,
-            real_end: saveRealEnd,
-        };
+        const payload = { months };
 
-        const saveAction = saveActions[row.key];
-
-        if (!saveAction) {
-            console.warn(`Nessuna funzione di salvataggio per: ${row.key}`);
-            return;
-        }
-
-        const saved = await saveAction();
-
-        if (saved) {
+        try {
+            await postData(
+                API_ENDPOINTS.monthlySummaries() + "/" + selectedYear + "/",
+                payload
+            );
+            toast.success("Riepilogo mensile salvato");
             setRowIsEditing(false);
+            return true;
+        } catch (error) {
+            console.error("Errore salvataggio riepilogo mensile:", error);
+            toast.error("Errore durante il salvataggio");
+            return false;
         }
     }
 
