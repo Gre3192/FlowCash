@@ -98,6 +98,28 @@ function recalculateMonthsChain(months, changedMonthNum, cellType, newValue) {
     return updatedMonths;
 }
 
+function getInitialValueTextColor(row, month, months, previous_year_december) {
+    
+    const defaultColor = TEXT_VARIANTS[row.variant] ?? TEXT_VARIANTS.default;
+
+    if (row.key !== "hypothetical_start") return defaultColor;
+
+    const monthNumber = Number(month.month);
+    const previous = monthNumber === 1
+        ? previous_year_december
+        : months.find((item) => Number(item.month) === monthNumber - 1);
+
+    if (!previous) return defaultColor;
+
+    const value = toNumber(month[row.key]);
+
+    return value === toNumber(previous.hypothetical_end)
+        ? TEXT_VARIANTS.default
+        : value === toNumber(previous.real_end)
+            ? TEXT_VARIANTS.real
+            : TEXT_VARIANTS.custom;
+}
+
 export default function SummaryTable({
     data,
     selectedYear,
@@ -224,19 +246,16 @@ function RowTable({ row, months, setMonths, selectedYear, previous_year_december
             </td>
 
             {months.map((month) => {
-                console.log(month);
+
                 const value = month[row.key]
 
-                let textColor = ''
-                if (month.month === 1 && row.key === "hypothetical_start") {
 
-                    textColor = month[row.key] === previous_year_december.hypothetical_end ? TEXT_VARIANTS.default :
-                        month[row.key] === previous_year_december.real_end ? TEXT_VARIANTS.real : TEXT_VARIANTS.custom
-
-                } else {
-
-
-                }
+                const textColor = getInitialValueTextColor(
+                    row,
+                    month,
+                    months,
+                    previous_year_december
+                );
 
                 return (
                     <MoneyCell
