@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Save, PlusCircle, MinusCircle, CalendarRange, Eraser, LoaderCircle } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import formatCurrency from "../utils/formatCurrency";
-import BulkUpdatePanel from "../components/BulkUpdatePanel";
-import TransactionTypeBadge from "../components/TransactionTypeBadge";
-import ModalWrapper from "../components/ModalWrapper";
+import BulkUpdatePanel from "../components/BulkUpdatePanel/BulkUpdatePanel";
+import KindBadge from "../components/Badges/KindBadge/KindBadge";
+import ModalWrapper from "../components/ModalWrapper/ModalWrapper";
 import { useGet } from "../hooks/useGet";
 import { API_ENDPOINTS } from "../api/endpoint";
 import { usePost } from "../hooks/usePost";
@@ -419,7 +419,7 @@ function BudgetHeader({
                                     <span className="text-xs text-slate-300">
                                         •
                                     </span>
-                                    <TransactionTypeBadge type={type} />
+                                    <KindBadge type={type} />
                                 </>
                             )}
                         </div>

@@ -2,7 +2,7 @@ import buildEndpoint from "../utils/buildEndpoint";
 import getBaseUrl from "../utils/getBaseUrl"
 
 
-const base_url = getBaseUrl('local')  // mock, local, server
+const base_url = getBaseUrl('local')  // mock, local, server, localExpose
 
 
 export const API_ENDPOINTS = {
@@ -16,11 +16,13 @@ export const API_ENDPOINTS = {
 
   monthlyOverview: buildEndpoint(base_url, `/api/flowcash/monthly-overview/`),
 
-  categories: buildEndpoint(base_url, `/api/categories/`),
+  categories: buildEndpoint(base_url, `/api/categories/`, true),
 
   transactions: buildEndpoint(base_url, `/api/transactions/`),
 
-
+  annualSummary: buildEndpoint(base_url, `/api/flowcash/annual-summary`),
+  
+  monthlySummaries: buildEndpoint(base_url, `/api/flowcash/monthly-summaries`),
 };
 
 

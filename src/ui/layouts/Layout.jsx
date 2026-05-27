@@ -1,16 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import {
-    LayoutDashboard,
-    ArrowLeftRight,
-    Wallet,
-    Settings,
-    TrendingUp,
-    ChevronLeft,
-    MousePointer2,
-    Menu,
-    X
-} from 'lucide-react';
+import { LayoutDashboard, ArrowLeftRight, Wallet, Settings, TrendingUp, ChevronLeft, MousePointer2, Menu, X } from 'lucide-react';
+import { ROUTE_PAGE } from "../../routes/routePage"
 
 export default function Layout() {
 
@@ -86,17 +77,17 @@ export default function Layout() {
                 <nav className="flex-1 px-3 mt-4 space-y-2 overflow-y-auto overflow-x-hidden">
                     <NavItem
                         icon={<Wallet size={22} />}
-                        label="Categorie e Transazioni"
-                        to="/"
-                        active={location.pathname === '/'}
+                        label="Riepilogo"
+                        to={ROUTE_PAGE.summaryPage}
+                        active={location.pathname === ROUTE_PAGE.summaryPage}
                         isExpanded={isExpanded}
                         isMobileOpen={isMobileOpen}
                     />
                     <NavItem
                         icon={<Wallet size={22} />}
-                        label="Budget"
-                        to="/budgetPage"
-                        active={location.pathname === '/budgetPage'}
+                        label="Transazioni"
+                        to={ROUTE_PAGE.categoriesTransactionsPage}
+                        active={location.pathname === ROUTE_PAGE.categoriesTransactionsPage}
                         isExpanded={isExpanded}
                         isMobileOpen={isMobileOpen}
                     />

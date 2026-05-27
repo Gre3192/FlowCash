@@ -2,14 +2,11 @@ export const UI_VARIANTS = {
 
     button: {
         primary: "bg-slate-900 text-white hover:bg-slate-800",
-        secondary:
-            "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
+        secondary: "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
         ghost: "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
         danger: "bg-red-600 text-white hover:bg-red-700",
-        softDanger:
-            "border border-red-200 bg-red-50 text-red-700 hover:bg-red-100",
-        income:
-            "border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100",
+        softDanger: "border border-red-200 bg-red-50 text-red-700 hover:bg-red-100",
+        income: "border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100",
     },
 
     buttonSize: {
@@ -19,11 +16,9 @@ export const UI_VARIANTS = {
     },
 
     iconButton: {
-        default:
-            "border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-900",
+        default: "border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-900",
         ghost: "text-slate-500 hover:bg-slate-100 hover:text-slate-900",
-        danger:
-            "border border-slate-200 bg-white text-slate-400 hover:bg-red-50 hover:text-red-600",
+        danger: "border border-slate-200 bg-white text-slate-400 hover:bg-red-50 hover:text-red-600",
     },
 
     iconButtonSize: {
@@ -42,10 +37,8 @@ export const UI_VARIANTS = {
     },
 
     input: {
-        default:
-            "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:ring-slate-200",
-        error:
-            "border-red-300 bg-white text-slate-900 placeholder:text-slate-400 focus:border-red-400 focus:ring-red-100",
+        default: "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:ring-slate-200",
+        error: "border-red-300 bg-white text-slate-900 placeholder:text-slate-400 focus:border-red-400 focus:ring-red-100",
     },
 
     pill: {
@@ -57,10 +50,8 @@ export const UI_VARIANTS = {
     },
 
     card: {
-        default:
-            "border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]",
-        hover:
-            "hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50 hover:shadow-[0_8px_24px_rgba(15,23,42,0.10)] active:translate-y-0 active:shadow-[0_2px_8px_rgba(15,23,42,0.08)]",
+        default: "border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]",
+        hover: "hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50 hover:shadow-[0_8px_24px_rgba(15,23,42,0.10)] active:translate-y-0 active:shadow-[0_2px_8px_rgba(15,23,42,0.08)]",
         selected: "border-slate-900 ring-1 ring-slate-900",
         danger: "border-red-200 bg-red-50",
     },
@@ -106,10 +97,8 @@ export const UI_VARIANTS = {
     },
 
     select: {
-        default:
-            "border-slate-200 bg-white text-slate-900 focus:border-slate-400 focus:ring-slate-200",
-        error:
-            "border-red-300 bg-white text-slate-900 focus:border-red-400 focus:ring-red-100",
+        default: "border-slate-200 bg-white text-slate-900 focus:border-slate-400 focus:ring-slate-200",
+        error: "border-red-300 bg-white text-slate-900 focus:border-red-400 focus:ring-red-100",
     },
 
     modalAnimation: {
@@ -159,26 +148,22 @@ export const UI_VARIANTS = {
     toggleButton: {
         default: {
             active: "border-slate-900 bg-slate-900 text-white",
-            inactive:
-                "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900",
+            inactive: "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900",
         },
 
         income: {
             active: "border-emerald-600 bg-emerald-600 text-white",
-            inactive:
-                "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100",
+            inactive: "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100",
         },
 
         expense: {
             active: "border-red-600 bg-red-600 text-white",
-            inactive:
-                "border-red-200 bg-red-50 text-red-700 hover:bg-red-100",
+            inactive: "border-red-200 bg-red-50 text-red-700 hover:bg-red-100",
         },
 
         soft: {
             active: "border-slate-300 bg-slate-100 text-slate-900",
-            inactive:
-                "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800",
+            inactive: "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800",
         },
     },
 

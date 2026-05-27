@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import MonthDaysCarousel from "../MonthDayCarousel";
+import MonthDaysCarousel from "../MonthDayCarousel/MonthDayCarousel";
 import formatCurrency from "../../utils/formatCurrency";
 import getMonthByNum from "../../utils/getMonthByNum";
-import MonthNavigator from "../MonthNavigator";
+import MonthNavigator from "../MonthNavigator/MonthNavigator";
 import { Button, Textarea, Input, IconButton } from "../../ui";
 import { API_ENDPOINTS } from "../../api/endpoint";
 import { useGet } from "../../hooks/useGet";
@@ -29,7 +29,7 @@ export default function TransactionMovementsModal({
     const [localSelectedDay, setLocalSelectedDay] = useState(selectedDay || new Date().getDate());
 
     const { data, loading, error, reload, } = useGet(API_ENDPOINTS.transactionMovements({
-        transaction_id: transaction.id,
+        transaction_id: transaction?.id,
         year: localSelectedYear,
         month: localSelectedMonth,
     })
@@ -133,28 +133,42 @@ export default function TransactionMovementsModal({
 
     async function handleSubmit(e) {
         e.preventDefault();
-        const amount = Number(formData.amount);
-        if (!formData.name.trim()) return;
-        if (Number.isNaN(amount) || amount <= 0) return;
-        if (!transaction?.id) return;
-        const movementDate = `${localSelectedYear}-${String(
-            localSelectedMonth
-        ).padStart(2, "0")}-${String(localSelectedDay).padStart(2, "0")}`;
-        const payload = {
-            transaction_id: transaction.id,
-            name: formData.name.trim(),
-            amount,
-            movement_date: movementDate,
-            note: formData.note.trim(),
-        };
-        const createdMovement = await postData(API_ENDPOINTS.transactionMovements(), payload);
-        reload?.();
-        reloadMonthlyOverview?.();
-        setFormData({
-            name: "",
-            amount: "",
-            note: "",
-        });
+
+        try {
+
+            const amount = Number(formData.amount);
+            if (!formData.name.trim()) return;
+            if (Number.isNaN(amount) || amount <= 0) return;
+            if (!transaction?.id) return;
+
+            const movementDate = `${localSelectedYear}-${String(localSelectedMonth).padStart(2, "0")}-${String(localSelectedDay).padStart(2, "0")}`;
+
+            const payload = {
+                transaction_id: transaction?.id,
+                name: formData.name.trim(),
+                amount,
+                movement_date: movementDate,
+                note: formData.note.trim(),
+            };
+
+            console.log(payload);
+
+
+            await postData(API_ENDPOINTS.transactionMovements(), payload);
+
+            reload?.();
+            reloadMonthlyOverview?.();
+
+            setFormData({
+                name: "",
+                amount: "",
+                note: "",
+            });
+        } catch (error) {
+            if (error.name !== "AbortError") {
+                console.error("Errore durante la creazione del movimento:", error);
+            }
+        }
     }
 
     async function handleDeleteMovement(movement) {
@@ -179,6 +193,7 @@ export default function TransactionMovementsModal({
             return sum + Number(movement.amount || 0);
         }, 0);
     }, [filteredMovements]);
+
 
 
     return (
@@ -300,22 +315,9 @@ export default function TransactionMovementsModal({
                                 </p>
                             )}
                         </div>
-
-                        <div className="flex shrink-0 items-center gap-2">
-                            <Button
-                                type="button"
-                                variant="secondary"
-                                size="sm"
-                                onClick={handleTodayClick}
-                                className="h-7 rounded-md px-2 text-[11px]"
-                            >
-                                Oggi
-                            </Button>
-
-                            <p className="text-sm font-semibold text-slate-900">
-                                {formatCurrency(total)}
-                            </p>
-                        </div>
+                        <p className="text-sm font-semibold text-slate-900">
+                            {formatCurrency(total)}
+                        </p>
                     </div>
 
                     <div className="min-h-0 flex-1 overflow-hidden p-3">

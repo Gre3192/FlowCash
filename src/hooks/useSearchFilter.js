@@ -9,10 +9,7 @@ export function useSearchFilter(items = [], searchValue = "", searchKeys = ["nam
         return items.filter((item) => {
             return searchKeys.some((key) => {
                 const value = item?.[key];
-
-                return String(value ?? "")
-                    .toLowerCase()
-                    .includes(query);
+                return String(value ?? "").toLowerCase().includes(query);
             });
         });
     }, [items, searchValue, searchKeys]);

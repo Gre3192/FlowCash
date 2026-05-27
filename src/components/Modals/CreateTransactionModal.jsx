@@ -1,24 +1,30 @@
 import { useState } from "react";
-import {
-    FolderPlus,
-    LoaderCircle,
-    ArrowDownLeft,
-    ArrowUpRight,
-} from "lucide-react";
+import { FolderPlus, LoaderCircle, ArrowDownLeft, ArrowUpRight, } from "lucide-react";
 import { usePost } from "../../hooks/usePost";
+import { usePut } from "../../hooks/usePut";
 import { API_ENDPOINTS } from "../../api/endpoint";
 
 export default function CreateTransactionModal({
     onClose,
     reload,
     selectedCategoryId,
+    formValueForEdit
 }) {
-    const { postData, loading, error } = usePost();
+    const { postData, loading: postLoading, error: postError } = usePost();
+    const { putData, loading: putLoading, error: putError } = usePut();
+
+    console.log(selectedCategoryId);
+
+    console.log(formValueForEdit?.id);
+
+
+    const loading = postLoading || putLoading
+    const error = postError || putError
 
     const [formData, setFormData] = useState({
-        name: "",
-        type: "Expense",
-        note: "",
+        name: formValueForEdit?.name || "",
+        type: formValueForEdit?.type || "Expense",
+        note: formValueForEdit?.note || "",
     });
 
     const [errors, setErrors] = useState({});
@@ -74,16 +80,25 @@ export default function CreateTransactionModal({
 
         if (!validateForm()) return;
 
-        const payload = {
-            transaction_name: formData.name.trim(),
-            type: formData.type,
-            note: formData.note.trim(),
-            category_id: selectedCategoryId,
-        };
-
         try {
-            await postData(API_ENDPOINTS.monthlyOverview(), payload);
-
+            if (formValueForEdit) {
+                const payload = {
+                    name: formData.name.trim(),
+                    type: formData.type,
+                    note: formData.note.trim(),
+                    category: selectedCategoryId,
+                }
+                await putData(API_ENDPOINTS.transactions() + formValueForEdit?.id + "/", payload);
+            }
+            else {
+                const payload = {
+                    transaction_name: formData.name.trim(),
+                    type: formData.type,
+                    note: formData.note.trim(),
+                    category_id: selectedCategoryId,
+                };
+                await postData(API_ENDPOINTS.monthlyOverview(), payload);
+            }
             onClose?.();
             reload?.();
         } catch (err) {
@@ -94,7 +109,7 @@ export default function CreateTransactionModal({
     const isIncome = formData.type === "Income";
     const isExpense = formData.type === "Expense";
 
-    
+
     return (
         <form onSubmit={handleSubmit} className="space-y-5">
             <div className="flex items-start gap-3 rounded-xl bg-slate-50 p-4">
@@ -104,12 +119,11 @@ export default function CreateTransactionModal({
 
                 <div>
                     <h3 className="text-sm font-semibold text-slate-900">
-                        Nuova transazione
+                        {formValueForEdit ? "Modifica transazione" : "Nuova transazione"}
                     </h3>
 
                     <p className="mt-1 text-sm text-slate-500">
-                        Crea una nuova entrata o uscita per la categoria
-                        selezionata.
+                        {formValueForEdit ? "Modifica la transazione per la categoria selezionata." : "Crea una nuova entrata o uscita per la categoria selezionata."}
                     </p>
                 </div>
             </div>
@@ -125,10 +139,9 @@ export default function CreateTransactionModal({
                         onClick={() => handleTypeChange("Income")}
                         className={`
                             inline-flex h-8 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition
-                            ${
-                                isIncome
-                                    ? "border-emerald-600 bg-emerald-600 text-white"
-                                    : "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                            ${isIncome
+                                ? "border-emerald-600 bg-emerald-600 text-white"
+                                : "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                             }
                         `}
                     >
@@ -141,10 +154,9 @@ export default function CreateTransactionModal({
                         onClick={() => handleTypeChange("Expense")}
                         className={`
                             inline-flex h-8 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition
-                            ${
-                                isExpense
-                                    ? "border-red-600 bg-red-600 text-white"
-                                    : "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
+                            ${isExpense
+                                ? "border-red-600 bg-red-600 text-white"
+                                : "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
                             }
                         `}
                     >
@@ -173,10 +185,9 @@ export default function CreateTransactionModal({
                     placeholder="Es. Netflix"
                     className={`
                         w-full rounded-xl border px-3 py-2.5 text-sm outline-none transition
-                        ${
-                            errors.name
-                                ? "border-red-400 bg-red-50"
-                                : "border-slate-300 bg-white focus:border-slate-900"
+                        ${errors.name
+                            ? "border-red-400 bg-red-50"
+                            : "border-slate-300 bg-white focus:border-slate-900"
                         }
                     `}
                 />
@@ -233,7 +244,7 @@ export default function CreateTransactionModal({
                     {loading ? (
                         <LoaderCircle size={16} className="animate-spin" />
                     ) : (
-                        "Crea transazione"
+                        formValueForEdit ? "Modifica" : "Crea"
                     )}
                 </button>
             </div>
