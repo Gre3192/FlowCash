@@ -18,8 +18,6 @@ export default function SummaryPage() {
 
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
-
-
     const { data, loading, error } = useGet(
         API_ENDPOINTS.annualSummary({ year: selectedYear }),
         { delayMs: 0 }

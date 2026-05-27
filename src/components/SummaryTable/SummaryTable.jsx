@@ -224,6 +224,9 @@ function RowTable({ row, months, setMonths, selectedYear, previous_year_december
             {months.map((month) => {
 
 
+            
+                console.log(month);
+                
                 const value = month[row.key]
 
                 return (
