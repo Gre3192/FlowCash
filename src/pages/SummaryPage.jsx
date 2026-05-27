@@ -14,15 +14,14 @@ import toNumber from "../utils/toNumber";
 import SummaryTable from "../components/SummaryTable/SummaryTable";
 import { IconButton } from "../ui";
 
-export default function YearBalanceSummaryPage({ selectedYear = 2029 }) {
-    const [currentYear, setCurrentYear] = useState(selectedYear);
+export default function SummaryPage() {
 
-    useEffect(() => {
-        setCurrentYear(selectedYear);
-    }, [selectedYear]);
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+
+
 
     const { data, loading, error } = useGet(
-        API_ENDPOINTS.annualSummary({ year: currentYear }),
+        API_ENDPOINTS.annualSummary({ year: selectedYear }),
         { delayMs: 0 }
     );
 
@@ -57,11 +56,11 @@ export default function YearBalanceSummaryPage({ selectedYear = 2029 }) {
     }, [data]);
 
     function handlePreviousYear() {
-        setCurrentYear((prev) => prev - 1);
+        setSelectedYear((prev) => prev - 1);
     }
 
     function handleNextYear() {
-        setCurrentYear((prev) => prev + 1);
+        setSelectedYear((prev) => prev + 1);
     }
 
     return (
@@ -87,7 +86,7 @@ export default function YearBalanceSummaryPage({ selectedYear = 2029 }) {
                         />
 
                         <div className="min-w-20 px-3 text-center text-sm font-semibold text-slate-800">
-                            {currentYear}
+                            {selectedYear}
                         </div>
 
                         <IconButton
@@ -101,27 +100,27 @@ export default function YearBalanceSummaryPage({ selectedYear = 2029 }) {
 
                 <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                     <SummaryCard
-                        title={`Portafoglio risparmio ${currentYear}`}
+                        title={`Portafoglio risparmio ${selectedYear}`}
                         value={totals.wallet}
                         icon={Wallet}
                     />
 
                     <SummaryCard
-                        title={`Entrate ${currentYear}`}
+                        title={`Entrate ${selectedYear}`}
                         value={totals.income}
                         icon={TrendingUp}
                         variant="income"
                     />
 
                     <SummaryCard
-                        title={`Uscite ${currentYear}`}
+                        title={`Uscite ${selectedYear}`}
                         value={totals.expense}
                         icon={TrendingDown}
                         variant="expense"
                     />
 
                     <SummaryCard
-                        title={`Risparmio ${currentYear}`}
+                        title={`Risparmio ${selectedYear}`}
                         value={totals.saving}
                         icon={PiggyBank}
                         variant="saving"
@@ -132,7 +131,7 @@ export default function YearBalanceSummaryPage({ selectedYear = 2029 }) {
                     <div className="flex flex-col gap-3 border-b border-slate-200 p-5 md:flex-row md:items-center md:justify-between">
                         <div>
                             <h2 className="text-base font-semibold text-slate-900">
-                                Andamento {data?.year ?? currentYear}
+                                Andamento {data?.year ?? selectedYear}
                             </h2>
 
                             <p className="text-sm text-slate-500">
@@ -171,7 +170,7 @@ export default function YearBalanceSummaryPage({ selectedYear = 2029 }) {
                         <div className="overflow-x-auto">
                             <SummaryTable
                                 data={data}
-                                selectedYear={currentYear}
+                                selectedYear={selectedYear}
                                 previous_year_december={
                                     data?.previous_year_december
                                 }
