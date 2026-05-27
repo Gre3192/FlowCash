@@ -57,6 +57,19 @@ const ROWS_CONFIG = [
     },
 ];
 
+const TEXT_VARIANTS = {
+    default: "text-slate-700",
+    income: "text-emerald-700",
+    expense: "text-red-700",
+    saving: "text-sky-700",
+    total: "text-slate-900",
+    real: "text-indigo-700",
+    custom: "text-amber-700",
+    surplusPositive: "text-emerald-700",
+    surplusNegative: "text-red-700",
+    muted: "text-slate-400",
+};
+
 function recalculateMonthsChain(months, changedMonthNum, cellType, newValue) {
     const updatedMonths = months.map((month) => ({ ...month }));
     const changedIndex = updatedMonths.findIndex((month) => Number(month.month) === Number(changedMonthNum));
@@ -262,9 +275,7 @@ function MoneyCell({
             className="whitespace-nowrap px-3 py-3 text-right text-xs"
         >
             <span className="block leading-none font-medium">
-                {valueCell !== "" && valueCell !== null && valueCell !== undefined
-                    ? formatCurrency(valueCell)
-                    : "-"}
+                {formatCurrency(toNumber(valueCell), true)}
             </span>
         </td>
     );
