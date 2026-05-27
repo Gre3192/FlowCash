@@ -15,6 +15,9 @@ export default function YearBalanceSummaryPage({ selectedYear = 2029 }) {
         { delayMs: 0 }
     );
 
+    console.log(data);
+    
+
     const totals = useMemo(() => {
         const months = data?.months ?? []
         const income = months.reduce((sum, month) => sum + (toNumber(month.income_total) ?? 0), 0);

@@ -31,7 +31,7 @@ const ROWS_CONFIG = [
         key: "hypothetical_saving",
         label: "Risparmio ipotetico",
         variant: "saving",
-        className: "bg-sky-50/60",
+        className: "bg-sky-50/60 text-sky-700",
         isEditable: true,
     },
     {
@@ -91,8 +91,6 @@ export default function SummaryTable({
 }) {
 
     const [months, setMonths] = useState(monthsData ?? []);
-
-
 
     useEffect(() => {
         setMonths(monthsData ?? []);
