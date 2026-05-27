@@ -2,7 +2,7 @@ import buildEndpoint from "../utils/buildEndpoint";
 import getBaseUrl from "../utils/getBaseUrl"
 
 
-const base_url = getBaseUrl('local')  // mock, local, server
+const base_url = getBaseUrl('local')  // mock, local, server, localExpose
 
 
 export const API_ENDPOINTS = {

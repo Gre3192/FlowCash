@@ -3,6 +3,7 @@ export default function getBaseUrl(envName) {
   const envMap = {
     mock: import.meta.env.VITE_BASE_URL_MOCKOON,
     local: import.meta.env.VITE_BASE_URL_LOCAL,
+    localexpose: import.meta.env.VITE_BASE_URL_LOCAL_EXPOSE,
     server: import.meta.env.VITE_BASE_URL_SERVER,
   };
 

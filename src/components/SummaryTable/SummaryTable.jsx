@@ -172,6 +172,8 @@ function BodyTable({ months, setMonths, selectedYear, previous_year_december }) 
 
 function RowTable({ row, months, setMonths, selectedYear, previous_year_december }) {
 
+    console.log(previous_year_december);
+
     const [rowIsEditing, setRowIsEditing] = useState(false);
     const { postData, loading } = usePost();
 
@@ -222,12 +224,19 @@ function RowTable({ row, months, setMonths, selectedYear, previous_year_december
             </td>
 
             {months.map((month) => {
-
-
-            
                 console.log(month);
-                
                 const value = month[row.key]
+
+                let textColor = ''
+                if (month.month === 1 && row.key === "hypothetical_start") {
+
+                    textColor = month[row.key] === previous_year_december.hypothetical_end ? TEXT_VARIANTS.default :
+                        month[row.key] === previous_year_december.real_end ? TEXT_VARIANTS.real : TEXT_VARIANTS.custom
+
+                } else {
+
+
+                }
 
                 return (
                     <MoneyCell
@@ -237,6 +246,7 @@ function RowTable({ row, months, setMonths, selectedYear, previous_year_december
                         setMonths={setMonths}
                         cellType={row.key}
                         monthNum={month.month}
+                        textColor={textColor}
                     />
                 )
             }
@@ -251,6 +261,7 @@ function MoneyCell({
     setMonths,
     cellType,
     monthNum,
+    textColor
 }) {
     const [valueCell, setValueCell] = useState(value ?? "");
 
@@ -282,6 +293,7 @@ function MoneyCell({
                         h-6 w-full min-w-0 rounded-md border border-slate-200 bg-white px-1.5
                         text-right text-xs font-medium outline-none transition
                         placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-200
+                        ${textColor}
                     `}
                 />
             </td>
@@ -291,7 +303,7 @@ function MoneyCell({
     return (
         <td
             title=""
-            className="whitespace-nowrap px-3 py-3 text-right text-xs"
+            className={`whitespace-nowrap px-3 py-3 text-right text-xs ${textColor}`}
         >
             <span className="block leading-none font-medium">
                 {formatCurrency(toNumber(valueCell), true)}
