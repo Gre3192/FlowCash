@@ -99,15 +99,18 @@ function recalculateMonthsChain(months, changedMonthNum, cellType, newValue) {
 }
 
 export default function SummaryTable({
-    monthsData,
-    selectedYear
+    data,
+    selectedYear,
 }) {
 
-    const [months, setMonths] = useState(monthsData ?? []);
+    const [months, setMonths] = useState(data?.months ?? []);
+
+    const previous_year_december = data?.previous_year_december ?? null
 
     useEffect(() => {
-        setMonths(monthsData ?? []);
-    }, [monthsData]);
+        setMonths(data?.months ?? []);
+    }, [data]);
+
 
     return (
         <table className="w-full min-w-[980px] table-fixed border-collapse">
@@ -119,7 +122,12 @@ export default function SummaryTable({
             </colgroup>
 
             <HeadTable months={months} />
-            <BodyTable months={months} setMonths={setMonths} selectedYear={selectedYear} />
+            <BodyTable
+                months={months}
+                setMonths={setMonths}
+                selectedYear={selectedYear}
+                previous_year_december={previous_year_december}
+            />
         </table>
     );
 }
@@ -145,7 +153,7 @@ function HeadTable({ months }) {
     );
 }
 
-function BodyTable({ months, setMonths, selectedYear }) {
+function BodyTable({ months, setMonths, selectedYear, previous_year_december }) {
     return (
         <tbody>
             {ROWS_CONFIG.map((row) => (
@@ -155,13 +163,14 @@ function BodyTable({ months, setMonths, selectedYear }) {
                     months={months}
                     setMonths={setMonths}
                     selectedYear={selectedYear}
+                    previous_year_december={previous_year_december}
                 />
             ))}
         </tbody>
     );
 }
 
-function RowTable({ row, months, setMonths, selectedYear }) {
+function RowTable({ row, months, setMonths, selectedYear, previous_year_december }) {
 
     const [rowIsEditing, setRowIsEditing] = useState(false);
     const { postData, loading } = usePost();
@@ -212,16 +221,23 @@ function RowTable({ row, months, setMonths, selectedYear }) {
                 </div>
             </td>
 
-            {months.map((month) => (
-                <MoneyCell
-                    key={`${row.key}-${month.month}`}
-                    value={month[row.key]}
-                    rowIsEditing={rowIsEditing}
-                    setMonths={setMonths}
-                    cellType={row.key}
-                    monthNum={month.month}
-                />
-            ))}
+            {months.map((month) => {
+
+
+                const value = month[row.key]
+
+                return (
+                    <MoneyCell
+                        key={`${row.key}-${month.month}`}
+                        value={value}
+                        rowIsEditing={rowIsEditing}
+                        setMonths={setMonths}
+                        cellType={row.key}
+                        monthNum={month.month}
+                    />
+                )
+            }
+            )}
         </tr>
     );
 }
