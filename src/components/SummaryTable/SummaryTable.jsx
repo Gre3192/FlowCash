@@ -99,7 +99,7 @@ function recalculateMonthsChain(months, changedMonthNum, cellType, newValue) {
 }
 
 function getInitialValueTextColor(row, month, months, previous_year_december) {
-    
+
     const defaultColor = TEXT_VARIANTS[row.variant] ?? TEXT_VARIANTS.default;
 
     if (row.key !== "hypothetical_start") return defaultColor;
@@ -194,8 +194,6 @@ function BodyTable({ months, setMonths, selectedYear, previous_year_december }) 
 
 function RowTable({ row, months, setMonths, selectedYear, previous_year_december }) {
 
-    console.log(previous_year_december);
-
     const [rowIsEditing, setRowIsEditing] = useState(false);
     const { postData, loading } = usePost();
 
@@ -247,9 +245,6 @@ function RowTable({ row, months, setMonths, selectedYear, previous_year_december
 
             {months.map((month) => {
 
-                const value = month[row.key]
-
-
                 const textColor = getInitialValueTextColor(
                     row,
                     month,
@@ -260,7 +255,7 @@ function RowTable({ row, months, setMonths, selectedYear, previous_year_december
                 return (
                     <MoneyCell
                         key={`${row.key}-${month.month}`}
-                        value={value}
+                        value={month[row.key]}
                         rowIsEditing={rowIsEditing}
                         setMonths={setMonths}
                         cellType={row.key}
