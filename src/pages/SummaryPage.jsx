@@ -15,9 +15,6 @@ export default function YearBalanceSummaryPage({ selectedYear = 2029 }) {
         { delayMs: 0 }
     );
 
-    console.log(data);
-    
-
     const totals = useMemo(() => {
         const months = data?.months ?? []
         const income = months.reduce((sum, month) => sum + (toNumber(month.income_total) ?? 0), 0);
@@ -40,27 +37,27 @@ export default function YearBalanceSummaryPage({ selectedYear = 2029 }) {
             <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
                 <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                     <SummaryCard
-                        title="Portafoglio risparmio"
+                        title={`Portafoglio risparmio`}
                         value={totals.wallet}
                         icon={Wallet}
                     />
 
                     <SummaryCard
-                        title="Entrate annuali"
+                        title={`Entrate ${selectedYear}`}
                         value={totals.income}
                         icon={TrendingUp}
                         variant="income"
                     />
 
                     <SummaryCard
-                        title="Uscite annuali"
+                        title={`Uscite ${selectedYear}`}
                         value={totals.expense}
                         icon={TrendingDown}
                         variant="expense"
                     />
 
                     <SummaryCard
-                        title="Risparmio ipotetico"
+                        title={`Risparmio ${selectedYear}`}
                         value={totals.saving}
                         icon={PiggyBank}
                         variant="saving"
